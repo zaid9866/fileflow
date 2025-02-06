@@ -1,13 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Flow</title>
+    <title>FileFlow</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body>
-    <script src="../js/utils.js"></script>
+
+<body class="m-0 p-0 overflow-hidden relative">
+    <div class="absolute inset-0 w-full h-screen">
+        <img src="../Images/bg1.jpg" class="w-full h-full object-cover" alt="Background Image">
+    </div>
+
+    <nav class="absolute top-0 left-0 w-full flex justify-between md:justify-aroundr p-5 items-center text-white">
+        <div class="flex items-center justify-center">
+            <img src="../Images/logo.png" alt="logo" class="w-16 lg:w-20">
+            <img src="../Images/text.png" alt="text" class="w-20 lg:w-24">
+        </div>
+        <div
+            class="hidden w=[30%] p-5 md:pl-0 md:flex md:w-[80%] justify-around items-start md:items-center text-lg md:text-xl lg:text-2xl">
+            <a href="index.html" class="hover:text-gray-300">Home</a>
+            <a href="#" class="hover:text-gray-300">How it works</a>
+            <a href="#" class="hover:text-gray-300">Features</a>
+            <a href="#" class="hover:text-gray-300">About Us</a>
+            <a href="#" class="hover:text-gray-300">Contact Us</a>
+        </div>
+        <div id="hamburger-div" class="md:hidden cursor-pointer w-10 text-2xl">
+            <i id="hamburger" class="fa-solid fa-bars"></i>
+        </div>
+        <div id="cancel-hamburger-div" class="hidden cursor-pointer w-10 text-2xl">
+            <i id="cancel-hamburger" class="fa-solid fa-times"></i>
+        </div>
+    </nav>
+
+    <div id="nav-menu"
+        class="hidden fixed top-[5rem] left-0 w-full h-full bg-gray-950 flex-col text-white text-xl sm:text-2xl z-50 transition-transform duration-300">
+        <ul class="flex flex-col space-y-6 px-8 py-10">
+            <li>
+                <a href="index.html" class="block py-2 hover:text-gray-300">Home</a>
+            </li>
+            <li>
+                <a href="#" class="block py-2 hover:text-gray-300">How it works</a>
+            </li>
+            <li>
+                <a href="#" class="block py-2 hover:text-gray-300">Features</a>
+            </li>
+            <li>
+                <a href="#" class="block py-2 hover:text-gray-300">About Us</a>
+            </li>
+            <li>
+                <a href="#" class="block py-2 hover:text-gray-300">Contact Us</a>
+            </li>
+        </ul>
+    </div>
+
     <script src="../js/script.js"></script>
 </body>
+
 </html>
