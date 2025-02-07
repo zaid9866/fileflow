@@ -21,6 +21,7 @@ hamburger.addEventListener("click", () => {
     hamburgerDiv.classList.add("hidden");
     cancelHamburgerDiv.classList.remove("hidden");
     cancelHamburgerDiv.classList.add("flex");
+    document.body.style.overflow = "hidden";
 });
 
 function addMobileNavEvents(elements, callback) {
@@ -34,6 +35,7 @@ function mobileNavbar() {
     hamburgerDiv.classList.remove("hidden");
     cancelHamburgerDiv.classList.add("hidden");
     cancelHamburgerDiv.classList.remove("flex");
+    document.body.style.overflow = "auto";
 }
 
 addMobileNavEvents(
