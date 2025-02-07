@@ -4,8 +4,17 @@ const mobileNav = document.getElementById("nav-menu");
 const cancelHamburgerDiv = document.getElementById("cancel-hamburger-div");
 const cancelHamburger = document.getElementById("cancel-hamburger");
 const scrollToFeature = document.querySelectorAll(".scroll-to-feature");
-const feature = document.getElementById("features");
+const scrollToAbout = document.querySelectorAll(".scroll-to-about");
+const scrollToWork = document.querySelectorAll(".scroll-to-work");
+const scrollToContact = document.querySelectorAll(".scroll-to-contact");
+const feature = document.getElementById("feature");
+const about = document.getElementById("about");
+const work = document.getElementById("work");
+const contact = document.getElementById("contact");
 const mobileViewFeature = document.getElementById("mobile-view-feature");
+const mobileViewAbout = document.getElementById("mobile-view-about");
+const mobileViewWork = document.getElementById("mobile-view-work");
+const mobileViewContact = document.getElementById("mobile-view-contact");
 
 hamburger.addEventListener("click", () => {
     mobileNav.classList.remove("hidden");
@@ -14,8 +23,11 @@ hamburger.addEventListener("click", () => {
     cancelHamburgerDiv.classList.add("flex");
 });
 
-cancelHamburger.addEventListener("click", mobileNavbar);
-mobileViewFeature.addEventListener("click", mobileNavbar);
+function addMobileNavEvents(elements, callback) {
+    elements.forEach((element) => {
+        element.addEventListener("click", callback);
+    });
+}
 
 function mobileNavbar() {
     mobileNav.classList.add("hidden");
@@ -23,6 +35,11 @@ function mobileNavbar() {
     cancelHamburgerDiv.classList.add("hidden");
     cancelHamburgerDiv.classList.remove("flex");
 }
+
+addMobileNavEvents(
+    [cancelHamburger, mobileViewFeature, mobileViewAbout, mobileViewWork, mobileViewContact],
+    mobileNavbar
+);
 
 document.querySelectorAll('.feature-item').forEach(item => {
     let info = item.querySelector('.feature-info');
@@ -65,8 +82,15 @@ document.querySelectorAll('.feature-item').forEach(item => {
     });
 });
 
-scrollToFeature.forEach((e) => {
-    e.addEventListener("click", () => {
-        feature.scrollIntoView({ behavior: "smooth" });
+function addSmoothScroll(triggerElements, targetElement) {
+    triggerElements.forEach((element) => {
+        element.addEventListener("click", () => {
+            targetElement.scrollIntoView({ behavior: "smooth" });
+        });
     });
-});
+}
+
+addSmoothScroll(scrollToFeature, feature);
+addSmoothScroll(scrollToAbout, about);
+addSmoothScroll(scrollToWork, work);
+addSmoothScroll(scrollToContact, contact);
