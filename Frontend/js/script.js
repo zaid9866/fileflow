@@ -28,24 +28,39 @@ document.querySelectorAll('.feature-item').forEach(item => {
     let info = item.querySelector('.feature-info');
     let arrow = item.querySelector('i');
     let btn = item.querySelector('.toggle-btn');
-
+    const showFeature = () => {
+        document.querySelectorAll('.feature-info').forEach(el => {
+            el.style.maxHeight = null;
+            el.style.opacity = "0";
+        });
+        document.querySelectorAll('.feature-item i').forEach(el => {
+            el.style.transform = "rotate(0deg)";
+        });
+        info.style.maxHeight = info.scrollHeight + "px";
+        info.style.opacity = "1";
+        arrow.style.transform = "rotate(90deg)";
+    };
+    const hideFeature = () => {
+        info.style.maxHeight = null;
+        info.style.opacity = "0";
+        arrow.style.transform = "rotate(0deg)";
+    };
     btn.addEventListener('click', () => {
         if (info.style.maxHeight) {
-            info.style.maxHeight = null;
-            info.style.opacity = "0";
-            arrow.style.transform = "rotate(0deg)";
+            hideFeature();
         } else {
-            document.querySelectorAll('.feature-info').forEach(el => {
-                el.style.maxHeight = null;
-                el.style.opacity = "0";
-            });
-            document.querySelectorAll('.feature-item i').forEach(el => {
-                el.style.transform = "rotate(0deg)";
-            });
-
-            info.style.maxHeight = info.scrollHeight + "px";
-            info.style.opacity = "1";
-            arrow.style.transform = "rotate(90deg)";
+            showFeature();
+        }
+    });
+    item.addEventListener('mouseenter', showFeature);
+    item.addEventListener('mouseleave', hideFeature);
+    item.addEventListener('touchstart', showFeature);
+    item.addEventListener('touchend', hideFeature);
+    item.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        const rect = item.getBoundingClientRect();
+        if (!(touch.clientX >= rect.left && touch.clientX <= rect.right && touch.clientY >= rect.top && touch.clientY <= rect.bottom)) {
+            hideFeature();
         }
     });
 });
