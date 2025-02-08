@@ -97,10 +97,18 @@ addSmoothScroll(scrollToAbout, about);
 addSmoothScroll(scrollToWork, work);
 addSmoothScroll(scrollToContact, contact);
 
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("img, video").forEach(el => {
+        if (el.dataset.src) {
+            el.src = el.dataset.src;
+        }
+    });
+});
+
 document.querySelectorAll(".hover-video").forEach(video => {
     let source = video.querySelector("source");
-    let skeleton = video.closest(".relative").querySelector(".animate-pulse");
-    let thumbnail = video.closest(".relative").querySelector(".video-thumbnail");
+    let card = video.closest(".card"); 
+    let thumbnail = card.querySelector(".video-thumbnail");
 
     if (!source || !source.src) {
         return;
@@ -108,10 +116,6 @@ document.querySelectorAll(".hover-video").forEach(video => {
 
     video.src = source.src;
     video.load();
-
-    video.addEventListener("loadeddata", () => {
-        skeleton.classList.add("hidden"); 
-    });
 
     function playVideo() {
         if (video.readyState >= 2) { 
@@ -130,8 +134,8 @@ document.querySelectorAll(".hover-video").forEach(video => {
         video.classList.add("opacity-0"); 
     }
 
-    video.closest(".relative").addEventListener("mouseenter", playVideo);
-    video.closest(".relative").addEventListener("mouseleave", stopVideo);
-    video.closest(".relative").addEventListener("touchstart", playVideo);
-    video.closest(".relative").addEventListener("touchend", stopVideo);
+    card.addEventListener("mouseenter", playVideo); 
+    card.addEventListener("mouseleave", stopVideo);
+    card.addEventListener("touchstart", playVideo);
+    card.addEventListener("touchend", stopVideo);
 });
