@@ -94,7 +94,8 @@
             </p>
         </div>
         <div class="w-full flex flex-wrap justify-around gap-10">
-            <div class="flex flex-col items-center p-6 border-2 border-white rounded-lg bg-gray-800 w-72 h-96">
+            <div
+                class="flex flex-col items-center p-6 border-2 border-white rounded-lg bg-gray-800 w-72 h-80 sm:w-80 sm:h-96">
                 <div class="relative w-full">
                     <div class="absolute inset-0 animate-pulse bg-gray-600"></div>
                     <img class="video-thumbnail absolute inset-0 w-full h-full object-cover"
@@ -112,15 +113,22 @@
                     maximum privacy.
                 </p>
             </div>
-            <div class="flex flex-col items-center p-6 border-2 border-white rounded-lg bg-gray-800 w-72 h-96">
+            <div
+                class="flex flex-col items-center p-6 border-2 border-white rounded-lg bg-gray-800 w-72 h-80 sm:w-80 sm:h-96">
                 <div class="relative w-full">
                     <div class="absolute inset-0 animate-pulse bg-gray-600"></div>
-                    <img class="video-thumbnail absolute inset-0 w-full h-full object-cover"
-                        src="../assets/Images/secure-file.jpeg" alt="Thumbnail" style="mix-blend-mode: color-dodge;">
-                    <video class="hover-video w-full h-auto opacity-0" style="mix-blend-mode: color-dodge;" muted
-                        playsinline preload="none">
-                        <source src="../assets/Video/secure-file.webm" type="video/webm">
-                    </video>
+                    <div class="flex justify-center">
+                        <img class="video-thumbnail absolute w-40" src="../assets/Images/secure-file.jpeg"
+                            alt="Thumbnail"
+                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
+                    </div>
+                    <div class="flex justify-center">
+                        <video class="hover-video w-40 opacity-0"
+                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;"
+                            muted playsinline preload="none">
+                            <source src="../assets/Video/secure-file.webm" type="video/webm">
+                        </video>
+                    </div>
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mt-4">Secure Download Link</h3>
                 <p class="text-gray-300 text-sm sm:text-lg text-center mt-2">
@@ -128,7 +136,8 @@
                     closed or the file is deleted.
                 </p>
             </div>
-            <div class="flex flex-col items-center p-6 border-2 border-white rounded-lg bg-gray-800 w-72 h-96">
+            <div
+                class="flex flex-col items-center p-6 border-2 border-white rounded-lg bg-gray-800 w-72 h-80 sm:w-80 sm:h-96">
                 <div class="relative w-full">
                     <div class="absolute inset-0 animate-pulse bg-gray-600"></div>
                     <div class="flex justify-center">
@@ -149,7 +158,8 @@
                     Send the link to your recipient. They can download the file or copy the text directly from the page.
                 </p>
             </div>
-            <div class="flex flex-col items-center p-6 border-2 border-white rounded-lg bg-gray-800 w-72 h-96">
+            <div
+                class="flex flex-col items-center p-6 border-2 border-white rounded-lg bg-gray-800 w-72 h-80 sm:w-80 sm:h-96">
                 <div class="relative w-full">
                     <div class="absolute inset-0 animate-pulse bg-gray-600"></div>
                     <div class="flex justify-center">

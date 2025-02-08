@@ -101,14 +101,18 @@ document.querySelectorAll(".hover-video").forEach(video => {
     let source = video.querySelector("source");
     let skeleton = video.closest(".relative").querySelector(".animate-pulse");
     let thumbnail = video.closest(".relative").querySelector(".video-thumbnail");
+
     if (!source || !source.src) {
         return;
     }
+
     video.src = source.src;
     video.load();
+
     video.addEventListener("loadeddata", () => {
         skeleton.classList.add("hidden"); 
     });
+
     function playVideo() {
         if (video.readyState >= 2) { 
             video.currentTime = 0;
@@ -118,12 +122,14 @@ document.querySelectorAll(".hover-video").forEach(video => {
             video.classList.remove("opacity-0"); 
         }
     }
+
     function stopVideo() {
         video.pause();
         video.currentTime = 0;
         thumbnail.classList.remove("hidden");  
         video.classList.add("opacity-0"); 
     }
+
     video.closest(".relative").addEventListener("mouseenter", playVideo);
     video.closest(".relative").addEventListener("mouseleave", stopVideo);
     video.closest(".relative").addEventListener("touchstart", playVideo);
