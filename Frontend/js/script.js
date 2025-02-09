@@ -15,6 +15,10 @@ const mobileViewFeature = document.getElementById("mobile-view-feature");
 const mobileViewAbout = document.getElementById("mobile-view-about");
 const mobileViewWork = document.getElementById("mobile-view-work");
 const mobileViewContact = document.getElementById("mobile-view-contact");
+const displayForm = document.getElementById("display-form");
+const form = document.getElementById("room-form");
+const closeForm = document.getElementById("close-form");
+const submitForm = document.getElementById("submit-form");
 
 hamburger.addEventListener("click", () => {
     mobileNav.classList.remove("hidden");
@@ -138,4 +142,21 @@ document.querySelectorAll(".hover-video").forEach(video => {
     card.addEventListener("mouseleave", stopVideo);
     card.addEventListener("touchstart", playVideo);
     card.addEventListener("touchend", stopVideo);
+});
+
+displayForm.addEventListener("click",()=>{
+    form.classList.remove("hidden");
+    form.classList.add("flex");
+    document.body.style.overflow = "hidden";
+    document.body.style.pointerEvents = "none";
+    if(form){
+        form.style.pointerEvents = "auto";
+    }
+});
+
+closeForm.addEventListener("click",()=>{
+    form.classList.remove("flex");
+    form.classList.add("hidden");
+    document.body.style.overflow = ""; 
+    document.body.style.pointerEvents = "";
 });
