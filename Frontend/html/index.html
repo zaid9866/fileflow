@@ -21,8 +21,8 @@
     </style>
 </head>
 
-<body class="m-0 p-0">
-    <nav class="w-full flex justify-between md:justify-around p-5 bg-zinc-900 items-center text-white">
+<body class="m-0 p-0 text-white">
+    <nav class="w-full flex justify-between md:justify-around p-5 bg-zinc-950 items-center">
         <div class="flex items-center justify-center">
             <img src="../assets/Images/logo.png" alt="logo" class="w-16 lg:w-20 cursor-pointer">
         </div>
@@ -40,7 +40,7 @@
         </div>
     </nav>
     <div id="nav-menu"
-        class="hidden fixed top-[5rem] left-0 w-full h-full bg-zinc-950/80 flex-col text-white text-xl sm:text-2xl z-50 transition-transform duration-300">
+        class="hidden fixed top-[5rem] left-0 w-full h-full bg-zinc-950/80 flex-col text-xl sm:text-2xl z-50 transition-transform duration-300">
         <ul class="flex flex-col space-y-6 px-8 py-10">
             <li>
                 <a id="mobile-view-work" class="block py-2 hover:text-gray-300 scroll-to-work">How it works</a>
@@ -57,7 +57,7 @@
         </ul>
     </div>
     <section
-        class="flex flex-wrap items-center min-h-screen justify-center border-t bg-zinc-950 text-white py-10 sm:py-0 gap-10">
+        class="flex flex-wrap items-center min-h-screen justify-center bg-zinc-950 py-10 sm:py-0 gap-10">
         <div class="flex flex-col items-center justify-between text-center bg-stone-950 rounded-2xl border
             w-full h-auto p-6 sm:w-96 lg:h-[300px] mx-10">
             <h2 class="text-lg sm:text-xl md:text-2xl font-bold">Create a Room</h2>
@@ -66,7 +66,7 @@
                 time duration, define the maximum number of guests allowed, restrict access if needed, and extend
                 the duration later.</p>
             <button id="display-form"
-                class="w-48 sm:w-44 px-4 py-2 mt-3 border text-sm sm:text-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg shadow-md">
+                class="w-48 sm:w-44 px-4 py-2 mt-3 border text-sm sm:text-lg bg-emerald-500 hover:bg-emerald-600 font-semibold rounded-lg shadow-md">
                 Start Sharing
             </button>
         </div>
@@ -78,7 +78,7 @@
                 restrictions, you'll join instantly. However, if it's a restricted room, you'll need to wait for the
                 host's approval.</p>
             <input type="text" id="code-input" placeholder="Enter Room Code"
-                class="w-44 sm:w-56 p-2 mt-3 border text-sm sm:text-lg bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-center placeholder:text-center">
+                class="w-44 sm:w-56 p-2 mt-3 border text-sm sm:text-lg bg-emerald-500 hover:bg-emerald-600 rounded-lg text-center placeholder:text-center">
         </div>
         <div class="flex flex-col items-center justify-between text-center bg-stone-950 rounded-2xl border 
             w-full h-auto p-6 sm:w-96 lg:h-[300px] mx-10">
@@ -88,26 +88,26 @@
                 guest count cannot be set initially, but you can restrict access, increase the guest limit, and
                 extend the duration later.</p>
             <button
-                class="w-48 sm:w-44 px-4 py-2 mt-3 border text-sm sm:text-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg shadow-md">
+                class="w-48 sm:w-44 px-4 py-2 mt-3 border text-sm sm:text-lg bg-emerald-500 hover:bg-emerald-600 font-semibold rounded-lg shadow-md">
                 Instant Sharing
             </button>
         </div>
     </section>
     <section id="room-form"
         class="fixed inset-0 hidden items-center justify-center w-11/12 max-w-xs sm:max-w-md mx-auto z-40">
-        <div class="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg w-full relative text-white">
+        <div class="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg w-full relative">
             <i id="close-form"
                 class="fa-solid fa-times absolute top-2 right-3 text-lg sm:text-xl cursor-pointer text-gray-400 hover:text-gray-200"></i>
             <h2 class="text-lg sm:text-xl font-semibold text-center mb-3 sm:mb-4">Create Room</h2>
             <form class="space-y-2">
                 <label for="room-code" class="block text-base sm:text-lg font-medium">Room Code</label>
                 <input type="text" id="room-code" name="room-code" placeholder="Enter Code"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-white text-sm sm:text-lg"
+                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-sm sm:text-lg"
                     required>
 
                 <label for="participants" class="block text-base sm:text-lg font-medium">Number of Participants</label>
                 <select id="participants" name="participants"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-white text-sm sm:text-lg">
+                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-sm sm:text-lg">
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
@@ -121,7 +121,7 @@
 
                 <label for="time" class="block text-base sm:text-lg font-medium">Select Time</label>
                 <select id="time" name="time"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-white text-sm sm:text-lg">
+                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-sm sm:text-lg">
                     <option value="30">30 Minutes</option>
                     <option value="60">1 Hour</option>
                     <option value="90">1 Hour 30 Minutes</option>
@@ -137,13 +137,13 @@
                 
                 <div class="flex justify-center">
                     <button type="submit" id="submit-form"
-                        class="w-40 text-white p-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-sm sm:text-lg">Create
+                        class="w-40 p-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-sm sm:text-lg">Create
                         Room</button>
                 </div>
             </form>
         </div>
     </section>
-    <section id="work" class="bg-stone-950 border-t text-white pt-10 pb-14 px-6 w-full">
+    <section id="work" class="bg-stone-950 border-t pt-10 pb-14 px-6 w-full">
         <div class="max-w-5xl mx-auto text-center">
             <h2 class="text-2xl sm:text-4xl font-bold mb-6">How It Works</h2>
             <p class="text-lg sm:text-xl text-gray-300 mb-10">
@@ -232,9 +232,9 @@
         </div>
     </section>
     <section id="feature" class="w-full px-6 pt-10 pb-14 border-t border-white bg-zinc-950">
-        <h2 class="text-3xl sm:text-4xl text-white text-center font-bold mb-12">Features</h2>
+        <h2 class="text-3xl sm:text-4xl text-center font-bold mb-12">Features</h2>
         <div id="feature-container" class="flex flex-wrap items-baseline justify-center gap-5">
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">End-to-End Encryption</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -244,7 +244,7 @@
                         are securely encrypted. Once the room is closed, all data is automatically deleted.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">No Personal Info</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -254,7 +254,7 @@
                         information to use this service no email or phone number required.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Create Your Own Code</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -264,7 +264,7 @@
                         if the room is available.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Change Your Name</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -274,7 +274,7 @@
                         anytime while inside the room.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Modify Room Duration</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -284,7 +284,7 @@
                         decreased even after creation.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Set Number of Guests</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -294,7 +294,7 @@
                         your room, with a maximum limit of 10 including host.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Remove or Block Guests</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -304,7 +304,7 @@
                         Removed guests can rejoin, but blocked guests will not be able to join again.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Access Control</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -314,7 +314,7 @@
                         guests can only join after approval.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Download Text</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -324,7 +324,7 @@
                         .js, and other formats.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Multiple Text Fields</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -334,7 +334,7 @@
                         (up to 5) for organizing different messages.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Built-in Chat System</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -344,7 +344,7 @@
                         participants to communicate instantly.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 text-white p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Download file</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -355,7 +355,7 @@
                 </div>
             </div>
     </section>
-    <section id="about" class="w-full px-8 pt-10 pb-14 border-t bg-stone-950 text-white">
+    <section id="about" class="w-full px-8 pt-10 pb-14 border-t bg-stone-950">
         <h2 class="text-2xl sm:text-4xl text-center font-bold mb-6">About Us</h2>
         <div class="space-y-6">
             <div>
@@ -410,7 +410,7 @@
             </div>
         </div>
     </section>
-    <section id="contact" class="bg-zinc-950 text-white border-t pt-10 pb-12 px-6 w-full">
+    <section id="contact" class="bg-zinc-950 border-t pt-10 pb-12 px-6 w-full">
         <div class="max-w-3xl mx-auto text-center">
             <h2 class="text-3xl sm:text-4xl font-bold mb-4">Contact Us</h2>
             <p class="text-sm sm:text-lg text-gray-300 mb-6">Have questions or need support? Get in touch with us.</p>
@@ -420,27 +420,27 @@
                 <div>
                     <label for="name" class="block text-gray-400 text-sm sm:text-lg mb-1">Your Name</label>
                     <input id="name" name="name" type="text" autocomplete="name" placeholder="Enter your name"
-                        class="w-full px-4 py-2 bg-neutral-950 text-white border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full px-4 py-2 bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
                 </div>
                 <div>
                     <label for="email" class="block text-gray-400 text-sm sm:text-lg mb-1">Your Email</label>
                     <input id="email" name="email" type="email" autocomplete="email" placeholder="Enter your email"
-                        class="w-full px-4 py-2 bg-neutral-950 text-white border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full px-4 py-2 bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
                 </div>
                 <div>
                     <label for="message" class="block text-gray-400 text-sm sm:text-lg mb-1">Message</label>
                     <textarea id="message" name="message" rows="4" autocomplete="off" placeholder="Enter your message"
-                        class="w-full px-4 py-2 bg-neutral-950 text-white border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"></textarea>
+                        class="w-full px-4 py-2 bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"></textarea>
                 </div>
                 <div class="flex justify-center">
                     <button type="submit"
-                        class="w-48 bg-emerald-500 hover:bg-emerald-600 border text-white text-sm sm:text-lg font-semibold py-2 rounded-lg transition">Send
+                        class="w-48 bg-emerald-500 hover:bg-emerald-600 border text-sm sm:text-lg font-semibold py-2 rounded-lg transition">Send
                         Message</button>
                 </div>
             </form>
         </div>
     </section>
-    <footer class="bg-black text-white border-t p-6 w-full">
+    <footer class="bg-black border-t p-6 w-full">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center">
             <div class="flex items-center space-x-2">
                 <img src="../assets/Images/logo.png" alt="File Flow Logo" class="h-10 sm:h-12">
