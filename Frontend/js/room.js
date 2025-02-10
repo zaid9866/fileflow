@@ -273,21 +273,21 @@ document.getElementById("add-text").addEventListener("click", function () {
     }
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
     function applySelect2() {
-        $(".format-select").each(function() {
+        $(".format-select").each(function () {
             if (!$(this).hasClass("select2-applied")) {
                 $(this).select2({
                     placeholder: "Select File Format",
                     allowClear: true
-                }).addClass("select2-applied"); 
+                }).addClass("select2-applied");
             }
         });
     }
     applySelect2();
-    $(document).on("click", "#add-text", function() {
+    $(document).on("click", "#add-text", function () {
         setTimeout(() => {
-            applySelect2(); 
+            applySelect2();
         }, 100);
     });
 });
@@ -371,7 +371,7 @@ document.addEventListener("click", function (e) {
 
 function downloadFile(button) {
     let textField = button.closest(".text-field");
-    
+
     let fileName = textField.querySelector(".text-name").value.trim();
     let fileFormat = textField.querySelector(".format-select").value;
     let fileContent = textField.querySelector(".text-box").value;
@@ -380,15 +380,108 @@ function downloadFile(button) {
         alert("Please enter a file name.");
         return;
     }
-    
+
     if (!fileContent) {
         alert("File content is empty!");
         return;
     }
 
-    let blob = new Blob([fileContent], { type: "text/plain" });
+    let mimeType = "text/plain";
+    let blobData = fileContent;
+
+    switch (fileFormat) {
+        case "html":
+            mimeType = "text/html";
+            blobData = `<!DOCTYPE html>\n<html>\n<head>\n<title>${fileName}</title>\n</head>\n<body>\n${fileContent}\n</body>\n</html>`;
+            break;
+        case "css":
+            mimeType = "text/css";
+            break;
+        case "js":
+            mimeType = "application/javascript";
+            break;
+        case "ts":
+            mimeType = "application/typescript";
+            break;
+        case "json":
+            mimeType = "application/json";
+            blobData = JSON.stringify(JSON.parse(fileContent), null, 2);
+            break;
+        case "xml":
+            mimeType = "application/xml";
+            break;
+        case "yaml":
+            mimeType = "text/yaml";
+            break;
+        case "csv":
+            mimeType = "text/csv";
+            break;
+        case "md":
+            mimeType = "text/markdown";
+            break;
+        case "rtf":
+            mimeType = "application/rtf";
+            break;
+        case "sql":
+            mimeType = "application/sql";
+            break;
+        case "sh":
+            mimeType = "application/x-sh";
+            break;
+        case "bat":
+            mimeType = "application/x-bat";
+            break;
+        case "py":
+            mimeType = "application/x-python";
+            break;
+        case "php":
+            mimeType = "application/x-php";
+            break;
+        case "java":
+            mimeType = "text/x-java-source";
+            break;
+        case "c":
+        case "cpp":
+            mimeType = "text/x-c";
+            break;
+        case "cs":
+            mimeType = "text/x-csharp";
+            break;
+        case "swift":
+            mimeType = "application/x-swift";
+            break;
+        case "kt":
+            mimeType = "text/x-kotlin";
+            break;
+        case "rb":
+            mimeType = "application/x-ruby";
+            break;
+        case "go":
+            mimeType = "text/x-go";
+            break;
+        case "rs":
+            mimeType = "text/rust";
+            break;
+        case "dart":
+            mimeType = "application/dart";
+            break;
+        case "lua":
+            mimeType = "text/x-lua";
+            break;
+        case "perl":
+            mimeType = "application/x-perl";
+            break;
+        case "docx":
+            createDocx(fileContent, fileName);
+            return;
+        case "pdf":
+            createPDF(fileContent, fileName);
+            return;
+    }
+
+    let blob = new Blob([blobData], { type: mimeType });
     let url = URL.createObjectURL(blob);
-    
+
     let a = document.createElement("a");
     a.href = url;
     a.download = `${fileName}.${fileFormat}`;
@@ -396,4 +489,39 @@ function downloadFile(button) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+function createDocx(content, fileName) {
+    let doc = new docx.Document({
+        sections: [
+            {
+                properties: {},
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun(content),
+                        ],
+                    }),
+                ],
+            },
+        ],
+    });
+
+    docx.Packer.toBlob(doc).then((blob) => {
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = `${fileName}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+}
+
+function createPDF(content, fileName) {
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF();
+    doc.text(content, 10, 10);
+    doc.save(`${fileName}.pdf`);
 }
