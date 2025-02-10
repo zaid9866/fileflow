@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.querySelectorAll(".hover-video").forEach(video => {
     let source = video.querySelector("source");
-    let card = video.closest(".card"); 
+    let card = video.closest(".card");
     let thumbnail = card.querySelector(".video-thumbnail");
 
     if (!source || !source.src) {
@@ -122,41 +122,65 @@ document.querySelectorAll(".hover-video").forEach(video => {
     video.load();
 
     function playVideo() {
-        if (video.readyState >= 2) { 
+        if (video.readyState >= 2) {
             video.currentTime = 0;
-            video.loop = true; 
+            video.loop = true;
             video.play().catch(err => console.warn("Autoplay blocked:", err));
-            thumbnail.classList.add("hidden");  
-            video.classList.remove("opacity-0"); 
+            thumbnail.classList.add("hidden");
+            video.classList.remove("opacity-0");
         }
     }
 
     function stopVideo() {
         video.pause();
         video.currentTime = 0;
-        thumbnail.classList.remove("hidden");  
-        video.classList.add("opacity-0"); 
+        thumbnail.classList.remove("hidden");
+        video.classList.add("opacity-0");
     }
 
-    card.addEventListener("mouseenter", playVideo); 
+    card.addEventListener("mouseenter", playVideo);
     card.addEventListener("mouseleave", stopVideo);
     card.addEventListener("touchstart", playVideo);
     card.addEventListener("touchend", stopVideo);
 });
 
-displayForm.addEventListener("click",()=>{
+displayForm.addEventListener("click", () => {
     form.classList.remove("hidden");
     form.classList.add("flex");
     document.body.style.overflow = "hidden";
     document.body.style.pointerEvents = "none";
-    if(form){
+    if (form) {
         form.style.pointerEvents = "auto";
     }
 });
 
-closeForm.addEventListener("click",()=>{
+closeForm.addEventListener("click", () => {
     form.classList.remove("flex");
     form.classList.add("hidden");
-    document.body.style.overflow = ""; 
+    document.body.style.overflow = "";
     document.body.style.pointerEvents = "";
+});
+
+document.getElementById("toggleCodeInput").addEventListener("click", function () {
+    document.getElementById("toggleCodeInput").classList.add("hidden");
+    document.getElementById("codeInput").classList.remove("hidden");
+});
+
+document.getElementById("startSharingBtn").addEventListener("click", function () {
+    let menu = document.getElementById("sharingOptions");
+    menu.classList.toggle("hidden");
+});
+
+document.addEventListener("click", function (event) {
+    let dropdown = document.getElementById("sharingOptions");
+    let button = document.getElementById("startSharingBtn");
+    if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.add("hidden");
+    }
+});
+
+document.querySelectorAll("#sharingOptions button").forEach((option) => {
+    option.addEventListener("click", function () {
+        document.getElementById("sharingOptions").classList.add("hidden");
+    });
 });

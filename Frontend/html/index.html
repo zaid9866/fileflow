@@ -56,41 +56,39 @@
             </li>
         </ul>
     </div>
-    <section
-        class="flex flex-wrap items-center min-h-screen justify-center bg-zinc-950 py-10 sm:py-0 gap-10">
-        <div class="flex flex-col items-center justify-between text-center bg-stone-950 rounded-2xl border
-            w-full h-auto p-6 sm:w-96 lg:h-[300px] mx-10">
-            <h2 class="text-lg sm:text-xl md:text-2xl font-bold">Create a Room</h2>
-            <p class="text-sm my-4 lg:my-0 sm:text-lg text-gray-300">Create a room with a custom code,
-                set a specific
-                time duration, define the maximum number of guests allowed, restrict access if needed, and extend
-                the duration later.</p>
-            <button id="display-form"
-                class="w-48 sm:w-44 px-4 py-2 mt-3 border text-sm sm:text-lg bg-emerald-500 hover:bg-emerald-600 font-semibold rounded-lg shadow-md">
-                Start Sharing
-            </button>
+    <section class="h-screen flex flex-col-reverse lg:flex-row items-center bg-zinc-950 justify-around px-6">
+        <div class="text-center lg:text-left lg:w-[39%]">
+            <h2 class="text-3xl sm:text-5xl font-extrabold mb-10 text-white">Share Your File</h2>
+            <p class="text-base sm:text-lg mb-4">Easily share files with friends and colleagues in seconds.</p>
+            <p class="text-base sm:text-lg mb-4">No sign-up required, just upload and share instantly.</p>
+            <p class="text-base sm:text-lg mb-6">Create a private room for secure file transfers.</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start sm:items-baseline gap-5">
+                <div class="relative inline-block">
+                    <button id="startSharingBtn"
+                        class="bg-emerald-700 text-white px-6 py-3 rounded-lg hover:bg-emerald-800 transition">
+                        Start Sharing
+                    </button>
+                    <div id="sharingOptions"
+                        class="absolute left-0 mt-2 w-56 bg-zinc-800 text-white rounded-lg shadow-lg hidden">
+                        <button class="w-full text-left px-4 py-3 hover:bg-zinc-700">Instant Sharing</button>
+                        <hr class="border-zinc-600">
+                        <button id="display-form" class="w-full text-left px-4 py-3 hover:bg-zinc-700">Create
+                            Room</button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 mt-4">
+                    <span id="toggleCodeInput" class="underline text-base sm:text-lg cursor-pointer">I have code</span>
+                    <input id="codeInput" type="text" placeholder="Enter Code"
+                        class="border px-4 py-2 rounded-lg focus:outline-none hidden w-full bg-zinc-900 text-white border-gray-700">
+                </div>
+            </div>
         </div>
-        <div class="flex flex-col items-center justify-between text-center bg-stone-950 rounded-2xl border 
-                        w-full h-auto p-6 sm:w-96 lg:h-[300px] mx-10">
-            <h2 class="text-lg sm:text-xl md:text-2xl font-bold">Join a Room</h2>
-            <p class="text-sm my-4 lg:my-0 sm:text-lg text-gray-300">Enter the room code to join. If the
-                room has no
-                restrictions, you'll join instantly. However, if it's a restricted room, you'll need to wait for the
-                host's approval.</p>
-            <input type="text" id="code-input" placeholder="Enter Room Code"
-                class="w-44 sm:w-56 p-2 mt-3 border text-sm sm:text-lg bg-emerald-500 hover:bg-emerald-600 rounded-lg text-center placeholder:text-center">
-        </div>
-        <div class="flex flex-col items-center justify-between text-center bg-stone-950 rounded-2xl border 
-            w-full h-auto p-6 sm:w-96 lg:h-[300px] mx-10">
-            <h2 class="text-lg sm:text-xl md:text-2xl font-bold">Instant Sharing</h2>
-            <p class="text-sm my-4 lg:my-0 sm:text-lg text-gray-300">Create an instant room with a fixed
-                code. The
-                guest count cannot be set initially, but you can restrict access, increase the guest limit, and
-                extend the duration later.</p>
-            <button
-                class="w-48 sm:w-44 px-4 py-2 mt-3 border text-sm sm:text-lg bg-emerald-500 hover:bg-emerald-600 font-semibold rounded-lg shadow-md">
-                Instant Sharing
-            </button>
+        <div class="w-full md:w-[75%] lg:w-[55%]">
+            <video class="w-full h-[120%] sm:h-fit rounded-lg object-cover" style="mix-blend-mode: lighten;" muted playsinline autoplay
+                loop>
+                <source src="../assets/Video/homepage-video.webm" type="video/webm">
+                Your browser does not support the video tag.
+            </video>
         </div>
     </section>
     <section id="room-form"
@@ -102,8 +100,7 @@
             <form class="space-y-2">
                 <label for="room-code" class="block text-base sm:text-lg font-medium">Room Code</label>
                 <input type="text" id="room-code" name="room-code" placeholder="Enter Code"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-sm sm:text-lg"
-                    required>
+                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-sm sm:text-lg" required>
 
                 <label for="participants" class="block text-base sm:text-lg font-medium">Number of Participants</label>
                 <select id="participants" name="participants"
@@ -134,7 +131,7 @@
                     <input type="checkbox" id="restrict-mode" name="restrict-mode" class="mr-2">
                     <span class="text-base sm:text-lg">Restrict Mode</span>
                 </label>
-                
+
                 <div class="flex justify-center">
                     <button type="submit" id="submit-form"
                         class="w-40 p-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-sm sm:text-lg">Create
