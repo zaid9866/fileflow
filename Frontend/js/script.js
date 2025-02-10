@@ -19,6 +19,7 @@ const displayForm = document.getElementById("display-form");
 const form = document.getElementById("room-form");
 const closeForm = document.getElementById("close-form");
 const submitForm = document.getElementById("submit-form");
+const overlay = document.getElementById("overlay");
 
 hamburger.addEventListener("click", () => {
     mobileNav.classList.remove("hidden");
@@ -113,14 +114,11 @@ document.querySelectorAll(".hover-video").forEach(video => {
     let source = video.querySelector("source");
     let card = video.closest(".card");
     let thumbnail = card.querySelector(".video-thumbnail");
-
     if (!source || !source.src) {
         return;
     }
-
     video.src = source.src;
     video.load();
-
     function playVideo() {
         if (video.readyState >= 2) {
             video.currentTime = 0;
@@ -130,14 +128,12 @@ document.querySelectorAll(".hover-video").forEach(video => {
             video.classList.remove("opacity-0");
         }
     }
-
     function stopVideo() {
         video.pause();
         video.currentTime = 0;
         thumbnail.classList.remove("hidden");
         video.classList.add("opacity-0");
     }
-
     card.addEventListener("mouseenter", playVideo);
     card.addEventListener("mouseleave", stopVideo);
     card.addEventListener("touchstart", playVideo);
@@ -147,6 +143,7 @@ document.querySelectorAll(".hover-video").forEach(video => {
 displayForm.addEventListener("click", () => {
     form.classList.remove("hidden");
     form.classList.add("flex");
+    overlay.classList.remove("hidden");
     document.body.style.overflow = "hidden";
     document.body.style.pointerEvents = "none";
     if (form) {
@@ -157,6 +154,7 @@ displayForm.addEventListener("click", () => {
 closeForm.addEventListener("click", () => {
     form.classList.remove("flex");
     form.classList.add("hidden");
+    overlay.classList.add("hidden");
     document.body.style.overflow = "";
     document.body.style.pointerEvents = "";
 });
@@ -183,4 +181,42 @@ document.querySelectorAll("#sharingOptions button").forEach((option) => {
     option.addEventListener("click", function () {
         document.getElementById("sharingOptions").classList.add("hidden");
     });
+});
+
+function validateInput(inputElement) {
+    inputElement.addEventListener("input", (e) => {
+        let value = e.target.value;
+        value = value.replace(/[^A-Za-z0-9]/g, "");
+        if (value.length > 6) {
+            value = value.slice(0, 6);
+        }
+        e.target.value = value;
+    });
+}
+
+validateInput(document.getElementById("codeInput"));
+validateInput(document.getElementById("room-code"));
+
+document.getElementById("submit-form").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const roomform = document.querySelector("#room-form form");
+    const formData = new FormData(roomform);
+
+    fetch("http://localhost:3000/room", {
+        method: "POST",
+        body: formData,
+    })
+        .then(response => response.text())
+        .then(data => {
+            alert("Response: " + data);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    form.classList.remove("flex");
+    form.classList.add("hidden");
+    overlay.classList.add("hidden");
+    document.body.style.overflow = "";
+    document.body.style.pointerEvents = "";
 });
