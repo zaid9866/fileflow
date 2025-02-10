@@ -54,8 +54,42 @@
 </head>
 
 <body class="text-white bg-zinc-900 relative">
+    <nav class="w-full flex justify-between md:justify-around p-5 items-center">
+        <div class="flex items-center justify-center cursor-pointer">
+            <img src="../assets/Images/logo.png" alt="logo" class="w-16 lg:w-20">
+        </div>
+        <div class="hidden md:flex md:w-[80%] justify-around items-center text-lg md:text-xl lg:text-2xl">
+            <a class="hover:text-gray-300 cursor-pointer scroll-to-work">How it works</a>
+            <a class="hover:text-gray-300 cursor-pointer scroll-to-feature">Features</a>
+            <a class="hover:text-gray-300 cursor-pointer scroll-to-about">About Us</a>
+            <a class="hover:text-gray-300 cursor-pointer scroll-to-contact">Contact Us</a>
+        </div>
+        <div id="hamburger-div" class="md:hidden cursor-pointer w-10 text-2xl">
+            <i id="hamburger" class="fa-solid fa-bars"></i>
+        </div>
+        <div id="cancel-hamburger-div" class="hidden cursor-pointer w-10 text-2xl">
+            <i id="cancel-hamburger" class="fa-solid fa-times"></i>
+        </div>
+    </nav>
+    <div id="nav-menu"
+        class="hidden fixed top-[5rem] left-0 w-full h-full bg-zinc-950/80 flex-col text-xl sm:text-2xl z-50 transition-transform duration-300">
+        <ul class="flex flex-col space-y-6 px-8 py-10">
+            <li>
+                <a id="mobile-view-work" class="block py-2 hover:text-gray-300 cursor-pointer scroll-to-work">How it works</a>
+            </li>
+            <li>
+                <a id="mobile-view-feature" class="block py-2 hover:text-gray-300 cursor-pointer scroll-to-feature">Features</a>
+            </li>
+            <li>
+                <a id="mobile-view-about" class="block py-2 hover:text-gray-300 cursor-pointer scroll-to-about">About Us</a>
+            </li>
+            <li>
+                <a id="mobile-view-contact" class="block py-2 hover:text-gray-300 cursor-pointer scroll-to-contact">Contact Us</a>
+            </li>
+        </ul>
+    </div>
     <section
-        class="flex items-baseline m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl">
+        class="flex items-baseline m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl">
         <div id="head"
             class="flex flex-wrap w-full items-center justify-between h-8 overflow-hidden gap-x-8 sm:gap-x-10 gap-4">
             <div>Room Code: <span id="room-code">ABCDEF</span></div>
@@ -69,7 +103,7 @@
         </div>
     </section>
     <section
-        class="bg-zinc-950 items-center flex flex-col-reverse sm:flex-row justify-between m-5 sm:mx-20 md:mx-32 lg:mx-40 my-0 text-base sm:text-lg">
+        class="bg-zinc-950 items-center flex flex-col-reverse sm:flex-row justify-between border-b border-b-slate-900 m-5 sm:mx-20 md:mx-32 lg:mx-40 my-0 text-base sm:text-lg">
         <div class="flex items-baseline justify-center w-full sm:w-96 h-full">
             <div id="share-file"
                 class="flex items-center justify-center gap-3 py-3 w-28 sm:w-40 bg-slate-900 border rounded-t-lg border-b-0">
@@ -184,8 +218,86 @@
             </button>
         </div>
     </section>
+    <section class="m-5 sm:mx-20 md:mx-32 lg:mx-40 bg-gray-900 rounded-lg shadow-lg p-4 flex flex-col min-h-[600px]">
+        <div class="text-center border-b border-gray-700 pb-2 mb-2">
+            <h2 class="text-lg font-semibold">Room Code: <span class="text-emerald-400">ABCDEF</span></h2>
+        </div>
+        <div class="flex-1 overflow-y-auto space-y-4 p-2 scrollbar-hide flex flex-col justify-end">
+            <div class="flex flex-col">
+                <span class="text-sm font-semibold">Zaid Kotimbire</span>
+                <div class="bg-gray-800 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                    <p>Hey guys, what's up?</p>
+                    <span class="text-xs block text-right mt-1">10:10 AM</span>
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-sm font-semibold">Izhar Khan</span>
+                <div class="bg-gray-800 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                    <p>Not much, just chilling!</p>
+                    <span class="text-xs block text-right mt-1">10:12 AM</span>
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-sm font-semibold">Khalid Khilji</span>
+                <div class="bg-gray-800 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                    <p>Let's plan something for the weekend.</p>
+                    <span class="text-xs block text-right mt-1">10:14 AM</span>
+                </div>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="text-sm font-semibold">You</span>
+                <div class="bg-emerald-600 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                    <p>Sounds good! Any ideas?</p>
+                    <span class="text-xs block text-right mt-1">10:16 AM</span>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 pt-2 flex items-center">
+            <input type="text" id="chat-input" placeholder="Type a message..."
+                class="flex-1 bg-gray-800 px-3 py-2 rounded-lg focus:outline-none text-sm">
+            <button
+                class="ml-2 bg-emerald-600 p-3 flex items-center justify-center rounded-full hover:bg-emerald-700 transition">
+                <i class="fa-solid fa-paper-plane text-white text-lg"></i>
+            </button>
+        </div>
+    </section>
+    <section class="p-4 mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10 flex flex-wrap justify-center gap-4">
+        <div
+            class="w-60 bg-gray-800 p-4 rounded-lg shadow-lg border-l-4 border-emerald-500 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg sm:text-xl font-semibold">Zaid Kotimbire</h3>
+                <p class="text-sm sm:text-base text-emerald-400">Host</p>
+            </div>
+        </div>
+        <div
+            class="w-60 bg-gray-800 p-4 rounded-lg shadow-lg border-l-4 border-cyan-600 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg sm:text-xlfont-semibold">Khalid Khilji</h3>
+                <p class="text-sm sm:text-base text-cyan-400">Guest</p>
+            </div>
+            <i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400"></i>
+        </div>
+
+        <div
+            class="w-60 bg-gray-800 p-4 rounded-lg shadow-lg border-l-4 border-cyan-600 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg sm:text-xl font-semibold">Izhar Khan</h3>
+                <p class="text-sm sm:text-base text-cyan-400">Guest</p>
+            </div>
+            <i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400"></i>
+        </div>
+
+        <div
+            class="w-60 bg-gray-800 p-4 rounded-lg shadow-lg border-l-4 border-cyan-600 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg sm:text-xl font-semibold">Rizwan Khan</h3>
+                <p class="text-sm sm:text-base text-cyan-400">Guest</p>
+            </div>
+            <i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400"></i>
+        </div>
+    </section>
     <div class="w-full flex justify-center">
-        <span class="bg-zinc-950 rounded-3xl shadow-3xl text-sm sm:text-base px-6 py-3 mb-10">
+        <span class="bg-zinc-950 rounded-3xl shadow-3xl text-xs sm:text-sm px-4 mx-3 py-3 mb-10">
             Closing this page or tab will permanently close the room.
         </span>
     </div>
