@@ -1,6 +1,8 @@
 const hamburgerDiv = document.getElementById("hamburger-div");
 const hamburger = document.getElementById("hamburger");
 const mobileNav = document.getElementById("nav-menu");
+const navbar = document.getElementById("navbar");
+const main = document.getElementById("main");
 const cancelHamburgerDiv = document.getElementById("cancel-hamburger-div");
 const cancelHamburger = document.getElementById("cancel-hamburger");
 const scrollToFeature = document.querySelectorAll(".scroll-to-feature");
@@ -20,6 +22,159 @@ const form = document.getElementById("room-form");
 const closeForm = document.getElementById("close-form");
 const submitForm = document.getElementById("submit-form");
 const overlay = document.getElementById("overlay");
+const change = document.querySelectorAll(".change");
+const changeContact = document.querySelectorAll(".change-contact");
+const changeWhite = document.querySelectorAll(".change-white");
+const changeForm = document.querySelectorAll(".change-form");
+const changeButton = document.querySelectorAll(".change-button");
+const homePageVideoDiv = document.getElementById("homepage-video-div");
+const homePageVideo = document.getElementById("homepage-video");
+const homePageSrc = document.getElementById("homepage-src");
+const moon = document.querySelectorAll(".fa-moon");
+localStorage.setItem("roomMode", "light");
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("roomMode") === "dark") {
+        darkMode();
+    } else {
+        lightMode();
+    }
+});
+
+moon.forEach((element) => {
+    element.addEventListener("click", () => {
+        if (element.classList.contains("fa-regular")) {
+            element.classList.remove("fa-regular");
+            element.classList.add("fa-solid");
+            darkMode();
+        } else {
+            element.classList.remove("fa-solid");
+            element.classList.add("fa-regular");
+            lightMode();
+        }
+    });
+});
+
+function lightMode() {
+    let hasRegularClass = Array.from(moon).some(icon => icon.classList.contains("fa-regular"));
+    if (hasRegularClass) {
+        homePageVideo.pause();
+        homePageSrc.src = "../assets/Video/homepage-light.webm";
+        homePageVideo.load();
+        homePageVideo.classList.remove("homepage-dark-theme");
+        homePageVideo.classList.add("homepage-light-theme");
+        homePageVideoDiv.classList.remove("w-full");
+        homePageVideoDiv.classList.remove("md:w-[75%]");
+        homePageVideoDiv.classList.remove("lg:w-[55%]");
+        homePageVideoDiv.classList.add("w-[70%]");
+        homePageVideoDiv.classList.add("sm:w-[45%]");
+        document.body.classList.remove("text-white");
+        document.body.classList.add("text-black");
+        navbar.classList.remove("bg-zinc-950");
+        navbar.classList.add("bg-gray-300");
+        mobileNav.classList.remove("bg-zinc-950");
+        mobileNav.classList.add("bg-gray-300");
+        main.classList.remove("bg-zinc-950");
+        main.classList.add("bg-gray-300");
+        feature.classList.remove("bg-zinc-950");
+        feature.classList.add("bg-gray-300");
+        contact.classList.remove("bg-zinc-950");
+        contact.classList.add("bg-gray-300");
+        work.classList.remove("bg-stone-950");
+        work.classList.add("bg-gray-200");
+        about.classList.remove("bg-stone-950");
+        about.classList.add("bg-gray-200");
+        change.forEach((element) => {
+            element.classList.remove("bg-zinc-900");
+            element.classList.add("bg-gray-300");
+        });
+        changeContact.forEach((element) => {
+            element.classList.remove("bg-neutral-950");
+            element.classList.add("bg-gray-400");
+        });
+        changeWhite.forEach((element) => {
+            element.classList.remove("bg-black");
+            element.classList.add("bg-gray-400");
+        });
+        changeForm.forEach((element) => {
+            element.classList.remove("bg-gray-700");
+            element.classList.add("bg-gray-200");
+        });
+        changeButton.forEach((element) => {
+            element.classList.remove("hover:bg-zinc-700");
+            element.classList.add("hover:bg-gray-100");
+        });
+        document.getElementById("form-div").classList.remove("bg-gray-800");
+        document.getElementById("form-div").classList.add("bg-gray-300");
+        document.getElementById("sharingOptions").classList.remove("bg-zinc-800");
+        document.getElementById("sharingOptions").classList.add("bg-gray-200");
+        document.querySelectorAll(".dark-theme").forEach((element) => {
+            element.classList.remove("dark-theme");
+            element.classList.add("light-theme");
+        });
+    }
+}
+
+function darkMode() {
+    let hasSolidClass = Array.from(moon).some(icon => icon.classList.contains("fa-solid"));
+    if (hasSolidClass) {
+        homePageVideo.pause();
+        homePageSrc.src = "../assets/Video/homepage-dark.webm";
+        homePageVideo.load();
+        homePageVideo.classList.remove("homepage-light-theme");
+        homePageVideo.classList.add("homepage-dark-theme");
+        homePageVideoDiv.classList.remove("w-[70%]");
+        homePageVideoDiv.classList.remove("sm:w-[45%]");
+        homePageVideoDiv.classList.add("w-full");
+        homePageVideoDiv.classList.add("md:w-[75%]");
+        homePageVideoDiv.classList.add("lg:w-[55%]");
+        document.body.classList.remove("text-black");
+        document.body.classList.add("text-white");
+        navbar.classList.remove("bg-gray-300");
+        navbar.classList.add("bg-zinc-950");
+        mobileNav.classList.remove("bg-gray-300");
+        mobileNav.classList.add("bg-zinc-950");
+        main.classList.remove("bg-gray-300");
+        main.classList.add("bg-zinc-950");
+        feature.classList.remove("bg-gray-300");
+        feature.classList.add("bg-zinc-950");
+        contact.classList.remove("bg-gray-300");
+        contact.classList.add("bg-zinc-950");
+        work.classList.remove("bg-gray-200");
+        work.classList.add("bg-stone-950");
+        about.classList.remove("bg-gray-200");
+        about.classList.add("bg-stone-950");
+        change.forEach((element) => {
+            element.classList.remove("bg-gray-300");
+            element.classList.add("bg-zinc-900");
+        });
+        changeContact.forEach((element) => {
+            element.classList.remove("bg-gray-400");
+            element.classList.add("bg-neutral-950");
+        });
+        changeWhite.forEach((element) => {
+            element.classList.remove("bg-gray-400");
+            element.classList.add("bg-black");
+        });
+        changeForm.forEach((element) => {
+            element.classList.remove("bg-gray-200");
+            element.classList.add("bg-gray-700");
+        });
+        changeButton.forEach((element) => {
+            element.classList.remove("hover:bg-gray-100");
+            element.classList.add("hover:bg-zinc-700");
+        });
+        document.getElementById("form-div").classList.remove("bg-gray-300");
+        document.getElementById("form-div").classList.add("bg-gray-800");
+        document.getElementById("sharingOptions").classList.remove("bg-gray-200");
+        document.getElementById("sharingOptions").classList.add("bg-zinc-800");
+        document.querySelectorAll(".light-theme").forEach((element) => {
+            element.classList.remove("light-theme");
+            element.classList.add("dark-theme");
+        });
+    }
+}
+
 
 hamburger.addEventListener("click", () => {
     mobileNav.classList.remove("hidden");

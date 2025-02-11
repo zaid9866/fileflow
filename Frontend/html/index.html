@@ -18,19 +18,42 @@
             -o-user-drag: none;
             user-select: none;
         }
+
+        .dark-theme {
+            filter: invert(1) brightness(2);
+            mix-blend-mode: screen;
+            -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
+            mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+
+        .light-theme {
+            mix-blend-mode: multiply;
+        }
+
+        .homepage-dark-theme{
+            mix-blend-mode: lighten;
+        }
+        
+        .homepage-light-theme{
+            mix-blend-mode: darken;
+        }
     </style>
 </head>
 
 <body class="m-0 p-0 text-white">
-    <nav class="w-full flex justify-between bg-zinc-950 md:justify-around p-5 items-center">
+    <nav id="navbar" class="w-full flex justify-between bg-zinc-950 md:justify-around p-5 items-center">
         <div class="flex items-center justify-center cursor-pointer">
             <img src="../assets/Images/logo.png" alt="logo" class="w-16 lg:w-20">
         </div>
         <div class="hidden md:flex md:w-[80%] justify-around items-center text-lg md:text-xl lg:text-2xl">
-            <a class="hover:text-gray-300 cursor-pointer scroll-to-work">How it works</a>
-            <a class="hover:text-gray-300 cursor-pointer scroll-to-feature">Features</a>
-            <a class="hover:text-gray-300 cursor-pointer scroll-to-about">About Us</a>
-            <a class="hover:text-gray-300 cursor-pointer scroll-to-contact">Contact Us</a>
+            <a class="hover:cursor-pointer scroll-to-work">How it works</a>
+            <a class="hover:cursor-pointer scroll-to-feature">Features</a>
+            <a class="hover:cursor-pointer scroll-to-about">About Us</a>
+            <a class="hover:cursor-pointer scroll-to-contact">Contact Us</a>
+            <a class="hover:cursor-pointer"><i class="fa-regular fa-moon"></i></a>
         </div>
         <div id="hamburger-div" class="md:hidden cursor-pointer w-10 text-2xl">
             <i id="hamburger" class="fa-solid fa-bars"></i>
@@ -43,66 +66,72 @@
         class="hidden fixed top-[5rem] left-0 w-full h-full bg-zinc-950 flex-col text-xl sm:text-2xl z-50 transition-transform duration-300">
         <ul class="flex flex-col space-y-6 px-8 py-10">
             <li>
-                <a id="mobile-view-work" class="block py-2 hover:text-gray-300 cursor-pointer scroll-to-work">How it works</a>
+                <a id="mobile-view-work" class="block py-2 hover:cursor-pointer scroll-to-work">How it works</a>
             </li>
             <li>
-                <a id="mobile-view-feature" class="block py-2 hover:text-gray-300 cursor-pointer scroll-to-feature">Features</a>
+                <a id="mobile-view-feature" class="block py-2 hover:cursor-pointer scroll-to-feature">Features</a>
             </li>
             <li>
-                <a id="mobile-view-about" class="block py-2 hover:text-gray-300 cursor-pointer scroll-to-about">About Us</a>
+                <a id="mobile-view-about" class="block py-2 hover:cursor-pointer scroll-to-about">About Us</a>
             </li>
             <li>
-                <a id="mobile-view-contact" class="block py-2 hover:text-gray-300 cursor-pointer scroll-to-contact">Contact Us</a>
+                <a id="mobile-view-contact" class="block py-2 hover:cursor-pointer scroll-to-contact">Contact Us</a>
+            </li>
+            <li>
+                <a class="hover:cursor-pointer"><i class="fa-regular fa-moon"></i></a>
             </li>
         </ul>
     </div>
-    <section class="h-screen flex flex-col-reverse lg:flex-row items-center bg-zinc-950 justify-around px-6">
+    <section id="main" class="h-screen flex flex-col-reverse lg:flex-row items-center bg-zinc-950 justify-around px-6">
         <div class="text-center lg:text-left lg:w-[39%]">
-            <h2 class="text-3xl sm:text-5xl font-extrabold mb-10 text-white">Share Your File</h2>
+            <h2 class="text-3xl sm:text-5xl font-extrabold mb-10">Share Your File</h2>
             <p class="text-base sm:text-lg mb-4">Easily share files with friends and colleagues in seconds.</p>
             <p class="text-base sm:text-lg mb-4">No sign-up required, just upload and share instantly.</p>
             <p class="text-base sm:text-lg mb-6">Create a private room for secure file transfers.</p>
             <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start sm:items-baseline gap-5">
                 <div class="relative inline-block">
                     <button id="startSharingBtn"
-                        class="bg-emerald-700 px-6 py-3 w-56 rounded-lg hover:bg-emerald-800 transition">
+                        class="bg-emerald-700 px-6 py-3 w-56 rounded-lg text-white hover:bg-emerald-800 transition">
                         Start Sharing
                     </button>
                     <div id="sharingOptions" class="absolute left-0 mt-2 w-56 bg-zinc-800 rounded-sm shadow-sm hidden">
-                        <button class="w-full text-left px-4 py-3 hover:bg-zinc-700">Instant Sharing</button>
+                        <button class="w-full text-left px-4 py-3 change-button hover:bg-zinc-700">Instant
+                            Sharing</button>
                         <hr class="border-zinc-600">
-                        <button id="display-form" class="w-full text-left px-4 py-3 hover:bg-zinc-700">Create
+                        <button id="display-form"
+                            class="w-full text-left px-4 py-3 change-button hover:bg-zinc-700">Create
                             Room</button>
                     </div>
                 </div>
                 <div class="flex items-center gap-3 mt-4">
-                    <span id="toggleCodeInput" class="underline text-lg sm:text-xl cursor-pointer">I have room code</span>
+                    <span id="toggleCodeInput" class="underline text-lg sm:text-xl cursor-pointer">I have room
+                        code</span>
                     <input id="codeInput" type="text" placeholder="Enter Code" maxlength="6"
                         class="border px-5 py-3 rounded-lg focus:outline-none hidden w-full bg-zinc-900 text-white border-gray-700 text-center">
                 </div>
             </div>
         </div>
-        <div class="w-full md:w-[75%] lg:w-[55%]">
-            <video class="w-full h-[120%] sm:h-fit rounded-lg object-cover" style="mix-blend-mode: lighten;" muted
-                playsinline autoplay loop>
-                <source src="../assets/Video/homepage-video.webm" type="video/webm">
+        <div id="homepage-video-div" class="w-[40%] md:w-[75%] lg:w-[55%]">
+            <video id="homepage-video" class="w-full h-[120%] sm:h-fit rounded-lg homepage-dark-theme" muted playsinline autoplay loop>
+                <source id="homepage-src" src="../assets/Video/homepage-dark.webm" type="video/webm">
                 Your browser does not support the video tag.
             </video>
         </div>
     </section>
     <section id="room-form"
         class="fixed inset-0 hidden items-center justify-center w-11/12 max-w-xs sm:max-w-md mx-auto z-40">
-        <div class="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg w-full relative">
+        <div id="form-div" class="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg w-full relative">
             <i id="close-form"
-                class="fa-solid fa-times absolute top-2 right-3 text-lg sm:text-xl cursor-pointer text-gray-400 hover:text-gray-200"></i>
+                class="fa-solid fa-times absolute top-2 right-3 text-lg sm:text-xl cursor-pointer hover:text-gray-200"></i>
             <h2 class="text-lg sm:text-xl font-semibold text-center mb-3 sm:mb-4">Create Room</h2>
             <form class="space-y-2" method="post">
                 <label for="room-code" class="block text-base sm:text-lg font-medium">Room Code</label>
                 <input type="text" id="room-code" name="room-code" placeholder="Enter Code" maxlength="6"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-sm sm:text-lg" required>
+                    class="w-full p-2 border border-gray-600 bg-gray-700 change-form rounded mb-3 text-sm sm:text-lg"
+                    required>
                 <label for="participants" class="block text-base sm:text-lg font-medium">Number of Participants</label>
                 <select id="participants" name="participants"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-sm sm:text-lg">
+                    class="w-full p-2 border border-gray-600 bg-gray-700 change-form rounded mb-3 text-sm sm:text-lg">
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
@@ -115,7 +144,7 @@
                 </select>
                 <label for="time" class="block text-base sm:text-lg font-medium">Select Time</label>
                 <select id="time" name="time"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 rounded mb-3 text-sm sm:text-lg">
+                    class="w-full p-2 border border-gray-600 bg-gray-700 change-form rounded mb-3 text-sm sm:text-lg">
                     <option value="30">30 Minutes</option>
                     <option value="60">1 Hour</option>
                     <option value="90">1 Hour 30 Minutes</option>
@@ -129,7 +158,7 @@
                 </label>
                 <div class="flex justify-center">
                     <button type="submit" id="submit-form"
-                        class="w-40 p-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-sm sm:text-lg">Create
+                        class="w-40 p-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm sm:text-lg">Create
                         Room</button>
                 </div>
             </form>
@@ -138,86 +167,80 @@
     <section id="work" class="bg-stone-950 border-t pt-10 pb-14 px-6 w-full">
         <div class="max-w-5xl mx-auto text-center">
             <h2 class="text-2xl sm:text-4xl font-bold mb-6">How It Works</h2>
-            <p class="text-lg sm:text-xl text-gray-300 mb-10">
+            <p class="text-lg sm:text-xl mb-10">
                 Share files and text securely with end-to-end encryption. <br>
                 No storage, No tracking, Just private sharing.
             </p>
         </div>
         <div class="w-full flex flex-wrap justify-around gap-10">
-            <div class="flex flex-col items-center p-6 border-2 rounded-lg bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
+            <div
+                class="flex flex-col items-center p-6 border-2 rounded-lg change bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
                 <div class="relative w-full">
-                    <img class="video-thumbnail absolute inset-0 w-full h-full object-cover"
-                        src="../assets/Images/upload-file.jpeg" alt="Thumbnail"
-                        style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
-                    <video class="hover-video w-full h-auto opacity-0"
-                        style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;"
-                        muted playsinline preload="none">
+                    <img class="video-thumbnail absolute inset-0 w-full h-full object-cover dark-theme"
+                        src="../assets/Images/upload-file.jpeg" alt="Thumbnail">
+                    <video class="hover-video w-full h-auto opacity-0 dark-theme" muted playsinline
+                        preload="none">
                         <source src="../assets/Video/upload-file.webm" type="video/webm">
                     </video>
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mt-4">Upload Your File or Text</h3>
-                <p class="text-gray-300 text-sm sm:text-lg text-center mt-2">
+                <p class="text-sm sm:text-lg text-center mt-2">
                     Select a file or enter text you want to share. Your data is encrypted before uploading, ensuring
                     maximum privacy.
                 </p>
             </div>
-            <div class="flex flex-col items-center p-6 border-2 rounded-lg bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
+            <div
+                class="flex flex-col items-center p-6 border-2 rounded-lg change bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
                 <div class="relative w-full">
                     <div class="flex justify-center">
-                        <img class="video-thumbnail absolute w-40" src="../assets/Images/secure-file.jpeg"
-                            alt="Thumbnail"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
+                        <img class="video-thumbnail absolute w-40 dark-theme"
+                            src="../assets/Images/secure-file.jpeg" alt="Thumbnail">
                     </div>
                     <div class="flex justify-center">
-                        <video class="hover-video w-40 opacity-0"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;"
-                            muted playsinline preload="none">
+                        <video class="hover-video w-40 opacity-0 dark-theme" muted playsinline preload="none">
                             <source src="../assets/Video/secure-file.webm" type="video/webm">
                         </video>
                     </div>
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mt-4">Secure Download Link</h3>
-                <p class="text-gray-300 text-sm sm:text-lg text-center mt-2">
+                <p class="text-sm sm:text-lg text-center mt-2">
                     After uploading, you'll get a unique encrypted link to download the file.
                 </p>
             </div>
-            <div class="flex flex-col items-center p-6 border-2 rounded-lg bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
+            <div
+                class="flex flex-col items-center p-6 border-2 rounded-lg change bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
                 <div class="relative w-full">
                     <div class="flex justify-center">
-                        <img class="video-thumbnail absolute w-40" src="../assets/Images/share-file.jpeg"
-                            alt="Thumbnail"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
+                        <img class="video-thumbnail absolute w-40 dark-theme" src="../assets/Images/share-file.jpeg"
+                            alt="Thumbnail">
                     </div>
                     <div class="flex justify-center">
-                        <video class="hover-video w-40 opacity-0"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;"
-                            muted playsinline preload="none">
+                        <video class="hover-video w-40 opacity-0 dark-theme" muted playsinline preload="none">
                             <source src="../assets/Video/share-file.webm" type="video/webm">
                         </video>
                     </div>
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mt-4">Share the Link</h3>
-                <p class="text-gray-300 text-sm sm:text-lg text-center mt-2">
+                <p class="text-sm sm:text-lg text-center mt-2">
                     Send the link to your recipient. They can download the file or copy the text directly from the page.
                 </p>
             </div>
-            <div class="flex flex-col items-center p-6 border-2 rounded-lg bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
+            <div
+                class="flex flex-col items-center p-6 border-2 rounded-lg change bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
                 <div class="relative w-full">
                     <div class="flex justify-center">
-                        <img class="video-thumbnail absolute w-fit h-36" src="../assets/Images/delete-file.jpeg"
-                            alt="Thumbnail"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
+                        <img class="video-thumbnail absolute w-fit h-36 dark-theme"
+                            src="../assets/Images/delete-file.jpeg" alt="Thumbnail">
                     </div>
                     <div class="flex justify-center">
-                        <video class="hover-video w-fit h-36 opacity-0"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;"
-                            muted playsinline preload="none">
+                        <video class="hover-video w-fit h-36 opacity-0 dark-theme" muted playsinline
+                            preload="none">
                             <source src="../assets/Video/delete-file.webm" type="video/webm">
                         </video>
                     </div>
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mt-4">Auto-Deletion & Security</h3>
-                <p class="text-gray-300 text-sm sm:text-lg text-center mt-2">
+                <p class="text-sm sm:text-lg text-center mt-2">
                     The link will expire once the room is closed or the file is deleted, making it inaccessible.
                 </p>
             </div>
@@ -226,7 +249,7 @@
     <section id="feature" class="w-full px-6 pt-10 pb-14 border-t border-white bg-zinc-950">
         <h2 class="text-3xl sm:text-4xl text-center font-bold mb-12">Features</h2>
         <div id="feature-container" class="flex flex-wrap items-baseline justify-center gap-5">
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">End-to-End Encryption</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -236,7 +259,7 @@
                         are securely encrypted. Once the room is closed, all data is automatically deleted.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">No Personal Info</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -246,7 +269,7 @@
                         information to use this service no email or phone number required.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Create Your Own Code</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -256,7 +279,7 @@
                         if the room is available.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Change Your Name</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -266,7 +289,7 @@
                         anytime while inside the room.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Modify Room Duration</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -276,7 +299,7 @@
                         decreased even after creation.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Set Number of Guests</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -286,7 +309,7 @@
                         your room, with a maximum limit of 10 including host.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Remove or Block Guests</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -296,7 +319,7 @@
                         Removed guests can rejoin, but blocked guests will not be able to join again.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Access Control</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -306,7 +329,7 @@
                         guests can only join after approval.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Download Text</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -316,7 +339,7 @@
                         .js, and other formats.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Multiple Text Fields</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -326,7 +349,7 @@
                         (up to 5) for organizing different messages.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Built-in Chat System</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -336,7 +359,7 @@
                         participants to communicate instantly.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Download file</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
@@ -405,35 +428,35 @@
     <section id="contact" class="bg-zinc-950 border-t pt-10 pb-12 px-6 w-full">
         <div class="max-w-3xl mx-auto text-center">
             <h2 class="text-3xl sm:text-4xl font-bold mb-4">Contact Us</h2>
-            <p class="text-sm sm:text-lg text-gray-300 mb-6">Have questions or need support? Get in touch with us.</p>
+            <p class="text-sm sm:text-lg mb-6">Have questions or need support? Get in touch with us.</p>
         </div>
         <div class="max-w-2xl mx-auto">
             <form id="contactForm" class="space-y-4">
                 <div>
-                    <label for="name" class="block text-gray-400 text-sm sm:text-lg mb-1">Your Name</label>
+                    <label for="name" class="block text-sm sm:text-lg mb-1">Your Name</label>
                     <input id="name" name="name" type="text" autocomplete="name" placeholder="Enter your name"
-                        class="w-full px-4 py-2 bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full px-4 py-2 change-contact bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
                 </div>
                 <div>
-                    <label for="email" class="block text-gray-400 text-sm sm:text-lg mb-1">Your Email</label>
+                    <label for="email" class="block text-sm sm:text-lg mb-1">Your Email</label>
                     <input id="email" name="email" type="email" autocomplete="email" placeholder="Enter your email"
-                        class="w-full px-4 py-2 bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full px-4 py-2 change-contact bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
                 </div>
                 <div>
-                    <label for="message" class="block text-gray-400 text-sm sm:text-lg mb-1">Message</label>
+                    <label for="message" class="block text-sm sm:text-lg mb-1">Message</label>
                     <textarea id="message" name="message" rows="4" autocomplete="off" placeholder="Enter your message"
-                        class="w-full px-4 py-2 bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"></textarea>
+                        class="w-full px-4 py-2 change-contact bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"></textarea>
                 </div>
                 <div class="flex justify-center">
                     <button type="submit"
-                        class="w-48 bg-emerald-500 hover:bg-emerald-600 border text-sm sm:text-lg font-semibold py-2 rounded-lg transition">Send
+                        class="w-48 bg-emerald-500 hover:bg-emerald-600 text-white border text-sm sm:text-lg font-semibold py-2 rounded-lg transition">Send
                         Message</button>
                 </div>
             </form>
         </div>
     </section>
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden"></div>
-    <footer class="bg-black border-t p-6 w-full">
+    <div id="overlay" class="fixed inset-0 bg-black change-white bg-opacity-50 hidden"></div>
+    <footer class="bg-black change-white border-t p-6 w-full">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center">
             <div class="flex items-center space-x-2">
                 <img src="../assets/Images/logo.png" alt="File Flow Logo" class="h-10 sm:h-12">
