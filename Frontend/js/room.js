@@ -11,6 +11,162 @@ let filesArray = [];
 const maxFiles = 20;
 const maxTotalSize = 500 * 1024 * 1024;
 let textFieldCount = document.querySelectorAll(".text-field").length;
+const chatInput = document.getElementById("chat-input");
+const hamburgerDiv = document.getElementById("hamburger-div");
+const hamburger = document.getElementById("hamburger");
+const mobileNav = document.getElementById("nav-menu");
+const cancelHamburgerDiv = document.getElementById("cancel-hamburger-div");
+const cancelHamburger = document.getElementById("cancel-hamburger");
+const showToFeature = document.querySelectorAll(".show-to-feature");
+const showToAbout = document.querySelectorAll(".show-to-about");
+const showToWork = document.querySelectorAll(".show-to-work");
+const feature = document.getElementById("feature");
+const about = document.getElementById("about");
+const work = document.getElementById("work");
+const mobileViewFeature = document.getElementById("mobile-view-feature");
+const mobileViewAbout = document.getElementById("mobile-view-about");
+const mobileViewWork = document.getElementById("mobile-view-work");
+const closeWork = document.getElementById("close-work");
+const closeFeature = document.getElementById("close-feature");
+const closeAbout = document.getElementById("close-about");
+const hide = document.querySelectorAll(".hide");
+const container = document.getElementById("user-container");
+const userRole = sessionStorage.setItem("role","Host");
+
+hamburger.addEventListener("click", () => {
+    mobileNav.classList.remove("hidden");
+    hamburgerDiv.classList.add("hidden");
+    cancelHamburgerDiv.classList.remove("hidden");
+    cancelHamburgerDiv.classList.add("flex");
+    document.body.style.overflow = "hidden";
+});
+
+function addMobileNavEvents(elements, callback) {
+    elements.forEach((element) => {
+        element.addEventListener("click", callback);
+    });
+}
+
+function mobileNavbar() {
+    mobileNav.classList.add("hidden");
+    hamburgerDiv.classList.remove("hidden");
+    cancelHamburgerDiv.classList.add("hidden");
+    cancelHamburgerDiv.classList.remove("flex");
+    document.body.style.overflow = "auto";
+}
+
+addMobileNavEvents(
+    [cancelHamburger, mobileViewFeature, mobileViewAbout, mobileViewWork],
+    mobileNavbar
+);
+
+document.querySelectorAll('.feature-item').forEach(item => {
+    let info = item.querySelector('.feature-info');
+    let arrow = item.querySelector('i');
+    let btn = item.querySelector('.toggle-btn');
+    const showFeature = () => {
+        document.querySelectorAll('.feature-info').forEach(el => {
+            el.style.maxHeight = null;
+            el.style.opacity = "0";
+        });
+        document.querySelectorAll('.feature-item i').forEach(el => {
+            el.style.transform = "rotate(0deg)";
+        });
+        info.style.maxHeight = info.scrollHeight + "px";
+        info.style.opacity = "1";
+        arrow.style.transform = "rotate(90deg)";
+    };
+    const hideFeature = () => {
+        info.style.maxHeight = null;
+        info.style.opacity = "0";
+        arrow.style.transform = "rotate(0deg)";
+    };
+    btn.addEventListener('click', () => {
+        if (info.style.maxHeight) {
+            hideFeature();
+        } else {
+            showFeature();
+        }
+    });
+    item.addEventListener('mouseenter', showFeature);
+    item.addEventListener('mouseleave', hideFeature);
+    item.addEventListener('touchstart', showFeature);
+    item.addEventListener('touchend', hideFeature);
+    item.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        const rect = item.getBoundingClientRect();
+        if (!(touch.clientX >= rect.left && touch.clientX <= rect.right && touch.clientY >= rect.top && touch.clientY <= rect.bottom)) {
+            hideFeature();
+        }
+    });
+});
+
+function show(triggerElements, targetElement) {
+    triggerElements.forEach((element) => {
+        element.addEventListener("click", () => {
+            hide.forEach((e) => {
+                e.classList.add("hidden");
+            });
+            targetElement.classList.remove("hidden");
+        });
+    });
+}
+
+[showToAbout, showToFeature, showToWork].forEach((element) => {
+    if (element === showToFeature) {
+        show(element, feature);
+    } else if (element === showToAbout) {
+        show(element, about);
+    } else {
+        show(element, work);
+    }
+});
+
+[closeAbout, closeFeature, closeWork].forEach((element) => {
+    element.addEventListener("click", () => {
+        hide.forEach((e) => {
+            e.classList.remove("hidden");
+        });
+        if (element === closeAbout) {
+            about.classList.add("hidden");
+        } else if (element === closeFeature) {
+            feature.classList.add("hidden");
+        } else {
+            work.classList.add("hidden");
+        }
+        mobileNav.classList.add("hidden");
+    });
+});
+
+document.querySelectorAll(".hover-video").forEach(video => {
+    let source = video.querySelector("source");
+    let card = video.closest(".card");
+    let thumbnail = card.querySelector(".video-thumbnail");
+    if (!source || !source.src) {
+        return;
+    }
+    video.src = source.src;
+    video.load();
+    function playVideo() {
+        if (video.readyState >= 2) {
+            video.currentTime = 0;
+            video.loop = true;
+            video.play().catch(err => console.warn("Autoplay blocked:", err));
+            thumbnail.classList.add("hidden");
+            video.classList.remove("opacity-0");
+        }
+    }
+    function stopVideo() {
+        video.pause();
+        video.currentTime = 0;
+        thumbnail.classList.remove("hidden");
+        video.classList.add("opacity-0");
+    }
+    card.addEventListener("mouseenter", playVideo);
+    card.addEventListener("mouseleave", stopVideo);
+    card.addEventListener("touchstart", playVideo);
+    card.addEventListener("touchend", stopVideo);
+});
 
 removeOverflow.addEventListener("click", () => {
     if (removeOverflow.style.transform === "rotate(0deg)") {
@@ -525,3 +681,101 @@ function createPDF(content, fileName) {
     doc.text(content, 10, 10);
     doc.save(`${fileName}.pdf`);
 }
+
+chatInput.addEventListener("input", function () {
+    this.style.height = "auto";
+    this.style.height = (this.scrollHeight) + "px";
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const sendButton = document.querySelector(".fa-paper-plane").parentElement;
+    const chatBox = document.getElementById("chats-box");
+
+    sendButton.addEventListener("click", async function () {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const ampm = hours >= 12 ? "PM" : "AM";
+        const formattedTime = `${hours % 12 || 12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
+        chatBox.appendChild(createSentMessage(message, formattedTime));
+        chatInput.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+        // try {
+        //     const response = await fetch("http://localhost:3000/chats", {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify({ message }),
+        //     });
+
+        //     if (response.ok) {
+        //         chatBox.appendChild(createSentMessage(message, formattedTime));
+        //         chatInput.value = "";
+        //         chatBox.scrollTop = chatBox.scrollHeight;
+        //     } else {
+        //         showMessage("Message not sent! Please try again.");
+        //     }
+        // } catch (error) {
+        //     console.error("Error sending message:", error);
+        // }
+    });
+});
+
+function createSentMessage(message, time) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "flex flex-col items-end";
+
+    messageDiv.innerHTML = `
+        <div class="bg-emerald-600 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+            <p>${message}</p>
+            <span class="text-xs block text-right mt-1">${time}</span>
+        </div>
+    `;
+
+    return messageDiv;
+}
+
+
+function createReceivedMessage(name, message, time) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "flex flex-col";
+    messageDiv.innerHTML = `
+        <span class="text-sm font-semibold">${name}</span>
+        <div class="bg-gray-800 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+            <p>${message}</p>
+            <span class="text-xs block text-right mt-1">${time}</span>
+        </div>
+    `;
+    return messageDiv;
+}
+
+const users = [
+    { name: "Zaid Kotimbire", role: "Host" },
+    { name: "Khalid Khilji", role: "Guest" },
+    { name: "Izhar Khan", role: "Guest" },
+    { name: "Rizwan Khan", role: "Guest" }
+];
+
+users.forEach(user => {
+    const userRole = sessionStorage.getItem("role");
+    const card = document.createElement("div");
+    card.className = `w-60 bg-gray-800 p-4 rounded-lg shadow-lg border-l-4 flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-600"
+        }`;
+
+    const userInfo = `
+        <div>
+            <h3 class="text-lg font-semibold">${user.name}</h3>
+            <p class="text-sm ${user.role === "Host" ? "text-emerald-400" : "text-cyan-400"}">${user.role}</p>
+        </div>`;
+
+    const removeIcon = user.role === "Guest" && userRole !== "Guest"
+        ? `<i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400"></i>`
+        : "";
+
+    card.innerHTML = userInfo + removeIcon;
+    container.appendChild(card);
+});
