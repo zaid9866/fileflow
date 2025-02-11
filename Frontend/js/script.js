@@ -86,11 +86,11 @@ function lightMode() {
         about.classList.add("bg-gray-200");
         change.forEach((element) => {
             element.classList.remove("bg-zinc-900");
-            element.classList.add("bg-gray-300");
+            element.classList.add("bg-gray-200");
         });
         changeContact.forEach((element) => {
             element.classList.remove("bg-neutral-950");
-            element.classList.add("bg-gray-400");
+            element.classList.add("bg-gray-200");
         });
         changeWhite.forEach((element) => {
             element.classList.remove("bg-black");
@@ -145,11 +145,11 @@ function darkMode() {
         about.classList.remove("bg-gray-200");
         about.classList.add("bg-stone-950");
         change.forEach((element) => {
-            element.classList.remove("bg-gray-300");
+            element.classList.remove("bg-gray-200");
             element.classList.add("bg-zinc-900");
         });
         changeContact.forEach((element) => {
-            element.classList.remove("bg-gray-400");
+            element.classList.remove("bg-gray-200");
             element.classList.add("bg-neutral-950");
         });
         changeWhite.forEach((element) => {
