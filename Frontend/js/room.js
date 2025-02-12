@@ -73,7 +73,7 @@ function lightMode() {
         document.body.classList.add("text-black");
         document.body.classList.remove("bg-zinc-900");
         document.body.classList.add("bg-gray-300");
-        mobileNav.classList.remove("bg-zinc-950");
+        mobileNav.classList.remove("bg-zinc-900");
         mobileNav.classList.add("bg-gray-300");
         roomInfo.classList.remove("bg-zinc-950");
         roomInfo.classList.add("bg-gray-700");
@@ -89,7 +89,7 @@ function lightMode() {
         textSection.classList.remove("bg-slate-900");
         textSection.classList.add("bg-gray-200");
         roomChat.classList.remove("bg-gray-900");
-        roomChat.classList.add("bg-gray-200");
+        roomChat.classList.add("bg-white");
         feature.classList.remove("bg-zinc-950");
         feature.classList.add("bg-gray-300");
         work.classList.remove("bg-stone-950");
@@ -97,7 +97,7 @@ function lightMode() {
         about.classList.remove("bg-stone-950");
         about.classList.add("bg-gray-200");
         warn.classList.remove("bg-zinc-950");
-        warn.classList.add("bg-gray-200");
+        warn.classList.add("bg-white");
         change.forEach((element) => {
             element.classList.remove("bg-zinc-900");
             element.classList.add("bg-gray-200");
@@ -116,7 +116,7 @@ function lightMode() {
             const changeChat = document.querySelectorAll(".change-chat");
             changeChat.forEach((element) => {
                 element.classList.remove("bg-gray-800");
-                element.classList.add("bg-gray-300");
+                element.classList.add("bg-gray-100");
             });
             const changeRole = document.querySelectorAll(".change-role");
             changeRole.forEach((element) => {
@@ -156,7 +156,7 @@ function darkMode() {
         document.body.classList.remove("bg-gray-300");
         document.body.classList.add("bg-zinc-900");
         mobileNav.classList.remove("bg-gray-300");
-        mobileNav.classList.add("bg-zinc-950");
+        mobileNav.classList.add("bg-zinc-900");
         roomInfo.classList.remove("bg-gray-700");
         roomInfo.classList.add("bg-zinc-950");
         roomShare.classList.remove("bg-gray-700");
@@ -170,7 +170,7 @@ function darkMode() {
         dropzone.classList.add("hover:bg-gray-700");
         textSection.classList.remove("bg-gray-200");
         textSection.classList.add("bg-slate-900");
-        roomChat.classList.remove("bg-gray-200");
+        roomChat.classList.remove("bg-white");
         roomChat.classList.add("bg-gray-900");
         feature.classList.remove("bg-gray-300");
         feature.classList.add("bg-zinc-950");
@@ -178,7 +178,7 @@ function darkMode() {
         work.classList.add("bg-stone-950");
         about.classList.remove("bg-gray-200");
         about.classList.add("bg-stone-950");
-        warn.classList.remove("bg-gray-200");
+        warn.classList.remove("bg-white");
         warn.classList.add("bg-zinc-950");
         change.forEach((element) => {
             element.classList.remove("bg-gray-200");
@@ -197,7 +197,7 @@ function darkMode() {
             });
             const changeChat = document.querySelectorAll(".change-chat");
             changeChat.forEach((element) => {
-                element.classList.remove("bg-gray-300");
+                element.classList.remove("bg-gray-100");
                 element.classList.add("bg-gray-800");
             });
             const changeRole = document.querySelectorAll(".change-role");

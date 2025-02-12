@@ -76,6 +76,8 @@ function lightMode() {
         mobileNav.classList.add("bg-gray-300");
         main.classList.remove("bg-zinc-950");
         main.classList.add("bg-gray-300");
+        document.getElementById("codeInput").classList.remove("bg-zinc-900");
+        document.getElementById("codeInput").classList.add("bg-gray-200");
         feature.classList.remove("bg-zinc-950");
         feature.classList.add("bg-gray-300");
         contact.classList.remove("bg-zinc-950");
@@ -156,6 +158,8 @@ function darkMode() {
         mobileNav.classList.add("bg-zinc-950");
         main.classList.remove("bg-gray-300");
         main.classList.add("bg-zinc-950");
+        document.getElementById("codeInput").classList.remove("bg-gray-200");
+        document.getElementById("codeInput").classList.add("bg-zinc-900");
         feature.classList.remove("bg-gray-300");
         feature.classList.add("bg-zinc-950");
         contact.classList.remove("bg-gray-300");
