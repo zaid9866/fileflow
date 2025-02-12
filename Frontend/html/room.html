@@ -11,6 +11,25 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
     <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #222;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #333, #000);
+            border-radius: 10px;
+            border: 1px solid #fff;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #ddd, #888);
+            border: 1px solid #000;
+        }
+
         img,
         video {
             pointer-events: none;
@@ -21,34 +40,48 @@
         }
 
         .select2-container .select2-selection--single {
-            background-color: #1f2937 !important;
-            border: 1px solid #4a5568 !important;
+            background-color: var(--select2-bg) !important;
+            border: 1px solid var(--select2-border) !important;
             padding: 8px !important;
             border-radius: 0.375rem !important;
-            color: white !important;
+            color: var(--select2-text) !important;
             height: auto !important;
             display: flex !important;
             align-items: center !important;
         }
 
         .select2-dropdown {
-            background-color: #1f2937 !important;
-            border: 1px solid #4a5568 !important;
+            background-color: var(--select2-bg) !important;
+            border: 1px solid var(--select2-border) !important;
         }
 
         .select2-results__option {
             padding: 10px !important;
-            color: white !important;
-            background-color: #1f2937 !important;
+            color: var(--select2-text) !important;
+            background-color: var(--select2-bg) !important;
         }
 
         .select2-results__option--highlighted {
-            background-color: #4a5568 !important;
+            background-color: var(--select2-highlight) !important;
         }
 
         .select2-selection__arrow {
             top: 50% !important;
             transform: translateY(-50%) !important;
+        }
+
+        .dark-theme {
+            filter: invert(1) brightness(2);
+            mix-blend-mode: screen;
+            -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
+            mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+
+        .light-theme {
+            mix-blend-mode: multiply;
         }
     </style>
 </head>
@@ -62,8 +95,9 @@
             <a class="hover:text-gray-300 cursor-pointer show-to-work">How it works</a>
             <a class="hover:text-gray-300 cursor-pointer show-to-feature">Features</a>
             <a class="hover:text-gray-300 cursor-pointer show-to-about">About Us</a>
-            <a id="leave-room" class="hover:text-gray-300 cursor-pointer"><i
+            <a id="leave-room" href="./index.html" class="hover:text-gray-300 cursor-pointer"><i
                     class="fa-solid fa-right-from-bracket"></i></a>
+            <a class="hover:cursor-pointer hover:text-gray-300"><i class="fa-solid fa-moon"></i></a>
         </div>
         <div id="hamburger-div" class="md:hidden cursor-pointer w-10 text-2xl">
             <i id="hamburger" class="fa-solid fa-bars"></i>
@@ -88,142 +122,148 @@
                     Us</a>
             </li>
             <li>
-                <a id="mobile-leave-room" class="hover:text-gray-300 cursor-pointer"><i
+                <a id="mobile-leave-room" href="./index.html" class="hover:text-gray-300 cursor-pointer"><i
                         class="fa-solid fa-right-from-bracket"></i></a>
+            </li>
+            <li>
+                <a class="hover:cursor-pointer hover:text-gray-300"><i class="fa-solid fa-moon"></i></a>
             </li>
         </ul>
     </div>
-    <section
-        class="hide flex items-baseline m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl">
-        <div id="head"
-            class="flex flex-wrap w-full items-center justify-between h-8 overflow-hidden gap-x-8 sm:gap-x-10 gap-4">
-            <div>Room Code: <span id="room-code">ABCDEF</span></div>
-            <div>Username: <span id="username">User</span></div>
-            <div>User Role: <span id="user-role">Host</span></div>
-            <div>Number of Users: <span id="no-of-user">1/10</span></div>
-            <div>Remaining Time: <span id="time-remaining">58:00</span></div>
-        </div>
-        <div class="min-[1096px]:hidden mr-3">
-            <i id="remove-overflow" class="fa-solid fa-arrow-down cursor-pointer transition-transform duration-300"></i>
-        </div>
-    </section>
-    <section
-        class="hide bg-zinc-950 items-center flex flex-col-reverse sm:flex-row justify-between border-b border-b-slate-900 m-5 sm:mx-20 md:mx-32 lg:mx-40 my-0 text-base sm:text-lg">
-        <div class="flex items-baseline justify-center w-full sm:w-96 h-full">
-            <div id="share-file"
-                class="flex items-center justify-center gap-3 py-3 w-28 sm:w-40 bg-slate-900 border rounded-t-lg border-b-0">
-                <i class="fa-solid fa-folder"></i>
-                <span>File</span>
+    <main class="hide">
+        <section id="room-info"
+            class="flex items-baseline text-white m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl">
+            <div id="head"
+                class="flex flex-wrap w-full items-center justify-between h-8 overflow-hidden gap-x-8 sm:gap-x-10 gap-4">
+                <div>Room Code: <span id="room-code">ABCDEF</span></div>
+                <div>Username: <span id="username">User</span></div>
+                <div>User Role: <span id="user-role">Host</span></div>
+                <div>Number of Users: <span id="no-of-user">1/10</span></div>
+                <div>Remaining Time: <span id="time-remaining">58:00</span></div>
             </div>
-            <div id="share-text" class="flex items-center justify-center gap-3 py-3 w-28 sm:w-40">
-                <i class="fa-solid fa-font"></i>
-                <span>Text</span>
+            <div class="min-[1322px]:hidden mr-3">
+                <i id="remove-overflow"
+                    class="fa-solid fa-arrow-down cursor-pointer transition-transform duration-300"></i>
             </div>
-        </div>
-        <button
-            class="w-30 p-2 mr-0 sm:mr-5 mb-4 sm:mb-2 bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg transition">Share</button>
-    </section>
-    <section id="file-section"
-        class="hide bg-slate-900 text-white p-6 rounded-b-xl shadow-lg text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
-        <div id="dropzone"
-            class="border-2 min-h-[400px] border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer bg-gray-800 hover:bg-gray-700 transition-all">
-            <video id="dropzone-video" class="w-60 rounded-lg" autoplay loop muted
-                style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
-                <source src="../assets/Video/no-file.webm" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p class="mt-4 text-red-400 font-semibold">Can't see any file here</p>
-            <p class="text-gray-300 mt-4">Drag & Drop files here</p>
-            <p class="text-gray-400">or</p>
-            <button id="browseBtn"
-                class="mt-2 px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600">
-                Browse Files
-            </button>
-            <input type="file" id="fileInput" multiple class="hidden">
-            <p class="mt-4 text-gray-400 text-center">Allowed: 500MB | Max: 20 files</p>
-        </div>
-        <div id="file-list-container" class="hidden">
-            <div id="file-list" class="mt-6 space-y-3"></div>
-            <div class="mt-4 flex justify-between text-gray-300">
-                <p id="file-limit-display" class="text-sm text-gray-400"></p>
+        </section>
+        <section id="room-share"
+            class="bg-zinc-950 items-center text-white flex flex-col-reverse sm:flex-row justify-between m-5 sm:mx-20 md:mx-32 lg:mx-40 my-0 text-base sm:text-lg">
+            <div class="flex items-baseline justify-center w-full sm:w-96 h-full">
+                <div id="share-file"
+                    class="flex items-center justify-center gap-3 py-3 w-28 sm:w-40 bg-slate-900 border rounded-t-lg border-b-0 outline-0 open">
+                    <i class="fa-solid fa-folder"></i>
+                    <span>File</span>
+                </div>
+                <div id="share-text" class="flex items-center justify-center gap-3 py-3 w-28 sm:w-40">
+                    <i class="fa-solid fa-font"></i>
+                    <span>Text</span>
+                </div>
             </div>
-            <div class="flex justify-center">
-                <button id="addMoreBtn"
-                    class="mt-4 px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600">
-                    Add More Files
+            <button
+                class="w-30 p-2 mr-0 sm:mr-5 mb-4 sm:mb-2 bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg transition">Share</button>
+        </section>
+        <section id="file-section"
+            class="bg-slate-900 p-6 rounded-b-xl shadow-lg text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
+            <div id="dropzone"
+                class="border-2 min-h-[400px] border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer bg-gray-800 hover:bg-gray-700 transition-all">
+                <video id="dropzone-video" class="w-60 rounded-lg" autoplay loop muted
+                    style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
+                    <source src="../assets/Video/no-file.webm" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p class="mt-4 text-red-700 font-semibold">Can't see any file here</p>
+                <p class="mt-4">Drag & Drop files here</p>
+                <p>or</p>
+                <button id="browseBtn"
+                    class="mt-2 px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600">
+                    Browse Files
+                </button>
+                <input type="file" id="fileInput" multiple class="hidden">
+                <p class="mt-4 text-center">Allowed: 500MB | Max: 20 files</p>
+            </div>
+            <div id="file-list-container" class="hidden">
+                <div id="file-list" class="mt-6 space-y-3"></div>
+                <div class="mt-4 flex justify-between">
+                    <p id="file-limit-display" class="text-sm"></p>
+                </div>
+                <div class="flex justify-center">
+                    <button id="addMoreBtn"
+                        class="mt-4 px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600">
+                        Add More Files
+                    </button>
+                </div>
+                <input type="file" id="moreFileInput" multiple class="hidden">
+            </div>
+        </section>
+        <section id="text-section"
+            class="bg-slate-900 p-6 hidden rounded-b-xl shadow-lg text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
+            <div id="text-container" class="flex flex-col justify-center gap-10">
+                <div class="w-full rounded-lg border p-4 min-h-[400px] relative text-field">
+                    <div class="hidden remove-text">
+                        <i class="fa-solid fa-times absolute top-3 right-4"></i>
+                    </div>
+                    <div class="flex flex-wrap gap-x-4 gap-3 mt-4 mb-3">
+                        <input type="text" id="title-input-1" placeholder="Enter file name"
+                            class="text-name border p-2 min-w-28 rounded w-full sm:w-auto flex-1 change-text bg-gray-800">
+                        <select id="format-select-1" class="format-select select2 border p-2 rounded bg-gray-800">
+                            <option value="txt">TXT (.txt)</option>
+                            <option value="pdf">PDF (.pdf)</option>
+                            <option value="docx">Word (.docx)</option>
+                            <option value="md">Markdown (.md)</option>
+                            <option value="rtf">Rich Text (.rtf)</option>
+                            <option value="html">HTML (.html)</option>
+                            <option value="css">CSS (.css)</option>
+                            <option value="js">JavaScript (.js)</option>
+                            <option value="ts">TypeScript (.ts)</option>
+                            <option value="php">PHP (.php)</option>
+                            <option value="py">Python (.py)</option>
+                            <option value="java">Java (.java)</option>
+                            <option value="c">C (.c)</option>
+                            <option value="cpp">C++ (.cpp)</option>
+                            <option value="cs">C# (.cs)</option>
+                            <option value="sql">SQL (.sql)</option>
+                            <option value="json">JSON (.json)</option>
+                            <option value="xml">XML (.xml)</option>
+                            <option value="yaml">YAML (.yaml)</option>
+                            <option value="csv">CSV (.csv)</option>
+                            <option value="bat">Batch File (.bat)</option>
+                            <option value="sh">Shell Script (.sh)</option>
+                            <option value="swift">Swift (.swift)</option>
+                            <option value="kt">Kotlin (.kt)</option>
+                            <option value="rb">Ruby (.rb)</option>
+                            <option value="go">Go (.go)</option>
+                            <option value="rs">Rust (.rs)</option>
+                            <option value="dart">Dart (.dart)</option>
+                            <option value="lua">Lua (.lua)</option>
+                            <option value="perl">Perl (.pl)</option>
+                        </select>
+                        <button id="download-btn-1" class="text-emerald-500 hover:text-emerald-600">
+                            <i class="fa-solid fa-download download text-lg sm:text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <textarea id="text-box-1" rows="10" placeholder="Enter text here..."
+                            class="text-box w-full p-2 border rounded resize-none change-text bg-gray-800"></textarea>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2 mt-2">
+                        <button class="bg-emerald-600 text-white px-4 py-2 rounded flex items-center gap-2 copy-btn">
+                            <i class="fa-solid fa-copy"></i> Copy Text
+                        </button>
+                        <button class="bg-red-600 text-white px-4 py-2 rounded flex items-center gap-2 clear-btn">
+                            <i class="fa-solid fa-delete-left"></i> Clear Text
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button id="add-text"
+                    class="bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center gap-2 shadow-lg hover:bg-blue-600">
+                    <i class="fa-solid fa-plus"></i> Add Text Field
                 </button>
             </div>
-            <input type="file" id="moreFileInput" multiple class="hidden">
-        </div>
-    </section>
-    <section id="text-section"
-        class="hide bg-slate-900 p-6 hidden rounded-b-xl shadow-lg text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
-        <div id="text-container" class="flex flex-col justify-center gap-10">
-            <div class="w-full rounded-lg border p-4 min-h-[400px] relative text-field">
-                <div class="hidden remove-text">
-                    <i class="fa-solid fa-times absolute top-3 right-4"></i>
-                </div>
-                <div class="flex flex-wrap gap-x-4 gap-3 mt-4 mb-3">
-                    <input type="text" id="title-input-1" placeholder="Enter file name"
-                        class="text-name border p-2 min-w-28 rounded w-full sm:w-auto flex-1 bg-gray-800">
-                    <select id="format-select-1" class="format-select select2 border p-2 rounded bg-gray-800">
-                        <option value="txt">TXT (.txt)</option>
-                        <option value="pdf">PDF (.pdf)</option>
-                        <option value="docx">Word (.docx)</option>
-                        <option value="md">Markdown (.md)</option>
-                        <option value="rtf">Rich Text (.rtf)</option>
-                        <option value="html">HTML (.html)</option>
-                        <option value="css">CSS (.css)</option>
-                        <option value="js">JavaScript (.js)</option>
-                        <option value="ts">TypeScript (.ts)</option>
-                        <option value="php">PHP (.php)</option>
-                        <option value="py">Python (.py)</option>
-                        <option value="java">Java (.java)</option>
-                        <option value="c">C (.c)</option>
-                        <option value="cpp">C++ (.cpp)</option>
-                        <option value="cs">C# (.cs)</option>
-                        <option value="sql">SQL (.sql)</option>
-                        <option value="json">JSON (.json)</option>
-                        <option value="xml">XML (.xml)</option>
-                        <option value="yaml">YAML (.yaml)</option>
-                        <option value="csv">CSV (.csv)</option>
-                        <option value="bat">Batch File (.bat)</option>
-                        <option value="sh">Shell Script (.sh)</option>
-                        <option value="swift">Swift (.swift)</option>
-                        <option value="kt">Kotlin (.kt)</option>
-                        <option value="rb">Ruby (.rb)</option>
-                        <option value="go">Go (.go)</option>
-                        <option value="rs">Rust (.rs)</option>
-                        <option value="dart">Dart (.dart)</option>
-                        <option value="lua">Lua (.lua)</option>
-                        <option value="perl">Perl (.pl)</option>
-                    </select>
-                    <button id="download-btn-1" class="text-emerald-500 hover:text-emerald-600">
-                        <i class="fa-solid fa-download download text-lg sm:text-xl"></i>
-                    </button>
-                </div>
-                <div class="relative">
-                    <textarea id="text-box-1" rows="10" placeholder="Enter text here..."
-                        class="text-box w-full p-2 border rounded resize-none bg-gray-800"></textarea>
-                </div>
-                <div class="flex flex-wrap justify-center gap-2 mt-2">
-                    <button class="bg-emerald-600 px-4 py-2 rounded flex items-center gap-2 copy-btn">
-                        <i class="fa-solid fa-copy"></i> Copy Text
-                    </button>
-                    <button class="bg-red-600 px-4 py-2 rounded flex items-center gap-2 clear-btn">
-                        <i class="fa-solid fa-delete-left"></i> Clear Text
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="flex justify-center mt-4">
-            <button id="add-text"
-                class="bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center gap-2 shadow-lg hover:bg-blue-600">
-                <i class="fa-solid fa-plus"></i> Add Text Field
-            </button>
-        </div>
-    </section>
-    <section
+        </section>
+    </main>
+    <section id="room-chat"
         class="m-5 sm:mx-20 md:mx-32 lg:mx-40 bg-gray-900 rounded-lg shadow-lg p-4 flex flex-col min-h-[600px] hide">
         <div class="text-center border-b border-gray-700 pb-2 mb-2">
             <h2 class="text-lg font-semibold">Room Code: <span class="text-emerald-400">ABCDEF</span></h2>
@@ -231,28 +271,28 @@
         <div id="chats-box" class="flex-1 overflow-y-auto space-y-4 p-2 scrollbar-hide flex flex-col justify-end">
             <div class="flex flex-col">
                 <span class="text-sm font-semibold">Zaid Kotimbire</span>
-                <div class="bg-gray-800 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
                     <p>Hey guys, what's up?</p>
                     <span class="text-xs block text-right mt-1">10:10 AM</span>
                 </div>
             </div>
             <div class="flex flex-col">
                 <span class="text-sm font-semibold">Izhar Khan</span>
-                <div class="bg-gray-800 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
                     <p>Not much, just chilling!</p>
                     <span class="text-xs block text-right mt-1">10:12 AM</span>
                 </div>
             </div>
             <div class="flex flex-col">
                 <span class="text-sm font-semibold">Khalid Khilji</span>
-                <div class="bg-gray-800 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
                     <p>Let's plan something for the weekend.</p>
                     <span class="text-xs block text-right mt-1">10:14 AM</span>
                 </div>
             </div>
             <div class="flex flex-col items-end">
                 <span class="text-sm font-semibold">You</span>
-                <div class="bg-emerald-600 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                <div class="bg-emerald-600 p-3  text-white rounded-lg max-w-[80%] sm:max-w-xs w-fit">
                     <p>Sounds good! Any ideas?</p>
                     <span class="text-xs block text-right mt-1">10:16 AM</span>
                 </div>
@@ -260,7 +300,7 @@
         </div>
         <div class="border-t border-gray-700 pt-2 flex items-center">
             <textarea id="chat-input" placeholder="Type a message..."
-                class="flex-1 bg-gray-800 px-3 py-2 rounded-lg focus:outline-none text-sm resize-none max-h-32 overflow-y-auto"
+                class="flex-1 change-chat bg-gray-800 px-3 py-2 rounded-lg focus:outline-none text-sm resize-none max-h-32 overflow-y-auto"
                 rows="1"></textarea>
             <button
                 class="ml-2 bg-emerald-600 p-3 flex items-center justify-center rounded-full hover:bg-emerald-700 transition">
@@ -271,7 +311,7 @@
     <section id="user-container"
         class="p-4 mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10 flex flex-wrap justify-center gap-4 hide"></section>
     <div class="w-full flex justify-center hide">
-        <span class="bg-zinc-950 rounded-3xl shadow-3xl text-xs sm:text-sm px-4 mx-3 py-3 mb-10">
+        <span id="warn" class="bg-zinc-950 rounded-3xl shadow-3xl text-xs sm:text-sm px-4 mx-3 py-3 mb-10">
             Closing this page or tab will permanently close the room.
         </span>
     </div>
@@ -281,86 +321,78 @@
     <section id="work" class="bg-stone-950 border-t pt-10 pb-14 px-6 w-full hidden">
         <div class="max-w-5xl mx-auto text-center">
             <h2 class="text-2xl sm:text-4xl font-bold mb-6">How It Works</h2>
-            <p class="text-lg sm:text-xl text-gray-300 mb-10">
+            <p class="text-lg sm:text-xl mb-10">
                 Share files and text securely with end-to-end encryption. <br>
                 No storage, No tracking, Just private sharing.
             </p>
         </div>
         <div class="w-full flex flex-wrap justify-around gap-10">
-            <div class="flex flex-col items-center p-6 border-2 rounded-lg bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
+            <div
+                class="flex flex-col items-center p-6 border-2 rounded-lg change bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
                 <div class="relative w-full">
-                    <img class="video-thumbnail absolute inset-0 w-full h-full object-cover"
-                        src="../assets/Images/upload-file.jpeg" alt="Thumbnail"
-                        style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
-                    <video class="hover-video w-full h-auto opacity-0"
-                        style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;"
-                        muted playsinline preload="none">
+                    <img class="video-thumbnail absolute inset-0 w-full h-full object-cover dark-theme"
+                        src="../assets/Images/upload-file.jpeg" alt="Thumbnail">
+                    <video class="hover-video w-full h-auto opacity-0 dark-theme" muted playsinline preload="none">
                         <source src="../assets/Video/upload-file.webm" type="video/webm">
                     </video>
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mt-4">Upload Your File or Text</h3>
-                <p class="text-gray-300 text-sm sm:text-lg text-center mt-2">
+                <p class="text-sm sm:text-lg text-center mt-2">
                     Select a file or enter text you want to share. Your data is encrypted before uploading, ensuring
                     maximum privacy.
                 </p>
             </div>
-            <div class="flex flex-col items-center p-6 border-2 rounded-lg bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
+            <div
+                class="flex flex-col items-center p-6 border-2 rounded-lg change bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
                 <div class="relative w-full">
                     <div class="flex justify-center">
-                        <img class="video-thumbnail absolute w-40" src="../assets/Images/secure-file.jpeg"
-                            alt="Thumbnail"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
+                        <img class="video-thumbnail absolute w-40 dark-theme" src="../assets/Images/secure-file.jpeg"
+                            alt="Thumbnail">
                     </div>
                     <div class="flex justify-center">
-                        <video class="hover-video w-40 opacity-0"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;"
-                            muted playsinline preload="none">
+                        <video class="hover-video w-40 opacity-0 dark-theme" muted playsinline preload="none">
                             <source src="../assets/Video/secure-file.webm" type="video/webm">
                         </video>
                     </div>
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mt-4">Secure Download Link</h3>
-                <p class="text-gray-300 text-sm sm:text-lg text-center mt-2">
+                <p class="text-sm sm:text-lg text-center mt-2">
                     After uploading, you'll get a unique encrypted link to download the file.
                 </p>
             </div>
-            <div class="flex flex-col items-center p-6 border-2 rounded-lg bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
+            <div
+                class="flex flex-col items-center p-6 border-2 rounded-lg change bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
                 <div class="relative w-full">
                     <div class="flex justify-center">
-                        <img class="video-thumbnail absolute w-40" src="../assets/Images/share-file.jpeg"
-                            alt="Thumbnail"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
+                        <img class="video-thumbnail absolute w-40 dark-theme" src="../assets/Images/share-file.jpeg"
+                            alt="Thumbnail">
                     </div>
                     <div class="flex justify-center">
-                        <video class="hover-video w-40 opacity-0"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;"
-                            muted playsinline preload="none">
+                        <video class="hover-video w-40 opacity-0 dark-theme" muted playsinline preload="none">
                             <source src="../assets/Video/share-file.webm" type="video/webm">
                         </video>
                     </div>
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mt-4">Share the Link</h3>
-                <p class="text-gray-300 text-sm sm:text-lg text-center mt-2">
+                <p class="text-sm sm:text-lg text-center mt-2">
                     Send the link to your recipient. They can download the file or copy the text directly from the page.
                 </p>
             </div>
-            <div class="flex flex-col items-center p-6 border-2 rounded-lg bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
+            <div
+                class="flex flex-col items-center p-6 border-2 rounded-lg change bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
                 <div class="relative w-full">
                     <div class="flex justify-center">
-                        <img class="video-thumbnail absolute w-fit h-36" src="../assets/Images/delete-file.jpeg"
-                            alt="Thumbnail"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;">
+                        <img class="video-thumbnail absolute w-fit h-36 dark-theme"
+                            src="../assets/Images/delete-file.jpeg" alt="Thumbnail">
                     </div>
                     <div class="flex justify-center">
-                        <video class="hover-video w-fit h-36 opacity-0"
-                            style="filter: invert(1) brightness(2); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; box-shadow: none;"
-                            muted playsinline preload="none">
+                        <video class="hover-video w-fit h-36 opacity-0 dark-theme" muted playsinline preload="none">
                             <source src="../assets/Video/delete-file.webm" type="video/webm">
                         </video>
                     </div>
                 </div>
                 <h3 class="text-lg sm:text-xl font-semibold mt-4">Auto-Deletion & Security</h3>
-                <p class="text-gray-300 text-sm sm:text-lg text-center mt-2">
+                <p class="text-sm sm:text-lg text-center mt-2">
                     The link will expire once the room is closed or the file is deleted, making it inaccessible.
                 </p>
             </div>
@@ -370,126 +402,126 @@
                 class="bg-emerald-500 hover:bg-emerald-600 py-2 px-8 text-lg rounded-lg border">Ok</button>
         </div>
     </section>
-    <section id="feature" class="w-full px-6 pt-10 pb-14 border-t border-white bg-zinc-950 hidden">
+    <section id="feature" class="w-full px-6 pt-10 pb-14 border-t bg-zinc-950 hidden">
         <h2 class="text-3xl sm:text-4xl text-center font-bold mb-12">Features</h2>
         <div id="feature-container" class="flex flex-wrap items-baseline justify-center gap-5">
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">End-to-End Encryption</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">All communication and file transfers
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">All communication and file transfers
                         are securely encrypted. Once the room is closed, all data is automatically deleted.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">No Personal Info</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You don’t need to provide any personal
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You don’t need to provide any personal
                         information to use this service no email or phone number required.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Create Your Own Code</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You can generate your own custom code
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You can generate your own custom code
                         if the room is available.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Change Your Name</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You can update your display name
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You can update your display name
                         anytime while inside the room.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Modify Room Duration</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">The room duration can be increased or
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">The room duration can be increased or
                         decreased even after creation.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Set Number of Guests</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You can define how many users can join
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You can define how many users can join
                         your room, with a maximum limit of 10 including host.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Remove or Block Guests</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">The room host can remove any guest.
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">The room host can remove any guest.
                         Removed guests can rejoin, but blocked guests will not be able to join again.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Access Control</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">Hosts can enable restrictions so
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">Hosts can enable restrictions so
                         guests can only join after approval.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Download Text</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">Text can be downloaded in .txt, .py,
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">Text can be downloaded in .txt, .py,
                         .js, and other formats.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Multiple Text Fields</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You can create multiple text fields
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You can create multiple text fields
                         (up to 5) for organizing different messages.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Built-in Chat System</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">A real-time chat system allows all
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">A real-time chat system allows all
                         participants to communicate instantly.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Download file</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">Shared files will have a unique
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">Shared files will have a unique
                         download link and QR code. The link and QR will expire once the room closes.</p>
                 </div>
             </div>
@@ -504,7 +536,7 @@
         <div class="space-y-6">
             <div>
                 <h3 class="text-lg sm:text-xl font-semibold">A Secure & Seamless File-Sharing Experience</h3>
-                <p class="text-sm sm:text-lg mt-4 border-t border-white pt-3">
+                <p class="text-sm sm:text-lg mt-4 border-t pt-3">
                     In today's digital world, privacy and security are crucial. Our platform ensures fast, secure, and
                     anonymous file sharing without requiring any personal data. Whether you need to send documents,
                     images, or videos, we provide a safe and seamless way to share files online.

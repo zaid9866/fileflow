@@ -31,7 +31,204 @@ const closeFeature = document.getElementById("close-feature");
 const closeAbout = document.getElementById("close-about");
 const hide = document.querySelectorAll(".hide");
 const container = document.getElementById("user-container");
-const userRole = sessionStorage.setItem("role","Host");
+const fileSection = document.getElementById("file-section");
+const textSection = document.getElementById("text-section");
+const roomInfo = document.getElementById("room-info");
+const roomShare = document.getElementById("room-share");
+const roomChat = document.getElementById("room-chat");
+const moon = document.querySelectorAll(".fa-moon");
+const change = document.querySelectorAll(".change");
+const warn = document.getElementById("warn");
+localStorage.setItem("roomMode", "dark");
+const userRole = sessionStorage.setItem("role", "Host");
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("roomMode") === "dark") {
+        darkMode();
+    } else {
+        lightMode();
+    }
+});
+
+moon.forEach((element) => {
+    element.addEventListener("click", () => {
+        if (element.classList.contains("fa-regular")) {
+            element.classList.remove("fa-regular");
+            element.classList.add("fa-solid");
+            localStorage.setItem("roomMode", "dark");
+            darkMode();
+        } else {
+            element.classList.remove("fa-solid");
+            element.classList.add("fa-regular");
+            localStorage.setItem("roomMode", "light");
+            lightMode();
+        }
+    });
+});
+
+function lightMode() {
+    let hasRegularClass = Array.from(moon).some(icon => icon.classList.contains("fa-regular"));
+    if (hasRegularClass) {
+        document.body.classList.remove("text-white");
+        document.body.classList.add("text-black");
+        document.body.classList.remove("bg-zinc-900");
+        document.body.classList.add("bg-gray-300");
+        mobileNav.classList.remove("bg-zinc-950");
+        mobileNav.classList.add("bg-gray-300");
+        roomInfo.classList.remove("bg-zinc-950");
+        roomInfo.classList.add("bg-gray-700");
+        roomShare.classList.remove("bg-zinc-950");
+        roomShare.classList.add("bg-gray-700");
+        applyThemeClasses();
+        fileSection.classList.remove("bg-slate-900");
+        fileSection.classList.add("bg-gray-200");
+        dropzone.classList.remove("bg-gray-800");
+        dropzone.classList.add("bg-gray-400");
+        dropzone.classList.remove("hover:bg-gray-700");
+        dropzone.classList.add("hover:bg-gray-300");
+        textSection.classList.remove("bg-slate-900");
+        textSection.classList.add("bg-gray-200");
+        roomChat.classList.remove("bg-gray-900");
+        roomChat.classList.add("bg-gray-200");
+        feature.classList.remove("bg-zinc-950");
+        feature.classList.add("bg-gray-300");
+        work.classList.remove("bg-stone-950");
+        work.classList.add("bg-gray-200");
+        about.classList.remove("bg-stone-950");
+        about.classList.add("bg-gray-200");
+        warn.classList.remove("bg-zinc-950");
+        warn.classList.add("bg-gray-200");
+        change.forEach((element) => {
+            element.classList.remove("bg-zinc-900");
+            element.classList.add("bg-gray-200");
+        });
+        setTimeout(() => {
+            const changeFile = document.querySelectorAll(".change-file");
+            changeFile.forEach((element) => {
+                element.classList.remove("bg-gray-700");
+                element.classList.add("bg-gray-300");
+            });
+            const changeText = document.querySelectorAll(".change-text");
+            changeText.forEach((element) => {
+                element.classList.remove("bg-gray-800");
+                element.classList.add("bg-white");
+            });
+            const changeChat = document.querySelectorAll(".change-chat");
+            changeChat.forEach((element) => {
+                element.classList.remove("bg-gray-800");
+                element.classList.add("bg-gray-300");
+            });
+            const changeRole = document.querySelectorAll(".change-role");
+            changeRole.forEach((element) => {
+                element.classList.remove("bg-gray-800");
+                element.classList.add("bg-white");
+            });
+            applyTheme();
+        }, 100);
+        document.querySelectorAll(".dark-theme").forEach((element) => {
+            element.classList.remove("dark-theme");
+            element.classList.add("light-theme");
+        });
+        showToAbout.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+        showToFeature.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+        showToWork.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+        moon.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+    }
+}
+
+function darkMode() {
+    let hasSolidClass = Array.from(moon).some(icon => icon.classList.contains("fa-solid"));
+    if (hasSolidClass) {
+        document.body.classList.remove("text-black");
+        document.body.classList.add("text-white");
+        document.body.classList.remove("bg-gray-300");
+        document.body.classList.add("bg-zinc-900");
+        mobileNav.classList.remove("bg-gray-300");
+        mobileNav.classList.add("bg-zinc-950");
+        roomInfo.classList.remove("bg-gray-700");
+        roomInfo.classList.add("bg-zinc-950");
+        roomShare.classList.remove("bg-gray-700");
+        roomShare.classList.add("bg-zinc-950");
+        applyThemeClasses();
+        fileSection.classList.remove("bg-gray-200");
+        fileSection.classList.add("bg-slate-900");
+        dropzone.classList.remove("bg-gray-400");
+        dropzone.classList.add("bg-gray-800");
+        dropzone.classList.remove("hover:bg-gray-300");
+        dropzone.classList.add("hover:bg-gray-700");
+        textSection.classList.remove("bg-gray-200");
+        textSection.classList.add("bg-slate-900");
+        roomChat.classList.remove("bg-gray-200");
+        roomChat.classList.add("bg-gray-900");
+        feature.classList.remove("bg-gray-300");
+        feature.classList.add("bg-zinc-950");
+        work.classList.remove("bg-gray-200");
+        work.classList.add("bg-stone-950");
+        about.classList.remove("bg-gray-200");
+        about.classList.add("bg-stone-950");
+        warn.classList.remove("bg-gray-200");
+        warn.classList.add("bg-zinc-950");
+        change.forEach((element) => {
+            element.classList.remove("bg-gray-200");
+            element.classList.add("bg-zinc-900");
+        });
+        setTimeout(() => {
+            const changeFile = document.querySelectorAll(".change-file");
+            changeFile.forEach((element) => {
+                element.classList.remove("bg-gray-300");
+                element.classList.add("bg-gray-700");
+            });
+            const changeText = document.querySelectorAll(".change-text");
+            changeText.forEach((element) => {
+                element.classList.remove("bg-white");
+                element.classList.add("bg-gray-800");
+            });
+            const changeChat = document.querySelectorAll(".change-chat");
+            changeChat.forEach((element) => {
+                element.classList.remove("bg-gray-300");
+                element.classList.add("bg-gray-800");
+            });
+            const changeRole = document.querySelectorAll(".change-role");
+            changeRole.forEach((element) => {
+                element.classList.remove("bg-white");
+                element.classList.add("bg-gray-800");
+            });
+            applyTheme();
+        }, 100);
+        document.querySelectorAll(".dark-theme").forEach((element) => {
+            element.classList.remove("light-theme");
+            element.classList.add("dark-theme");
+        });
+        showToAbout.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
+        showToFeature.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
+        showToWork.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
+        moon.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
+    }
+}
 
 hamburger.addEventListener("click", () => {
     mobileNav.classList.remove("hidden");
@@ -208,21 +405,42 @@ function startCountdown(hours, minutes, seconds) {
 
 startCountdown(1, 0, 0);
 
+function applyThemeClasses() {
+    const roomMode = localStorage.getItem("roomMode");
+
+    document.querySelectorAll("#share-file, #share-text").forEach((el) => {
+        el.classList.remove("bg-slate-900", "bg-gray-200", "border", "rounded-t-lg", "border-b-0", "text-white", "text-black");
+
+        if (el.classList.contains("open")) {
+            el.classList.add("border", "rounded-t-lg", "border-b-0", "outline-0");
+            if (roomMode === "dark") {
+                el.classList.add("bg-slate-900", "text-white");
+            } else {
+                el.classList.add("bg-gray-200", "text-black");
+            }
+        } else {
+            el.classList.add("text-white");
+        }
+    });
+}
+
+function toggleShareType(activeId) {
+    document.querySelectorAll("#share-file, #share-text").forEach((el) => {
+        el.classList.remove("open");
+    });
+
+    const activeBtn = document.getElementById(activeId);
+    activeBtn.classList.add("open");
+
+    document.getElementById("file-section").classList.toggle("hidden", activeId !== "share-file");
+    document.getElementById("text-section").classList.toggle("hidden", activeId !== "share-text");
+
+    applyThemeClasses();
+}
+
 document.querySelectorAll("#share-file, #share-text").forEach((btn) => {
     btn.addEventListener("click", function () {
-        document.querySelectorAll("#share-file, #share-text").forEach((el) => {
-            el.classList.remove("bg-slate-900", "border", "rounded-t-lg", "border-b-0");
-        });
-
-        this.classList.add("bg-slate-900", "border", "rounded-t-lg", "border-b-0");
-
-        if (this.id === "share-file") {
-            document.getElementById("file-section").classList.remove("hidden");
-            document.getElementById("text-section").classList.add("hidden");
-        } else {
-            document.getElementById("file-section").classList.add("hidden");
-            document.getElementById("text-section").classList.remove("hidden");
-        }
+        toggleShareType(this.id);
     });
 });
 
@@ -252,11 +470,11 @@ function updateFileDisplay() {
 
     filesArray.forEach((file, index) => {
         const fileItem = document.createElement("div");
-        fileItem.className = "flex flex-wrap justify-between items-center bg-gray-700 p-2 rounded-lg gap-2";
+        fileItem.className = "flex flex-wrap justify-between items-center bg-gray-700 p-2 rounded-lg gap-2 change-file";
         fileItem.innerHTML = `
             <span class="truncate">${file.name}</span>
             <div class="flex flex-wrap gap-3 items-center">
-                <span class="text-sm text-gray-400 file-time">${formatTime(Math.floor((Date.now() - file.uploadTime) / 1000))}</span>
+                <span class="text-sm file-time">${formatTime(Math.floor((Date.now() - file.uploadTime) / 1000))}</span>
                 <button class="text-emerald-500 hover:text-emerald-600" onclick="downloadFile(${index})">
                     <i class="fa-solid fa-download"></i>
                 </button>
@@ -267,6 +485,11 @@ function updateFileDisplay() {
             </div>
         `;
         fileList.appendChild(fileItem);
+        if (localStorage.getItem("roomMode") === "dark") {
+            darkMode();
+        } else {
+            lightMode();
+        }
     });
 
     fileLimitDisplay.textContent = `Max Files: ${maxFiles}, Added: ${filesArray.length}/${maxFiles} | Max Total Size: 500MB, Used: ${formatSize(totalSize)}`;
@@ -370,7 +593,7 @@ document.getElementById("add-text").addEventListener("click", function () {
             <i class="fa-solid fa-times"></i>
         </div>
         <div class="flex flex-wrap gap-x-4 gap-3 mt-4 mb-3">
-            <input type="text" id="title-input-${textFieldCount}" placeholder="Enter file name" class="text-name border p-2 min-w-28 rounded w-full sm:w-auto flex-1 bg-gray-800">
+            <input type="text" id="title-input-${textFieldCount}" placeholder="Enter file name" class="text-name change-text border p-2 min-w-28 rounded w-full sm:w-auto flex-1 bg-gray-800">
             <select id="format-select-${textFieldCount}" class="format-select select2 border p-2 rounded bg-gray-800">
                 <option value="txt">TXT (.txt)</option>
                 <option value="pdf">PDF (.pdf)</option>
@@ -408,28 +631,46 @@ document.getElementById("add-text").addEventListener("click", function () {
             </button>
         </div>
         <div class="relative">
-            <textarea id="text-box-${textFieldCount}" rows="10" placeholder="Enter text here..." class="text-box w-full p-2 border rounded resize-none bg-gray-800"></textarea>
+            <textarea id="text-box-${textFieldCount}" rows="10" placeholder="Enter text here..." class="text-box change-text w-full p-2 border rounded resize-none bg-gray-800"></textarea>
         </div>
         <div class="flex flex-wrap justify-center gap-2 mt-2">
-            <button class="bg-emerald-600 px-4 py-2 rounded flex items-center gap-2 copy-btn">
+            <button class="bg-emerald-600 text-white px-4 py-2 rounded flex items-center gap-2 copy-btn">
                 <i class="fa-solid fa-copy"></i> Copy Text
             </button>
-            <button class="bg-red-600 px-4 py-2 rounded flex items-center gap-2 clear-btn">
+            <button class="bg-red-600 text-white px-4 py-2 rounded flex items-center gap-2 clear-btn">
                 <i class="fa-solid fa-delete-left"></i> Clear Text
             </button>
         </div>
     `;
-
+    if (localStorage.getItem("roomMode") === "dark") {
+        darkMode();
+    } else {
+        lightMode();
+    }
     textContainer.appendChild(newTextField);
-
     updateRemoveIcons();
-
     if (textFieldCount === 5) {
         document.getElementById("add-text").classList.add("hidden");
     }
 });
 
 $(document).ready(function () {
+    window.applyTheme = function () {
+        const isDarkMode = localStorage.getItem("roomMode") === "dark";
+        const select2Style = document.documentElement.style;
+        if (isDarkMode) {
+            select2Style.setProperty("--select2-bg", "#1f2937");
+            select2Style.setProperty("--select2-border", "#4a5568");
+            select2Style.setProperty("--select2-text", "white");
+            select2Style.setProperty("--select2-highlight", "#4a5568");
+        } else {
+            select2Style.setProperty("--select2-bg", "white");
+            select2Style.setProperty("--select2-border", "#ccc");
+            select2Style.setProperty("--select2-text", "black");
+            select2Style.setProperty("--select2-highlight", "#ddd");
+        }
+    };
+
     function applySelect2() {
         $(".format-select").each(function () {
             if (!$(this).hasClass("select2-applied")) {
@@ -439,6 +680,7 @@ $(document).ready(function () {
                 }).addClass("select2-applied");
             }
         });
+        applyTheme();
     }
     applySelect2();
     $(document).on("click", "#add-text", function () {
@@ -745,11 +987,16 @@ function createReceivedMessage(name, message, time) {
     messageDiv.className = "flex flex-col";
     messageDiv.innerHTML = `
         <span class="text-sm font-semibold">${name}</span>
-        <div class="bg-gray-800 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+        <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
             <p>${message}</p>
             <span class="text-xs block text-right mt-1">${time}</span>
         </div>
     `;
+    if (localStorage.getItem("roomMode") === "dark") {
+        darkMode();
+    } else {
+        lightMode();
+    }
     return messageDiv;
 }
 
@@ -763,19 +1010,24 @@ const users = [
 users.forEach(user => {
     const userRole = sessionStorage.getItem("role");
     const card = document.createElement("div");
-    card.className = `w-60 bg-gray-800 p-4 rounded-lg shadow-lg border-l-4 flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-600"
+    card.className = `w-60 bg-gray-800 change-role p-4 rounded-lg shadow-lg border-l-4 flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-500"
         }`;
 
     const userInfo = `
         <div>
             <h3 class="text-lg font-semibold">${user.name}</h3>
-            <p class="text-sm ${user.role === "Host" ? "text-emerald-400" : "text-cyan-400"}">${user.role}</p>
+            <p class="text-sm ${user.role === "Host" ? "text-emerald-500" : "text-cyan-500"}">${user.role}</p>
         </div>`;
 
     const removeIcon = user.role === "Guest" && userRole !== "Guest"
-        ? `<i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400"></i>`
+        ? `<i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400 remove-guests"></i>`
         : "";
 
     card.innerHTML = userInfo + removeIcon;
     container.appendChild(card);
+    if (localStorage.getItem("roomMode") === "dark") {
+        darkMode();
+    } else {
+        lightMode();
+    }
 });

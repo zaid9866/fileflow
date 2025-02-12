@@ -31,7 +31,7 @@ const homePageVideoDiv = document.getElementById("homepage-video-div");
 const homePageVideo = document.getElementById("homepage-video");
 const homePageSrc = document.getElementById("homepage-src");
 const moon = document.querySelectorAll(".fa-moon");
-localStorage.setItem("roomMode", "light");
+localStorage.setItem("roomMode", "dark");
 
 document.addEventListener("DOMContentLoaded", () => {
     if (localStorage.getItem("roomMode") === "dark") {
@@ -67,7 +67,7 @@ function lightMode() {
         homePageVideoDiv.classList.remove("md:w-[75%]");
         homePageVideoDiv.classList.remove("lg:w-[55%]");
         homePageVideoDiv.classList.add("w-[70%]");
-        homePageVideoDiv.classList.add("sm:w-[45%]");
+        homePageVideoDiv.classList.add("sm:w-[40%]");
         document.body.classList.remove("text-white");
         document.body.classList.add("text-black");
         navbar.classList.remove("bg-zinc-950");
@@ -94,7 +94,7 @@ function lightMode() {
         });
         changeWhite.forEach((element) => {
             element.classList.remove("bg-black");
-            element.classList.add("bg-gray-400");
+            element.classList.add("bg-gray-200");
         });
         changeForm.forEach((element) => {
             element.classList.remove("bg-gray-700");
@@ -112,6 +112,26 @@ function lightMode() {
             element.classList.remove("dark-theme");
             element.classList.add("light-theme");
         });
+        scrollToAbout.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+        scrollToContact.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+        scrollToFeature.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+        scrollToWork.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+        moon.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
     }
 }
 
@@ -124,7 +144,7 @@ function darkMode() {
         homePageVideo.classList.remove("homepage-light-theme");
         homePageVideo.classList.add("homepage-dark-theme");
         homePageVideoDiv.classList.remove("w-[70%]");
-        homePageVideoDiv.classList.remove("sm:w-[45%]");
+        homePageVideoDiv.classList.remove("sm:w-[40%]");
         homePageVideoDiv.classList.add("w-full");
         homePageVideoDiv.classList.add("md:w-[75%]");
         homePageVideoDiv.classList.add("lg:w-[55%]");
@@ -153,7 +173,7 @@ function darkMode() {
             element.classList.add("bg-neutral-950");
         });
         changeWhite.forEach((element) => {
-            element.classList.remove("bg-gray-400");
+            element.classList.remove("bg-gray-200");
             element.classList.add("bg-black");
         });
         changeForm.forEach((element) => {
@@ -172,9 +192,28 @@ function darkMode() {
             element.classList.remove("light-theme");
             element.classList.add("dark-theme");
         });
+        scrollToAbout.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
+        scrollToContact.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
+        scrollToFeature.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
+        scrollToWork.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
+        moon.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
     }
 }
-
 
 hamburger.addEventListener("click", () => {
     mobileNav.classList.remove("hidden");

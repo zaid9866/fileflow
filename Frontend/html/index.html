@@ -10,6 +10,25 @@
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #222;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #333, #000);
+            border-radius: 10px;
+            border: 1px solid #fff;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #ddd, #888);
+            border: 1px solid #000;
+        }
+
         img,
         video {
             pointer-events: none;
@@ -33,11 +52,11 @@
             mix-blend-mode: multiply;
         }
 
-        .homepage-dark-theme{
+        .homepage-dark-theme {
             mix-blend-mode: lighten;
         }
-        
-        .homepage-light-theme{
+
+        .homepage-light-theme {
             mix-blend-mode: darken;
         }
     </style>
@@ -49,11 +68,11 @@
             <img src="../assets/Images/logo.png" alt="logo" class="w-16 lg:w-20">
         </div>
         <div class="hidden md:flex md:w-[80%] justify-around items-center text-lg md:text-xl lg:text-2xl">
-            <a class="hover:cursor-pointer scroll-to-work">How it works</a>
-            <a class="hover:cursor-pointer scroll-to-feature">Features</a>
-            <a class="hover:cursor-pointer scroll-to-about">About Us</a>
-            <a class="hover:cursor-pointer scroll-to-contact">Contact Us</a>
-            <a class="hover:cursor-pointer"><i class="fa-regular fa-moon"></i></a>
+            <a class="hover:cursor-pointer hover:text-gray-400 scroll-to-work">How it works</a>
+            <a class="hover:cursor-pointer hover:text-gray-400 scroll-to-feature">Features</a>
+            <a class="hover:cursor-pointer hover:text-gray-400 scroll-to-about">About Us</a>
+            <a class="hover:cursor-pointer hover:text-gray-400 scroll-to-contact">Contact Us</a>
+            <a class="hover:cursor-pointer hover:text-gray-400"><i class="fa-solid fa-moon"></i></a>
         </div>
         <div id="hamburger-div" class="md:hidden cursor-pointer w-10 text-2xl">
             <i id="hamburger" class="fa-solid fa-bars"></i>
@@ -66,19 +85,23 @@
         class="hidden fixed top-[5rem] left-0 w-full h-full bg-zinc-950 flex-col text-xl sm:text-2xl z-50 transition-transform duration-300">
         <ul class="flex flex-col space-y-6 px-8 py-10">
             <li>
-                <a id="mobile-view-work" class="block py-2 hover:cursor-pointer scroll-to-work">How it works</a>
+                <a id="mobile-view-work" class="block py-2 hover:cursor-pointer hover:text-gray-400 scroll-to-work">How
+                    it works</a>
             </li>
             <li>
-                <a id="mobile-view-feature" class="block py-2 hover:cursor-pointer scroll-to-feature">Features</a>
+                <a id="mobile-view-feature"
+                    class="block py-2 hover:cursor-pointer hover:text-gray-400 scroll-to-feature">Features</a>
             </li>
             <li>
-                <a id="mobile-view-about" class="block py-2 hover:cursor-pointer scroll-to-about">About Us</a>
+                <a id="mobile-view-about"
+                    class="block py-2 hover:cursor-pointer hover:text-gray-400 scroll-to-about">About Us</a>
             </li>
             <li>
-                <a id="mobile-view-contact" class="block py-2 hover:cursor-pointer scroll-to-contact">Contact Us</a>
+                <a id="mobile-view-contact"
+                    class="block py-2 hover:cursor-pointer hover:text-gray-400 scroll-to-contact">Contact Us</a>
             </li>
             <li>
-                <a class="hover:cursor-pointer"><i class="fa-regular fa-moon"></i></a>
+                <a class="hover:cursor-pointer hover:text-gray-400"><i class="fa-solid fa-moon"></i></a>
             </li>
         </ul>
     </div>
@@ -112,7 +135,8 @@
             </div>
         </div>
         <div id="homepage-video-div" class="w-[40%] md:w-[75%] lg:w-[55%]">
-            <video id="homepage-video" class="w-full h-[120%] sm:h-fit rounded-lg homepage-dark-theme" muted playsinline autoplay loop>
+            <video id="homepage-video" class="w-full h-[120%] sm:h-fit rounded-lg homepage-dark-theme" muted playsinline
+                autoplay loop>
                 <source id="homepage-src" src="../assets/Video/homepage-dark.webm" type="video/webm">
                 Your browser does not support the video tag.
             </video>
@@ -178,8 +202,7 @@
                 <div class="relative w-full">
                     <img class="video-thumbnail absolute inset-0 w-full h-full object-cover dark-theme"
                         src="../assets/Images/upload-file.jpeg" alt="Thumbnail">
-                    <video class="hover-video w-full h-auto opacity-0 dark-theme" muted playsinline
-                        preload="none">
+                    <video class="hover-video w-full h-auto opacity-0 dark-theme" muted playsinline preload="none">
                         <source src="../assets/Video/upload-file.webm" type="video/webm">
                     </video>
                 </div>
@@ -193,8 +216,8 @@
                 class="flex flex-col items-center p-6 border-2 rounded-lg change bg-zinc-900 w-72 h-80 sm:w-80 sm:h-96 card">
                 <div class="relative w-full">
                     <div class="flex justify-center">
-                        <img class="video-thumbnail absolute w-40 dark-theme"
-                            src="../assets/Images/secure-file.jpeg" alt="Thumbnail">
+                        <img class="video-thumbnail absolute w-40 dark-theme" src="../assets/Images/secure-file.jpeg"
+                            alt="Thumbnail">
                     </div>
                     <div class="flex justify-center">
                         <video class="hover-video w-40 opacity-0 dark-theme" muted playsinline preload="none">
@@ -233,8 +256,7 @@
                             src="../assets/Images/delete-file.jpeg" alt="Thumbnail">
                     </div>
                     <div class="flex justify-center">
-                        <video class="hover-video w-fit h-36 opacity-0 dark-theme" muted playsinline
-                            preload="none">
+                        <video class="hover-video w-fit h-36 opacity-0 dark-theme" muted playsinline preload="none">
                             <source src="../assets/Video/delete-file.webm" type="video/webm">
                         </video>
                     </div>
@@ -246,126 +268,126 @@
             </div>
         </div>
     </section>
-    <section id="feature" class="w-full px-6 pt-10 pb-14 border-t border-white bg-zinc-950">
+    <section id="feature" class="w-full px-6 pt-10 pb-14 border-t bg-zinc-950">
         <h2 class="text-3xl sm:text-4xl text-center font-bold mb-12">Features</h2>
         <div id="feature-container" class="flex flex-wrap items-baseline justify-center gap-5">
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">End-to-End Encryption</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">All communication and file transfers
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">All communication and file transfers
                         are securely encrypted. Once the room is closed, all data is automatically deleted.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">No Personal Info</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You don’t need to provide any personal
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You don’t need to provide any personal
                         information to use this service no email or phone number required.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Create Your Own Code</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You can generate your own custom code
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You can generate your own custom code
                         if the room is available.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Change Your Name</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You can update your display name
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You can update your display name
                         anytime while inside the room.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Modify Room Duration</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">The room duration can be increased or
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">The room duration can be increased or
                         decreased even after creation.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Set Number of Guests</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You can define how many users can join
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You can define how many users can join
                         your room, with a maximum limit of 10 including host.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Remove or Block Guests</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">The room host can remove any guest.
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">The room host can remove any guest.
                         Removed guests can rejoin, but blocked guests will not be able to join again.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Access Control</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">Hosts can enable restrictions so
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">Hosts can enable restrictions so
                         guests can only join after approval.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Download Text</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">Text can be downloaded in .txt, .py,
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">Text can be downloaded in .txt, .py,
                         .js, and other formats.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Multiple Text Fields</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">You can create multiple text fields
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">You can create multiple text fields
                         (up to 5) for organizing different messages.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Built-in Chat System</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">A real-time chat system allows all
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">A real-time chat system allows all
                         participants to communicate instantly.</p>
                 </div>
             </div>
-            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 p-4 rounded-lg cursor-pointer">
+            <div class="feature-item w-full sm:w-[450px] change bg-zinc-900 border p-4 rounded-lg cursor-pointer">
                 <div class="flex justify-between items-center toggle-btn">
                     <span class="text-lg sm:text-xl">Download file</span>
                     <i class="fa-solid fa-arrow-right text-lg sm:text-xl transition-transform duration-300"></i>
                 </div>
                 <div class="feature-info max-h-0 overflow-hidden opacity-0 transition-all duration-300">
-                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t border-white">Shared files will have a unique
+                    <p class="mt-2 text-sm pt-2 sm:text-lg border-t">Shared files will have a unique
                         download link and QR code. The link and QR will expire once the room closes.</p>
                 </div>
             </div>
@@ -435,17 +457,17 @@
                 <div>
                     <label for="name" class="block text-sm sm:text-lg mb-1">Your Name</label>
                     <input id="name" name="name" type="text" autocomplete="name" placeholder="Enter your name"
-                        class="w-full px-4 py-2 change-contact bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full px-4 py-2 change-contact bg-neutral-950 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
                 </div>
                 <div>
                     <label for="email" class="block text-sm sm:text-lg mb-1">Your Email</label>
                     <input id="email" name="email" type="email" autocomplete="email" placeholder="Enter your email"
-                        class="w-full px-4 py-2 change-contact bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full px-4 py-2 change-contact bg-neutral-950 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
                 </div>
                 <div>
                     <label for="message" class="block text-sm sm:text-lg mb-1">Message</label>
                     <textarea id="message" name="message" rows="4" autocomplete="off" placeholder="Enter your message"
-                        class="w-full px-4 py-2 change-contact bg-neutral-950 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"></textarea>
+                        class="w-full px-4 py-2 change-contact bg-neutral-950 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"></textarea>
                 </div>
                 <div class="flex justify-center">
                     <button type="submit"
