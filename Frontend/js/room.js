@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         lightMode();
     }
+    addNewTextField();
 });
 
 moon.forEach((element) => {
@@ -77,8 +78,12 @@ function lightMode() {
         mobileNav.classList.add("bg-gray-300");
         roomInfo.classList.remove("bg-zinc-950");
         roomInfo.classList.add("bg-gray-700");
+        roomInfo.classList.remove("border-white");
+        roomInfo.classList.add("border-black");
         roomShare.classList.remove("bg-zinc-950");
         roomShare.classList.add("bg-gray-700");
+        roomShare.classList.remove("border-white");
+        roomShare.classList.add("border-black");
         applyThemeClasses();
         fileSection.classList.remove("bg-slate-900");
         fileSection.classList.add("bg-gray-200");
@@ -116,12 +121,24 @@ function lightMode() {
             const changeChat = document.querySelectorAll(".change-chat");
             changeChat.forEach((element) => {
                 element.classList.remove("bg-gray-800");
-                element.classList.add("bg-gray-100");
+                element.classList.add("bg-gray-200");
             });
             const changeRole = document.querySelectorAll(".change-role");
             changeRole.forEach((element) => {
                 element.classList.remove("bg-gray-800");
                 element.classList.add("bg-white");
+            });
+            const yourChat = document.querySelectorAll(".your-chat");
+            yourChat.forEach((element) => {
+                element.classList.remove("border-white");
+                element.classList.add("border-black");
+                element.classList.remove("text-black");
+                element.classList.add("text-white");
+            });
+            const changeBorder = document.querySelectorAll(".change-border");
+            changeBorder.forEach((element) => {
+                element.classList.remove("border-white");
+                element.classList.add("border-black");
             });
             applyTheme();
         }, 100);
@@ -157,10 +174,14 @@ function darkMode() {
         document.body.classList.add("bg-zinc-900");
         mobileNav.classList.remove("bg-gray-300");
         mobileNav.classList.add("bg-zinc-900");
-        roomInfo.classList.remove("bg-gray-700");
-        roomInfo.classList.add("bg-zinc-950");
-        roomShare.classList.remove("bg-gray-700");
-        roomShare.classList.add("bg-zinc-950");
+        roomInfo.classList.remove("bg-zinc-950");
+        roomInfo.classList.add("bg-gray-700");
+        roomInfo.classList.remove("border-black");
+        roomInfo.classList.add("border-white");
+        roomShare.classList.remove("bg-zinc-950");
+        roomShare.classList.add("bg-gray-700");
+        roomShare.classList.remove("border-black");
+        roomShare.classList.add("border-white");
         applyThemeClasses();
         fileSection.classList.remove("bg-gray-200");
         fileSection.classList.add("bg-slate-900");
@@ -197,13 +218,25 @@ function darkMode() {
             });
             const changeChat = document.querySelectorAll(".change-chat");
             changeChat.forEach((element) => {
-                element.classList.remove("bg-gray-100");
+                element.classList.remove("bg-gray-200");
                 element.classList.add("bg-gray-800");
             });
             const changeRole = document.querySelectorAll(".change-role");
             changeRole.forEach((element) => {
                 element.classList.remove("bg-white");
                 element.classList.add("bg-gray-800");
+            });
+            const yourChat = document.querySelectorAll(".your-chat");
+            yourChat.forEach((element) => {
+                element.classList.remove("border-black");
+                element.classList.add("border-white");
+                element.classList.remove("text-black");
+                element.classList.add("text-white");
+            });
+            const changeBorder = document.querySelectorAll(".change-border");
+            changeBorder.forEach((element) => {
+                element.classList.remove("border-black");
+                element.classList.add("border-white");
             });
             applyTheme();
         }, 100);
@@ -575,7 +608,9 @@ addMoreBtn.addEventListener("click", () => moreFileInput.click());
 
 setInterval(updateTimeDisplay, 1000);
 
-document.getElementById("add-text").addEventListener("click", function () {
+document.getElementById("add-text").addEventListener("click", addNewTextField);
+
+function addNewTextField() {
     if (textFieldCount >= 5) {
         this.classList.add("hidden");
         return;
@@ -589,58 +624,64 @@ document.getElementById("add-text").addEventListener("click", function () {
     newTextField.className = "w-full rounded-lg border p-4 min-h-[400px] relative text-field";
     newTextField.setAttribute("id", `text-field-${textFieldCount}`);
     newTextField.innerHTML = `
-        <div class="remove-text absolute top-3 right-4 cursor-pointer">
-            <i class="fa-solid fa-times"></i>
-        </div>
-        <div class="flex flex-wrap gap-x-4 gap-3 mt-4 mb-3">
-            <input type="text" id="title-input-${textFieldCount}" placeholder="Enter file name" class="text-name change-text border p-2 min-w-28 rounded w-full sm:w-auto flex-1 bg-gray-800">
-            <select id="format-select-${textFieldCount}" class="format-select select2 border p-2 rounded bg-gray-800">
-                <option value="txt">TXT (.txt)</option>
-                <option value="pdf">PDF (.pdf)</option>
-                <option value="docx">Word (.docx)</option>
-                <option value="md">Markdown (.md)</option>
-                <option value="rtf">Rich Text (.rtf)</option>
-                <option value="html">HTML (.html)</option>
-                <option value="css">CSS (.css)</option>
-                <option value="js">JavaScript (.js)</option>
-                <option value="ts">TypeScript (.ts)</option>
-                <option value="php">PHP (.php)</option>
-                <option value="py">Python (.py)</option>
-                <option value="java">Java (.java)</option>
-                <option value="c">C (.c)</option>
-                <option value="cpp">C++ (.cpp)</option>
-                <option value="cs">C# (.cs)</option>
-                <option value="sql">SQL (.sql)</option>
-                <option value="json">JSON (.json)</option>
-                <option value="xml">XML (.xml)</option>
-                <option value="yaml">YAML (.yaml)</option>
-                <option value="csv">CSV (.csv)</option>
-                <option value="bat">Batch File (.bat)</option>
-                <option value="sh">Shell Script (.sh)</option>
-                <option value="swift">Swift (.swift)</option>
-                <option value="kt">Kotlin (.kt)</option>
-                <option value="rb">Ruby (.rb)</option>
-                <option value="go">Go (.go)</option>
-                <option value="rs">Rust (.rs)</option>
-                <option value="dart">Dart (.dart)</option>
-                <option value="lua">Lua (.lua)</option>
-                <option value="perl">Perl (.pl)</option>
-            </select>
-            <button id="download-btn-${textFieldCount}" class="text-emerald-500 hover:text-emerald-600">
-                <i class="fa-solid fa-download download"></i>
-            </button>
-        </div>
-        <div class="relative">
-            <textarea id="text-box-${textFieldCount}" rows="10" placeholder="Enter text here..." class="text-box change-text w-full p-2 border rounded resize-none bg-gray-800"></textarea>
-        </div>
-        <div class="flex flex-wrap justify-center gap-2 mt-2">
-            <button class="bg-emerald-600 text-white px-4 py-2 rounded flex items-center gap-2 copy-btn">
-                <i class="fa-solid fa-copy"></i> Copy Text
-            </button>
-            <button class="bg-red-600 text-white px-4 py-2 rounded flex items-center gap-2 clear-btn">
-                <i class="fa-solid fa-delete-left"></i> Clear Text
-            </button>
-        </div>
+            <div class="hidden remove-text">
+                <i class="fa-solid fa-times absolute top-3 right-3"></i>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-3 mt-4 mb-3">
+               <input type="text" id="title-input-${textFieldCount}" placeholder="Enter file name"
+                    class="text-name border p-2 rounded min-w-48 sm:w-auto flex-1 change-text bg-gray-800">
+                <div class="flex justify-start">
+                <select id="format-select-${textFieldCount}" class="format-select w-36 select2 border p-2 rounded bg-gray-800">
+                        <option value="txt">TXT (.txt)</option>
+                        <option value="pdf">PDF (.pdf)</option>
+                        <option value="docx">Word (.docx)</option>
+                        <option value="md">Markdown (.md)</option>
+                        <option value="rtf">Rich Text (.rtf)</option>
+                        <option value="html">HTML (.html)</option>
+                        <option value="css">CSS (.css)</option>
+                        <option value="js">JavaScript (.js)</option>
+                        <option value="ts">TypeScript (.ts)</option>
+                        <option value="php">PHP (.php)</option>
+                        <option value="py">Python (.py)</option>
+                        <option value="java">Java (.java)</option>
+                        <option value="c">C (.c)</option>
+                        <option value="cpp">C++ (.cpp)</option>
+                        <option value="cs">C# (.cs)</option>
+                        <option value="sql">SQL (.sql)</option>
+                        <option value="json">JSON (.json)</option>
+                        <option value="xml">XML (.xml)</option>
+                        <option value="yaml">YAML (.yaml)</option>
+                        <option value="csv">CSV (.csv)</option>
+                        <option value="bat">Batch File (.bat)</option>
+                        <option value="sh">Shell Script (.sh)</option>
+                        <option value="swift">Swift (.swift)</option>
+                        <option value="kt">Kotlin (.kt)</option>
+                        <option value="rb">Ruby (.rb)</option>
+                        <option value="go">Go (.go)</option>
+                        <option value="rs">Rust (.rs)</option>
+                        <option value="dart">Dart (.dart)</option>
+                        <option value="lua">Lua (.lua)</option>
+                        <option value="perl">Perl (.pl)</option>
+                    </select>
+                    <button id="download-btn-${textFieldCount}" class="text-emerald-500 hover:text-emerald-600 mx-3">
+                        <i class="fa-solid fa-download download text-lg sm:text-xl"></i>
+                    </button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <textarea id="text-box-${textFieldCount}" rows="10" placeholder="Enter text here..."
+                        class="text-box w-full p-2 border rounded resize-none change-text bg-gray-800"></textarea>
+                </div>
+                <div class="flex flex-wrap justify-center gap-2 mt-2">
+                    <button
+                        class="bg-emerald-600 border text-white change-border px-4 py-2 rounded-lg flex items-center gap-2 copy-btn">
+                            <i class="fa-solid fa-copy"></i> Copy Text
+                      </button>
+                    <button
+                        class="bg-red-600 border text-white change-border px-4 py-2 rounded-lg flex items-center gap-2 clear-btn">
+                            <i class="fa-solid fa-delete-left"></i> Clear Text
+                    </button>
+                </div>
     `;
     if (localStorage.getItem("roomMode") === "dark") {
         darkMode();
@@ -652,7 +693,7 @@ document.getElementById("add-text").addEventListener("click", function () {
     if (textFieldCount === 5) {
         document.getElementById("add-text").classList.add("hidden");
     }
-});
+}
 
 $(document).ready(function () {
     window.applyTheme = function () {
@@ -660,12 +701,12 @@ $(document).ready(function () {
         const select2Style = document.documentElement.style;
         if (isDarkMode) {
             select2Style.setProperty("--select2-bg", "#1f2937");
-            select2Style.setProperty("--select2-border", "#4a5568");
+            select2Style.setProperty("--select2-border", "white");
             select2Style.setProperty("--select2-text", "white");
             select2Style.setProperty("--select2-highlight", "#4a5568");
         } else {
             select2Style.setProperty("--select2-bg", "white");
-            select2Style.setProperty("--select2-border", "#ccc");
+            select2Style.setProperty("--select2-border", "black");
             select2Style.setProperty("--select2-text", "black");
             select2Style.setProperty("--select2-highlight", "#ddd");
         }
@@ -972,12 +1013,17 @@ function createSentMessage(message, time) {
     messageDiv.className = "flex flex-col items-end";
 
     messageDiv.innerHTML = `
-        <div class="bg-emerald-600 p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+        <span class="text-sm font-semibold">You</span>
+        <div class="bg-emerald-600 your-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
             <p>${message}</p>
             <span class="text-xs block text-right mt-1">${time}</span>
         </div>
     `;
-
+    if (localStorage.getItem("roomMode") === "dark") {
+        darkMode();
+    } else {
+        lightMode();
+    }
     return messageDiv;
 }
 
@@ -987,7 +1033,7 @@ function createReceivedMessage(name, message, time) {
     messageDiv.className = "flex flex-col";
     messageDiv.innerHTML = `
         <span class="text-sm font-semibold">${name}</span>
-        <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+        <div class="bg-gray-800 change-chat text-white p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
             <p>${message}</p>
             <span class="text-xs block text-right mt-1">${time}</span>
         </div>
@@ -1010,7 +1056,7 @@ const users = [
 users.forEach(user => {
     const userRole = sessionStorage.getItem("role");
     const card = document.createElement("div");
-    card.className = `w-60 bg-gray-800 change-role p-4 rounded-lg shadow-lg border-l-4 flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-500"
+    card.className = `w-60 bg-gray-800 change-role p-4 rounded-lg shadow-lg border-l-4 border flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-500"
         }`;
 
     const userInfo = `

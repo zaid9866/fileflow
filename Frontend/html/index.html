@@ -11,22 +11,11 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #222;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #333, #000);
-            border-radius: 10px;
-            border: 1px solid #fff;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #ddd, #888);
-            border: 1px solid #000;
+            background: transparent;
         }
 
         img,
@@ -151,11 +140,11 @@
             <form class="space-y-2" method="post">
                 <label for="room-code" class="block text-base sm:text-lg font-medium">Room Code</label>
                 <input type="text" id="room-code" name="room-code" placeholder="Enter Code" maxlength="6"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 change-form rounded mb-3 text-sm sm:text-lg"
+                    class="w-full p-2 border change-form rounded mb-3 text-sm sm:text-lg"
                     required>
                 <label for="participants" class="block text-base sm:text-lg font-medium">Number of Participants</label>
                 <select id="participants" name="participants"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 change-form rounded mb-3 text-sm sm:text-lg">
+                    class="w-full p-2 border change-form rounded mb-3 text-sm sm:text-lg">
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
@@ -168,7 +157,7 @@
                 </select>
                 <label for="time" class="block text-base sm:text-lg font-medium">Select Time</label>
                 <select id="time" name="time"
-                    class="w-full p-2 border border-gray-600 bg-gray-700 change-form rounded mb-3 text-sm sm:text-lg">
+                    class="w-full p-2 border change-form rounded mb-3 text-sm sm:text-lg">
                     <option value="30">30 Minutes</option>
                     <option value="60">1 Hour</option>
                     <option value="90">1 Hour 30 Minutes</option>
@@ -182,7 +171,7 @@
                 </label>
                 <div class="flex justify-center">
                     <button type="submit" id="submit-form"
-                        class="w-40 p-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm sm:text-lg">Create
+                        class="w-40 p-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 border text-white text-sm sm:text-lg">Create
                         Room</button>
                 </div>
             </form>

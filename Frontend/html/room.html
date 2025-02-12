@@ -12,22 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
     <style>
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #222;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #333, #000);
-            border-radius: 10px;
-            border: 1px solid #fff;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #ddd, #888);
-            border: 1px solid #000;
+            background: transparent;
         }
 
         img,
@@ -41,7 +30,7 @@
 
         .select2-container .select2-selection--single {
             background-color: var(--select2-bg) !important;
-            border: 1px solid var(--select2-border) !important;
+            border: 1px solid darkgray !important;
             padding: 8px !important;
             border-radius: 0.375rem !important;
             color: var(--select2-text) !important;
@@ -52,7 +41,7 @@
 
         .select2-dropdown {
             background-color: var(--select2-bg) !important;
-            border: 1px solid var(--select2-border) !important;
+            border: 1px solid darkgray !important;
         }
 
         .select2-results__option {
@@ -132,7 +121,7 @@
     </div>
     <main class="hide">
         <section id="room-info"
-            class="flex items-baseline text-white m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl">
+            class="flex items-baseline text-white border border-b-0 m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl">
             <div id="head"
                 class="flex flex-wrap w-full items-center justify-between h-8 overflow-hidden gap-x-8 sm:gap-x-10 gap-4">
                 <div>Room Code: <span id="room-code">ABCDEF</span></div>
@@ -147,11 +136,11 @@
             </div>
         </section>
         <section id="room-share"
-            class="bg-zinc-950 items-center text-white flex flex-col-reverse sm:flex-row justify-between m-5 sm:mx-20 md:mx-32 lg:mx-40 my-0 text-base sm:text-lg">
+            class="bg-zinc-950 items-center text-white flex flex-col-reverse border border-y-0 sm:flex-row justify-between m-5 sm:mx-20 md:mx-32 lg:mx-40 my-0 text-base sm:text-lg">
             <div class="flex items-baseline justify-center w-full sm:w-96 h-full">
                 <div id="share-file"
                     class="flex items-center justify-center gap-3 py-3 w-28 sm:w-40 bg-slate-900 border rounded-t-lg border-b-0 outline-0 open">
-                    <i class="fa-solid fa-folder"></i>
+                    <i class="fa-solid fa-file"></i>
                     <span>File</span>
                 </div>
                 <div id="share-text" class="flex items-center justify-center gap-3 py-3 w-28 sm:w-40">
@@ -160,10 +149,10 @@
                 </div>
             </div>
             <button
-                class="w-30 p-2 mr-0 sm:mr-5 mb-4 sm:mb-2 bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg transition">Share</button>
+                class="w-30 p-2 mr-0 sm:mr-5 mb-4 sm:mb-2 bg-emerald-500 change-border text-white border hover:bg-emerald-600 font-medium rounded-lg transition">Share</button>
         </section>
         <section id="file-section"
-            class="bg-slate-900 p-6 rounded-b-xl shadow-lg text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
+            class="bg-slate-900 p-6 rounded-b-xl shadow-lg  border border-t-0 text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
             <div id="dropzone"
                 class="border-2 min-h-[400px] border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer bg-gray-800 hover:bg-gray-700 transition-all">
                 <video id="dropzone-video" class="w-60 rounded-lg" autoplay loop muted
@@ -175,7 +164,7 @@
                 <p class="mt-4">Drag & Drop files here</p>
                 <p>or</p>
                 <button id="browseBtn"
-                    class="mt-2 px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600">
+                    class="mt-2 px-4 py-2 bg-emerald-500 text-white border change-border text-sm font-medium rounded-lg hover:bg-emerald-600">
                     Browse Files
                 </button>
                 <input type="file" id="fileInput" multiple class="hidden">
@@ -188,7 +177,7 @@
                 </div>
                 <div class="flex justify-center">
                     <button id="addMoreBtn"
-                        class="mt-4 px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600">
+                        class="mt-4 px-4 py-2 bg-emerald-500 border text-white change-border text-sm font-medium rounded-lg hover:bg-emerald-600">
                         Add More Files
                     </button>
                 </div>
@@ -196,103 +185,47 @@
             </div>
         </section>
         <section id="text-section"
-            class="bg-slate-900 p-6 hidden rounded-b-xl shadow-lg text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
-            <div id="text-container" class="flex flex-col justify-center gap-10">
-                <div class="w-full rounded-lg border p-4 min-h-[400px] relative text-field">
-                    <div class="hidden remove-text">
-                        <i class="fa-solid fa-times absolute top-3 right-4"></i>
-                    </div>
-                    <div class="flex flex-wrap gap-x-4 gap-3 mt-4 mb-3">
-                        <input type="text" id="title-input-1" placeholder="Enter file name"
-                            class="text-name border p-2 min-w-28 rounded w-full sm:w-auto flex-1 change-text bg-gray-800">
-                        <select id="format-select-1" class="format-select select2 border p-2 rounded bg-gray-800">
-                            <option value="txt">TXT (.txt)</option>
-                            <option value="pdf">PDF (.pdf)</option>
-                            <option value="docx">Word (.docx)</option>
-                            <option value="md">Markdown (.md)</option>
-                            <option value="rtf">Rich Text (.rtf)</option>
-                            <option value="html">HTML (.html)</option>
-                            <option value="css">CSS (.css)</option>
-                            <option value="js">JavaScript (.js)</option>
-                            <option value="ts">TypeScript (.ts)</option>
-                            <option value="php">PHP (.php)</option>
-                            <option value="py">Python (.py)</option>
-                            <option value="java">Java (.java)</option>
-                            <option value="c">C (.c)</option>
-                            <option value="cpp">C++ (.cpp)</option>
-                            <option value="cs">C# (.cs)</option>
-                            <option value="sql">SQL (.sql)</option>
-                            <option value="json">JSON (.json)</option>
-                            <option value="xml">XML (.xml)</option>
-                            <option value="yaml">YAML (.yaml)</option>
-                            <option value="csv">CSV (.csv)</option>
-                            <option value="bat">Batch File (.bat)</option>
-                            <option value="sh">Shell Script (.sh)</option>
-                            <option value="swift">Swift (.swift)</option>
-                            <option value="kt">Kotlin (.kt)</option>
-                            <option value="rb">Ruby (.rb)</option>
-                            <option value="go">Go (.go)</option>
-                            <option value="rs">Rust (.rs)</option>
-                            <option value="dart">Dart (.dart)</option>
-                            <option value="lua">Lua (.lua)</option>
-                            <option value="perl">Perl (.pl)</option>
-                        </select>
-                        <button id="download-btn-1" class="text-emerald-500 hover:text-emerald-600">
-                            <i class="fa-solid fa-download download text-lg sm:text-xl"></i>
-                        </button>
-                    </div>
-                    <div class="relative">
-                        <textarea id="text-box-1" rows="10" placeholder="Enter text here..."
-                            class="text-box w-full p-2 border rounded resize-none change-text bg-gray-800"></textarea>
-                    </div>
-                    <div class="flex flex-wrap justify-center gap-2 mt-2">
-                        <button class="bg-emerald-600 text-white px-4 py-2 rounded flex items-center gap-2 copy-btn">
-                            <i class="fa-solid fa-copy"></i> Copy Text
-                        </button>
-                        <button class="bg-red-600 text-white px-4 py-2 rounded flex items-center gap-2 clear-btn">
-                            <i class="fa-solid fa-delete-left"></i> Clear Text
-                        </button>
-                    </div>
-                </div>
-            </div>
+            class="bg-slate-900 p-6 hidden rounded-b-xl shadow-lg border border-t-0 text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
+            <div id="text-container" class="flex flex-col justify-center gap-10"></div>
             <div class="flex justify-center mt-4">
                 <button id="add-text"
-                    class="bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center gap-2 shadow-lg hover:bg-blue-600">
+                    class="bg-blue-500 text-white border change-border px-6 py-3 rounded-lg flex items-center gap-2 shadow-lg hover:bg-blue-600">
                     <i class="fa-solid fa-plus"></i> Add Text Field
                 </button>
             </div>
         </section>
     </main>
     <section id="room-chat"
-        class="m-5 sm:mx-20 md:mx-32 lg:mx-40 bg-gray-900 rounded-lg shadow-lg p-4 flex flex-col min-h-[600px] hide">
+        class="m-5 sm:mx-20 md:mx-32 lg:mx-40 bg-gray-900 rounded-lg shadow-lg p-4 flex flex-col min-h-[600px] hide border">
         <div class="text-center border-b border-gray-700 pb-2 mb-2">
             <h2 class="text-lg font-semibold">Room Code: <span class="text-emerald-400">ABCDEF</span></h2>
         </div>
         <div id="chats-box" class="flex-1 overflow-y-auto space-y-4 p-2 scrollbar-hide flex flex-col justify-end">
             <div class="flex flex-col">
                 <span class="text-sm font-semibold">Zaid Kotimbire</span>
-                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
                     <p>Hey guys, what's up?</p>
                     <span class="text-xs block text-right mt-1">10:10 AM</span>
                 </div>
             </div>
             <div class="flex flex-col">
                 <span class="text-sm font-semibold">Izhar Khan</span>
-                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
                     <p>Not much, just chilling!</p>
                     <span class="text-xs block text-right mt-1">10:12 AM</span>
                 </div>
             </div>
             <div class="flex flex-col">
                 <span class="text-sm font-semibold">Khalid Khilji</span>
-                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
                     <p>Let's plan something for the weekend.</p>
                     <span class="text-xs block text-right mt-1">10:14 AM</span>
                 </div>
             </div>
             <div class="flex flex-col items-end">
                 <span class="text-sm font-semibold">You</span>
-                <div class="bg-emerald-600 p-3  text-white rounded-lg max-w-[80%] sm:max-w-xs w-fit">
+                <div
+                    class="bg-emerald-600 p-3 your-chat border-white text-white rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
                     <p>Sounds good! Any ideas?</p>
                     <span class="text-xs block text-right mt-1">10:16 AM</span>
                 </div>
@@ -300,10 +233,10 @@
         </div>
         <div class="border-t border-gray-700 pt-2 flex items-center">
             <textarea id="chat-input" placeholder="Type a message..."
-                class="flex-1 change-chat bg-gray-800 px-3 py-2 rounded-lg focus:outline-none text-sm resize-none max-h-32 overflow-y-auto"
+                class="flex-1 change-chat border default-scrollbar bg-gray-800 px-3 py-2 rounded-lg focus:outline-none text-sm resize-none max-h-32 overflow-y-auto"
                 rows="1"></textarea>
             <button
-                class="ml-2 bg-emerald-600 p-3 flex items-center justify-center rounded-full hover:bg-emerald-700 transition">
+                class="ml-2 bg-emerald-600 p-3 flex border items-center justify-center rounded-full hover:bg-emerald-700 transition">
                 <i class="fa-solid fa-paper-plane text-white text-lg"></i>
             </button>
         </div>
@@ -311,7 +244,7 @@
     <section id="user-container"
         class="p-4 mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10 flex flex-wrap justify-center gap-4 hide"></section>
     <div class="w-full flex justify-center hide">
-        <span id="warn" class="bg-zinc-950 rounded-3xl shadow-3xl text-xs sm:text-sm px-4 mx-3 py-3 mb-10">
+        <span id="warn" class="bg-zinc-950 rounded-3xl border shadow-3xl text-xs sm:text-sm px-4 mx-3 py-3 mb-10">
             Closing this page or tab will permanently close the room.
         </span>
     </div>
