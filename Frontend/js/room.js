@@ -39,14 +39,22 @@ const roomChat = document.getElementById("room-chat");
 const moon = document.querySelectorAll(".fa-moon");
 const change = document.querySelectorAll(".change");
 const warn = document.getElementById("warn");
+const restrictMode = document.getElementById("restrict-mode");
+const toggleRestrict = document.getElementById("toggle-restrict");
+const requestBox = document.getElementById("request-container");
 localStorage.setItem("roomMode", "dark");
-const userRole = sessionStorage.setItem("role", "Host");
+const userRole = sessionStorage.setItem("role", "host");
 
 document.addEventListener("DOMContentLoaded", () => {
     if (localStorage.getItem("roomMode") === "dark") {
         darkMode();
     } else {
         lightMode();
+    }
+    if (toggleRestrict.classList.contains("fa-toggle-off")) {
+        requestBox.classList.add("hidden");
+    } else {
+        requestBox.classList.remove("hidden");
     }
     addNewTextField();
 });
@@ -103,6 +111,8 @@ function lightMode() {
         about.classList.add("bg-gray-200");
         warn.classList.remove("bg-zinc-950");
         warn.classList.add("bg-white");
+        requestBox.classList.remove("bg-slate-900");
+        requestBox.classList.add("bg-gray-200");
         change.forEach((element) => {
             element.classList.remove("bg-zinc-900");
             element.classList.add("bg-gray-200");
@@ -140,6 +150,11 @@ function lightMode() {
                 element.classList.remove("border-white");
                 element.classList.add("border-black");
             });
+            const changeRequest = document.querySelectorAll(".change-request");
+            changeRequest.forEach((element) => {
+                element.classList.remove("bg-gray-800");
+                element.classList.add("bg-white");
+            });
             applyTheme();
         }, 100);
         document.querySelectorAll(".dark-theme").forEach((element) => {
@@ -174,12 +189,12 @@ function darkMode() {
         document.body.classList.add("bg-zinc-900");
         mobileNav.classList.remove("bg-gray-300");
         mobileNav.classList.add("bg-zinc-900");
-        roomInfo.classList.remove("bg-zinc-950");
-        roomInfo.classList.add("bg-gray-700");
+        roomInfo.classList.remove("bg-gray-700");
+        roomInfo.classList.add("bg-zinc-950");
         roomInfo.classList.remove("border-black");
         roomInfo.classList.add("border-white");
-        roomShare.classList.remove("bg-zinc-950");
-        roomShare.classList.add("bg-gray-700");
+        roomShare.classList.remove("bg-gray-700");
+        roomShare.classList.add("bg-zinc-950");
         roomShare.classList.remove("border-black");
         roomShare.classList.add("border-white");
         applyThemeClasses();
@@ -201,6 +216,8 @@ function darkMode() {
         about.classList.add("bg-stone-950");
         warn.classList.remove("bg-white");
         warn.classList.add("bg-zinc-950");
+        requestBox.classList.remove("bg-gray-200");
+        requestBox.classList.add("bg-slate-900");
         change.forEach((element) => {
             element.classList.remove("bg-gray-200");
             element.classList.add("bg-zinc-900");
@@ -237,6 +254,11 @@ function darkMode() {
             changeBorder.forEach((element) => {
                 element.classList.remove("border-black");
                 element.classList.add("border-white");
+            });
+            const changeRequest = document.querySelectorAll(".change-request");
+            changeRequest.forEach((element) => {
+                element.classList.remove("bg-white");
+                element.classList.add("bg-gray-800");
             });
             applyTheme();
         }, 100);
@@ -408,6 +430,118 @@ removeOverflow.addEventListener("click", () => {
         head.classList.add("overflow-hidden");
         removeOverflow.style.transform = "rotate(0deg)";
     }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const userRole = sessionStorage.getItem("role");
+
+    if (userRole === "host") {
+        document.getElementById("edit-user").classList.remove("hidden");
+        document.getElementById("edit-time").classList.remove("hidden");
+    }
+
+    document.querySelectorAll("div[id^='edit-']").forEach(editBtn => {
+        editBtn.addEventListener("click", function () {
+            const parentDiv = editBtn.closest("div.flex");
+            const span = parentDiv.querySelector("span");
+            let value = span.innerText.trim().replace(/^: /, "");
+            span.classList.add("hidden");
+            editBtn.classList.add("hidden");
+            const wrapperDiv = document.createElement("div");
+            wrapperDiv.classList.add("flex", "items-center", "gap-2", "ml-3");
+            const inputStyles = "border px-2 h-8 w-36 rounded focus:ring focus:outline-none"; 
+            const selectStylesUser = "border px-2 h-8 w-16 rounded focus:ring focus:outline-none"; 
+            const selectStylesTime = "border px-2 h-8 w-24 rounded focus:ring focus:outline-none"; 
+            const checkIcon = document.createElement("i");
+            checkIcon.classList.add("fa-solid", "fa-check", "cursor-pointer");
+            if (editBtn.id === "edit-name") {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.value = value.trim().replace(/\s+/g, ' ');
+                input.id = "name-input";
+                input.name = "username";
+                input.autocomplete = "off";
+                input.classList.add(...inputStyles.split(" "));
+                input.maxLength = 16;
+                input.addEventListener("input", function () {
+                    let trimmedValue = input.value.replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, ' ');
+                    if (trimmedValue.length > 16) {
+                        trimmedValue = trimmedValue.slice(0, 16);
+                    }
+                    input.value = trimmedValue;
+                });
+                wrapperDiv.appendChild(input);
+                wrapperDiv.appendChild(checkIcon);
+                parentDiv.appendChild(wrapperDiv);
+                checkIcon.addEventListener("click", function () {
+                    const newName = input.value.trim().replace(/\s+/g, ' ');
+                    span.innerText = `: ${newName}`;
+                    span.classList.remove("hidden");
+                    editBtn.classList.remove("hidden");
+                    wrapperDiv.remove();
+                    showMessage(`Name changed to ${newName}`);
+                });
+            }else if (editBtn.id === "edit-user") {
+                const [current, max] = value.split("/").map(Number);
+                if (current === 10) {
+                    showError("Cannot change total users. Room is already full!");
+                    span.classList.remove("hidden");
+                    editBtn.classList.remove("hidden");
+                    return;
+                }
+                let options = "";
+                for (let i = current ; i <= 10; i++) {
+                    options += `<option value="${i}" class="bg-gray-800 text-white">${i}</option>`;
+                }
+                const select = document.createElement("select");
+                select.innerHTML = options;
+                select.classList.add(...selectStylesUser.split(" "));
+                select.id = "user-select";
+                select.name = "total-users";
+                wrapperDiv.appendChild(select);
+                wrapperDiv.appendChild(checkIcon);
+                parentDiv.appendChild(wrapperDiv);
+                checkIcon.addEventListener("click", function () {
+                    span.innerText = `: ${current}/${select.value}`;
+                    span.classList.remove("hidden");
+                    editBtn.classList.remove("hidden");
+                    wrapperDiv.remove();
+                    showMessage(`Total users updated to ${current}/${select.value}`);
+                });
+            }else if (editBtn.id === "edit-time") {
+                const timeOptions = [
+                    { text: "30 min", value: "0 30 0" },
+                    { text: "1 hour", value: "1 0 0" },
+                    { text: "1 hour 30 min", value: "1 30 0" },
+                    { text: "2 hours", value: "2 0 0" },
+                    { text: "2 hours 30 min", value: "2 30 0" },
+                    { text: "3 hours", value: "3 0 0" }
+                ];
+                let options = timeOptions.map(opt =>
+                    `<option value="${opt.value}" class="bg-gray-800 text-white">${opt.text}</option>`
+                ).join("");
+                const select = document.createElement("select");
+                select.innerHTML = options;
+                select.classList.add(...selectStylesTime.split(" "));
+                select.id = "time-select";
+                select.name = "remaining-time";
+                wrapperDiv.appendChild(select);
+                wrapperDiv.appendChild(checkIcon);
+                parentDiv.appendChild(wrapperDiv);
+                checkIcon.addEventListener("click", function () {
+                    const selectedText = select.selectedOptions[0].text;
+                    const [hour, minute, second] = select.value.split(" ").map(Number);
+                    span.innerText = `: ${selectedText}`;
+                    span.classList.remove("hidden");
+                    editBtn.classList.remove("hidden");
+                    wrapperDiv.remove();
+                    startCountdown(hour, minute, second);
+                    showMessage(`Remaining Time changed to ${selectedText}`);
+                });                
+            }
+            parentDiv.insertBefore(wrapperDiv, editBtn);
+        });
+    });
 });
 
 function startCountdown(hours, minutes, seconds) {
@@ -802,6 +936,15 @@ function showMessage(text) {
     }, 5000);
 }
 
+function showError(text) {
+    const errorDiv = document.getElementById("error");
+    errorDiv.textContent = text;
+    errorDiv.classList.remove("hidden");
+    setTimeout(() => {
+        errorDiv.classList.add("hidden");
+    }, 5000);
+}
+
 document.addEventListener("click", function (e) {
     if (e.target.closest(".download")) {
         downloadFile(e.target.closest(".download"));
@@ -1046,6 +1189,36 @@ function createReceivedMessage(name, message, time) {
     return messageDiv;
 }
 
+function addUsers(usersArray) {
+    const container = document.getElementById("user-container");
+    const userCountElement = document.getElementById("no-of-user");
+    let [currentUsers, maxUsers] = userCountElement.textContent.split("/").map(num => parseInt(num.trim(), 10) || 0);
+    usersArray.forEach(user => {
+        if (currentUsers >= maxUsers) return; 
+        const userRole = sessionStorage.getItem("role");
+        const card = document.createElement("div");
+        card.className = `w-60 bg-gray-800 change-role p-4 rounded-lg shadow-lg border-l-4 border flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-500"}`;
+        const userInfo = `
+            <div>
+                <h3 class="text-lg font-semibold">${user.name}</h3>
+                <p class="text-sm ${user.role === "Host" ? "text-emerald-500" : "text-cyan-500"}">${user.role}</p>
+            </div>`;
+        const removeIcon = user.role === "Guest" && userRole !== "Guest"
+            ? `<i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400 remove-guests"></i>`
+            : "";
+        card.innerHTML = userInfo + removeIcon;
+        container.appendChild(card);
+        currentUsers++; 
+    });
+    userCountElement.textContent = `${currentUsers}/${maxUsers}`;
+    if (localStorage.getItem("roomMode") === "dark") {
+        darkMode();
+    } else {
+        lightMode();
+    }
+}
+
+
 const users = [
     { name: "Zaid Kotimbire", role: "Host" },
     { name: "Khalid Khilji", role: "Guest" },
@@ -1053,27 +1226,88 @@ const users = [
     { name: "Rizwan Khan", role: "Guest" }
 ];
 
-users.forEach(user => {
-    const userRole = sessionStorage.getItem("role");
-    const card = document.createElement("div");
-    card.className = `w-60 bg-gray-800 change-role p-4 rounded-lg shadow-lg border-l-4 border flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-500"
-        }`;
+addUsers(users);
 
-    const userInfo = `
-        <div>
-            <h3 class="text-lg font-semibold">${user.name}</h3>
-            <p class="text-sm ${user.role === "Host" ? "text-emerald-500" : "text-cyan-500"}">${user.role}</p>
-        </div>`;
+restrictMode.addEventListener("click",()=>{
+    if (toggleRestrict.classList.contains("fa-toggle-off")) {
+        toggleRestrict.classList.remove("fa-toggle-off");
+        toggleRestrict.classList.add("fa-toggle-on");
+        requestBox.classList.remove("hidden");
+    } else {
+        toggleRestrict.classList.remove("fa-toggle-on");
+        toggleRestrict.classList.add("fa-toggle-off");
+        requestBox.classList.add("hidden");
+    }
+});
 
-    const removeIcon = user.role === "Guest" && userRole !== "Guest"
-        ? `<i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400 remove-guests"></i>`
-        : "";
-
-    card.innerHTML = userInfo + removeIcon;
-    container.appendChild(card);
+function showJoinRequest(username) {
+    if (sessionStorage.getItem("role") !== "host") return;
+    const requestContainer = document.getElementById("request");
+    const userCountElement = document.getElementById("no-of-user");
+    let [currentUsers, maxUsers] = userCountElement.textContent.trim().split("/").map(num => parseInt(num.trim(), 10) || 0);
+    if (currentUsers >= maxUsers) {
+        showError(`Room is full! Cannot add ${username}.`);
+        return;
+    }
+    if (toggleRestrict.classList.contains("fa-toggle-off")) {
+        addUsers([{ name: username, role: "Guest" }]);
+        userCountElement.textContent = `${currentUsers + 1}/${maxUsers}`;
+        showMessage(`${username} added successfully!`);
+        return;
+    }
+    requestBox.classList.remove("hidden");
+    const inviteCard = document.createElement("div");
+    inviteCard.className = "bg-gray-800 p-2 border rounded-md shadow-lg flex items-center change-request border-l-4 border-cyan-500 px-3 py-2";
+    inviteCard.style.width = "220px";
+    const userInfo = document.createElement("span");
+    userInfo.textContent = username;
+    userInfo.className = "text-base font-medium truncate flex-grow";
+    const actions = document.createElement("div");
+    actions.className = "flex gap-2 ml-2";
+    const acceptIcon = document.createElement("i");
+    acceptIcon.className = "fa-solid fa-check text-green-500 text-lg cursor-pointer hover:text-green-400";
+    acceptIcon.addEventListener("click", () => {
+        let [updatedUsers, maxUsers] = userCountElement.textContent.split("/").map(num => parseInt(num.trim(), 10) || 0);
+        if (updatedUsers >= maxUsers) {
+            showError(`Room is full! Cannot add ${username}.`);
+            return;
+        }
+        addUsers([{ name: username, role: "Guest" }]);
+        userCountElement.textContent = `${updatedUsers + 1}/${maxUsers}`;
+        inviteCard.remove();
+        showMessage(`${username} added successfully!`);
+        hideRequestBoxIfEmpty();
+    });
+    const rejectIcon = document.createElement("i");
+    rejectIcon.className = "fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400";
+    rejectIcon.addEventListener("click", () => {
+        inviteCard.remove();
+        showError(`${username} request declined.`);
+        hideRequestBoxIfEmpty();
+    });
+    actions.appendChild(acceptIcon);
+    actions.appendChild(rejectIcon);
+    inviteCard.appendChild(userInfo);
+    inviteCard.appendChild(actions);
+    requestContainer.appendChild(inviteCard);
     if (localStorage.getItem("roomMode") === "dark") {
         darkMode();
     } else {
         lightMode();
     }
-});
+}
+
+function hideRequestBoxIfEmpty() {
+    const requestContainer = document.getElementById("request");
+    if (requestContainer.childElementCount === 0) {
+        requestBox.classList.add("hidden");
+    }
+}
+
+
+function hideRequestBoxIfEmpty() {
+    const requestContainer = document.getElementById("request");
+    if (requestContainer.childElementCount === 0) {
+        requestBox.classList.add("hidden");
+    }
+}

@@ -120,17 +120,34 @@
         </ul>
     </div>
     <main class="hide">
+        <section id="request-container" class="bg-slate-900 border m-5 sm:mx-20 md:mx-32 lg:mx-40 rounded-lg p-4 shadow-lg hidden">
+            <h2 class="text-lg sm:text-xl font-semibold mb-5 text-center">Join Requests</h2>
+            <div id="request" class="flex flex-wrap gap-5 items-center justify-evenly"></div>
+        </section>                        
         <section id="room-info"
-            class="flex items-baseline text-white border border-b-0 m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl">
+            class="flex items-baseline relative max-[1800px]:pr-10 text-white border border-b-0 m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl">
             <div id="head"
                 class="flex flex-wrap w-full items-center justify-between h-8 overflow-hidden gap-x-8 sm:gap-x-10 gap-4">
-                <div>Room Code: <span id="room-code">ABCDEF</span></div>
-                <div>Username: <span id="username">User</span></div>
-                <div>User Role: <span id="user-role">Host</span></div>
-                <div>Number of Users: <span id="no-of-user">1/10</span></div>
-                <div>Remaining Time: <span id="time-remaining">58:00</span></div>
+                <div class="w-48">Room Code : <span id="room-code">ABCDEF</span></div>
+                <div class="w-64 flex items-center">
+                    Name<span id="username" class="ml-2">: Rizwan Khan 10</span>
+                    <div id="edit-name" class="ml-3 cursor-pointer"><i class="fa-solid fa-edit"></i></div>
+                </div>
+                <div class="w-28">Role : <span id="user-role">Host</span></div>
+                <div class="w-56 flex items-center">
+                    Total Users<span id="no-of-user" class="ml-2">: 0/10</span>
+                    <div id="edit-user" class="ml-3 hidden cursor-pointer"><i class="fa-solid fa-edit"></i></div>
+                </div>
+                <div class="w-72 flex items-center">
+                    Remaining Time<span id="time-remaining" class="ml-2">: 58:00</span>
+                    <div id="edit-time" class="ml-3 hidden cursor-pointer"><i class="fa-solid fa-edit"></i></div>
+                </div>
+                <div id="restrict-mode" class="w-40 flex items-center">
+                    <span>Restrict Mode</span>
+                    <i id="toggle-restrict" class="fa-solid fa-toggle-off ml-3 cursor-pointer text-xl"></i>
+                </div>
             </div>
-            <div class="min-[1322px]:hidden mr-3">
+            <div class="min-[1800px]:hidden absolute top-4 right-4">
                 <i id="remove-overflow"
                     class="fa-solid fa-arrow-down cursor-pointer transition-transform duration-300"></i>
             </div>
@@ -250,6 +267,9 @@
     </div>
     <div id="message"
         class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-emerald-600 px-4 py-2 rounded-md text-sm sm:text-lg hidden">
+    </div>
+    <div id="error"
+        class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-600 px-4 py-2 rounded-md text-sm sm:text-lg hidden">
     </div>
     <section id="work" class="bg-stone-950 border-t pt-10 pb-14 px-6 w-full hidden">
         <div class="max-w-5xl mx-auto text-center">
