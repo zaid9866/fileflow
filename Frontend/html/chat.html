@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #0f2027;
+        }
+
+        .chat-container {
+            width: 360px;
+            height: 600px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #007bff;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .chat-header img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background-image: url('https://i.imgur.com/3zEXjQF.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 75%;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .message.sent {
+            background: #007bff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+
+        .message.received {
+            background: #333;
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #282828;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+            background: #444;
+            color: white;
+            padding-left: 15px;
+        }
+
+        .send-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .send-btn img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <img src="https://i.imgur.com/4M34hi2.png" alt="User"> Chat Room
+        </div>
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-box">
+            <input type="text" id="message-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">
+                <img src="Image/send.png" alt="send">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById("chat-box");
+        const messageInput = document.getElementById("message-input");
+
+        const socket = new WebSocket("ws://localhost:8000/chat");
+
+        socket.onmessage = function(event) {
+            displayMessage(event.data, "received");
+        };
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message !== "") {
+                displayMessage(message, "sent");
+                socket.send(message);
+                messageInput.value = "";
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+
+        function displayMessage(message, type) {
+            const msgElement = document.createElement("div");
+            msgElement.classList.add("message", type);
+            msgElement.textContent = message;
+            chatBox.appendChild(msgElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
