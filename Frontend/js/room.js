@@ -51,11 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         lightMode();
     }
-    if (toggleRestrict.classList.contains("fa-toggle-off")) {
-        requestBox.classList.add("hidden");
-    } else {
-        requestBox.classList.remove("hidden");
-    }
     addNewTextField();
 });
 
@@ -1296,14 +1291,6 @@ function showJoinRequest(username) {
         lightMode();
     }
 }
-
-function hideRequestBoxIfEmpty() {
-    const requestContainer = document.getElementById("request");
-    if (requestContainer.childElementCount === 0) {
-        requestBox.classList.add("hidden");
-    }
-}
-
 
 function hideRequestBoxIfEmpty() {
     const requestContainer = document.getElementById("request");
