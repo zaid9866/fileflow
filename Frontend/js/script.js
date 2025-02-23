@@ -19,7 +19,9 @@ const mobileViewWork = document.getElementById("mobile-view-work");
 const mobileViewContact = document.getElementById("mobile-view-contact");
 const displayForm = document.getElementById("display-form");
 const form = document.getElementById("room-form");
+const displayUsername = document.getElementById("display-username");
 const closeForm = document.getElementById("close-form");
+const closeUsername = document.getElementById("close-username");
 const submitForm = document.getElementById("submit-form");
 const overlay = document.getElementById("overlay");
 const change = document.querySelectorAll(".change");
@@ -32,6 +34,23 @@ const homePageVideo = document.getElementById("homepage-video");
 const homePageSrc = document.getElementById("homepage-src");
 const moon = document.querySelectorAll(".fa-moon");
 localStorage.setItem("roomMode", "dark");
+
+class HandleCode {
+    constructor() {
+        this.roomCode = null;
+    }
+    setRoomCode(code) {
+        this.roomCode = code;
+    }
+    getRoomCode() {
+        return this.roomCode;
+    }
+    clearRoomCode() {
+        this.roomCode = null;
+    }
+}
+
+const handleCode = new HandleCode();
 
 document.addEventListener("DOMContentLoaded", () => {
     if (localStorage.getItem("roomMode") === "dark") {
@@ -108,6 +127,8 @@ function lightMode() {
         });
         document.getElementById("form-div").classList.remove("bg-gray-800");
         document.getElementById("form-div").classList.add("bg-gray-300");
+        document.getElementById("username-form").classList.remove("bg-gray-800");
+        document.getElementById("username-form").classList.add("bg-gray-300");
         document.getElementById("sharingOptions").classList.remove("bg-zinc-800");
         document.getElementById("sharingOptions").classList.add("bg-gray-200");
         document.querySelectorAll(".dark-theme").forEach((element) => {
@@ -190,6 +211,8 @@ function darkMode() {
         });
         document.getElementById("form-div").classList.remove("bg-gray-300");
         document.getElementById("form-div").classList.add("bg-gray-800");
+        document.getElementById("username-form").classList.remove("bg-gray-300");
+        document.getElementById("username-form").classList.add("bg-gray-800");
         document.getElementById("sharingOptions").classList.remove("bg-gray-200");
         document.getElementById("sharingOptions").classList.add("bg-zinc-800");
         document.querySelectorAll(".light-theme").forEach((element) => {
@@ -395,26 +418,146 @@ function validateInput(inputElement) {
 validateInput(document.getElementById("codeInput"));
 validateInput(document.getElementById("room-code"));
 
-document.getElementById("submit-form").addEventListener("click", (e) => {
-    e.preventDefault();
+document.getElementById("submit-form").addEventListener("click", async function (event) {
+    event.preventDefault();
 
-    const roomform = document.querySelector("#room-form form");
-    const formData = new FormData(roomform);
+    const roomCode = document.getElementById("room-code").value;
+    const participants = document.getElementById("participants").value;
+    const time = document.getElementById("time").value;
+    const restrictMode = document.getElementById("restrict-mode").checked;
 
-    fetch("http://localhost:3000/room", {
-        method: "POST",
-        body: formData,
-    })
-        .then(response => response.text())
-        .then(data => {
-            alert("Response: " + data);
-        })
-        .catch(error => {
-            console.error("Error:", error);
+    try {
+        const verifyResponse = await fetch("http://127.0.0.1:8000/room/verifyCode", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ room_code: roomCode }),
+            mode: "cors"
         });
-    form.classList.remove("flex");
-    form.classList.add("hidden");
+
+        const verifyData = await verifyResponse.json();
+
+        if (!verifyResponse.ok) {
+            alert(verifyData.message + "\n Try a different room code!");
+            return;
+        }
+
+        const createResponse = await fetch("http://127.0.0.1:8000/room/createRoom", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                room_code: roomCode,
+                participants: parseInt(participants),
+                time: parseInt(time),
+                restrict_mode: restrictMode
+            }),
+            mode: "cors"
+        });
+
+        const createData = await createResponse.json();
+        if (!createResponse.ok) throw new Error(createData.message);
+        form.classList.remove("flex");
+        form.classList.add("hidden");
+        overlay.classList.add("hidden");
+        document.body.style.overflow = "";
+        document.body.style.pointerEvents = "";
+        await fetchUsername(roomCode);
+    } catch (error) {
+        console.error("Error:", error);
+        alert(error.message);
+    }
+});
+
+document.getElementById("instant-sharing").addEventListener("click", async function () {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/room/getCode", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            mode: "cors"
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const data = await response.json();
+        await fetchUsername(data.data.room_code);
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Failed to get Instant Sharing Code!");
+    }
+});
+
+async function fetchUsername(roomCode) {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/user/getUsername?code=${roomCode}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            mode: "cors"
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const data = await response.json();
+        document.getElementById("username").value = data.data.username || "";
+        handleCode.setRoomCode(roomCode);
+        document.getElementById("display-username").classList.remove("hidden");
+        document.getElementById("display-username").classList.add("flex");
+        overlay.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        document.body.style.pointerEvents = "none";
+        if (document.getElementById("display-username")) {
+            document.getElementById("display-username").style.pointerEvents = "auto";
+        }
+    } catch (error) {
+        console.error("Error fetching username:", error);
+        alert("Failed to get username!");
+    }
+}
+
+closeUsername.addEventListener("click", () => {
+    document.getElementById("display-username").classList.remove("flex");
+    document.getElementById("display-username").classList.add("hidden");
     overlay.classList.add("hidden");
     document.body.style.overflow = "";
     document.body.style.pointerEvents = "";
+    handleCode.clearRoomCode();
+});
+
+document.getElementById("username").addEventListener("input", function () {
+    let value = this.value;
+    let validPattern = /^[A-Za-z0-9 ]*$/;
+    if (value.length > 16 || !validPattern.test(value)) {
+        this.value = value.slice(0, -1);
+    } else {
+        this.value = value.replace(/\s{2,}/g, ' ');
+    }
+});
+
+document.getElementById("enter-room").addEventListener("click", async function (event) {
+    event.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const roomCode = handleCode.getRoomCode();
+    if (!username || !roomCode) {
+        alert("Room code or username is missing!");
+        console.log({ username: username, code: roomCode });
+        return;
+    }
+    try {
+        const payload = { username: username, code: roomCode };
+        const response = await fetch("http://127.0.0.1:8000/user/verifyUsername", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || "Failed to verify username");
+        document.getElementById("display-username").classList.remove("flex");
+        document.getElementById("display-username").classList.add("hidden");
+        overlay.classList.add("hidden");
+        document.body.style.overflow = "";
+        document.body.style.pointerEvents = "";
+    } catch (error) {
+        console.error("Error verifying username:", error);
+        alert(error.message || "Error verifying username");
+    }
+    handleCode.clearRoomCode();
 });

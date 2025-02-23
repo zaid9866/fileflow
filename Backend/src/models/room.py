@@ -19,6 +19,7 @@ class Room(Base):
     end_timing = Column(DateTime, nullable=True)
     no_of_participant = Column(Integer, nullable=False)
     encryption_key = Column(String, nullable=False)
+    restrict = Column(bool, nullable=False)
     blocked_user = Column(Text, nullable=True)
 
     users = relationship("User", back_populates="room")
