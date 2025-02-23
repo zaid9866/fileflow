@@ -1,6 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import List
-from models.chat import Chat  
 
 chat_router = APIRouter()
 
@@ -27,33 +26,15 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-@chat_router.websocket("/ws/{room_code}/{username}")
-async def websocket_endpoint(websocket: WebSocket, room_code: str, username: str):
-    await manager.connect(websocket, room_code)
-    await manager.broadcast(room_code, {"message": f"{username} joined the chat", "username": username})
-
+@chat_router.websocket("/ws/{username}")
+async def websocket_endpoint(websocket: WebSocket, username: str):
+    await manager.connect(websocket)
+    await manager.broadcast(f"{username} joined the chat")
+    
     try:
         while True:
-            data = await websocket.receive_json()
-            await manager.broadcast(room_code, data)
+            data = await websocket.receive_text()
+            await manager.broadcast(f"{username}: {data}")
     except WebSocketDisconnect:
-        manager.disconnect(websocket, room_code)
-        await manager.broadcast(room_code, {"message": f"{username} left the chat", "username": username})
-
-
-@chat_router.get("/getchat/{room_code}")
-def get_chat(room_code: str):
-    # Controller ko call karna hai
-    # return getChat(room_code)  
-    pass
-
-@chat_router.post("/addchat")
-async def add_chat(chat_data: dict):
-    # Controller me data validation hoga
-    # response = addChat(chat_data)  
-    await manager.broadcast(chat_data["code"], {
-        "username": chat_data["sender"],
-        "message": chat_data["message"],
-        "time": chat_data["timing"]
-    })  
-    return {"status": "success", "message": "Chat broadcasted"}
+        manager.disconnect(websocket)
+        await manager.broadcast(f"{username} left the chat")
