@@ -1,7 +1,7 @@
 import uuid
 import json
 from datetime import datetime, UTC
-from sqlalchemy import Column, String, Integer, DateTime, Text, Boolean
+from sqlalchemy import Column, String, Integer, Time, Text, Boolean
 from sqlalchemy.orm import relationship
 from base import Base  
 
@@ -15,9 +15,10 @@ class Room(Base):
     __tablename__ = "rooms"
     
     code = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    start_timing = Column(DateTime, default=lambda: datetime.now(UTC))
-    end_timing = Column(DateTime, nullable=True)
-    no_of_participant = Column(Integer, nullable=False)
+    start_timing = Column(Time, default=lambda: datetime.now().time()) 
+    end_timing = Column(Time, nullable=True)
+    current_participant = Column(Integer, nullable=False,default=1)
+    max_participant = Column(Integer, nullable=False, default=10)
     encryption_key = Column(String, nullable=False)
     restrict = Column(Boolean, nullable=False, default=False)
     blocked_user = Column(Text, nullable=True)

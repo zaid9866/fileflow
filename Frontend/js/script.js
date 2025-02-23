@@ -420,8 +420,11 @@ validateInput(document.getElementById("room-code"));
 
 document.getElementById("submit-form").addEventListener("click", async function (event) {
     event.preventDefault();
-
     const roomCode = document.getElementById("room-code").value;
+    if (roomCode!==6) {
+        alert("Room code must be 6 characters long!");
+        return;
+    }
     const participants = document.getElementById("participants").value;
     const time = document.getElementById("time").value;
     const restrictMode = document.getElementById("restrict-mode").checked;
@@ -430,14 +433,14 @@ document.getElementById("submit-form").addEventListener("click", async function 
         const verifyResponse = await fetch("http://127.0.0.1:8000/room/verifyCode", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ room_code: roomCode }),
+            body: JSON.stringify({ code: roomCode }),
             mode: "cors"
         });
 
         const verifyData = await verifyResponse.json();
 
         if (!verifyResponse.ok) {
-            alert(verifyData.message + "\n Try a different room code!");
+            alert(verifyData.detail);
             return;
         }
 
@@ -445,10 +448,11 @@ document.getElementById("submit-form").addEventListener("click", async function 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                room_code: roomCode,
-                participants: parseInt(participants),
+                code: roomCode,
+                current_participants: parseInt(1),
+                max_participants: parseInt(participants),
                 time: parseInt(time),
-                restrict_mode: restrictMode
+                restrict: restrictMode
             }),
             mode: "cors"
         });
@@ -478,7 +482,7 @@ document.getElementById("instant-sharing").addEventListener("click", async funct
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const data = await response.json();
-        await fetchUsername(data.data.room_code);
+        await fetchUsername(data.data.code);
     } catch (error) {
         console.error("Error:", error);
         alert("Failed to get Instant Sharing Code!");

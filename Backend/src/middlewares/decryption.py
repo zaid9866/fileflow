@@ -1,28 +1,25 @@
-from fastapi import Request
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
-from cryptography.fernet import Fernet
-import json
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+import base64
 
-class DecryptionMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        body = await request.body()
+class DecryptionMiddleware:
+    @staticmethod
+    def decrypt(encrypted_data: dict, encryption_key: bytes):
+        if len(encryption_key) != 32:
+            raise ValueError("Invalid encryption key length. Must be 32 bytes for AES-256.")
 
-        encryption_key = request.headers.get("X-Encryption-Key")
+        decrypted_data = {}
+        for k, v in encrypted_data.items():
+            try:
+                encrypted_bytes = base64.b64decode(v)
+                iv, ciphertext = encrypted_bytes[:16], encrypted_bytes[16:]
 
-        if not encryption_key:
-            return Response(content=json.dumps({"error": "Encryption key missing"}), status_code=400)
+                cipher = AES.new(encryption_key, AES.MODE_CBC, iv)
+                decrypted_data[k] = unpad(cipher.decrypt(ciphertext), AES.block_size).decode()
 
-        try:
-            cipher = Fernet(encryption_key.encode())  
-        except Exception:
-            return Response(content=json.dumps({"error": "Invalid encryption key"}), status_code=400)
+            except Exception as e:
+                print(f"Decryption failed for key {k}: {str(e)}")  
+                decrypted_data[k] = None  
 
-        try:
-            decrypted_body = cipher.decrypt(body)  
-            request.state.decrypted_body = decrypted_body  
-        except Exception:
-            return Response(content=json.dumps({"error": "Decryption failed"}), status_code=400)
+        return decrypted_data
 
-        response = await call_next(request)
-        return response

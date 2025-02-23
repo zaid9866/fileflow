@@ -1,7 +1,7 @@
 import os
 import base64
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,30 +10,28 @@ ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
 if not ENCRYPTION_KEY:
     raise ValueError("ENCRYPTION_KEY is missing in .env file")
 
-ENCRYPTION_KEY = base64.urlsafe_b64decode(ENCRYPTION_KEY)
+ENCRYPTION_KEY = base64.b64decode(ENCRYPTION_KEY)
+if len(ENCRYPTION_KEY) != 32:
+    raise ValueError("Invalid encryption key length. Must be 32 bytes for AES-256.")
 
-class EncryptionMiddleware:
+class AdditionalEncryption:
     @staticmethod
-    def encrypt_key(key: str) -> str:
+    def encrypt_key(key_bytes: bytes) -> str:
+        """Encrypts the given bytes using AES-256-CBC with the stored encryption key."""
         iv = os.urandom(16) 
-        cipher = Cipher(algorithms.AES(ENCRYPTION_KEY), modes.CBC(iv), backend=default_backend())
-        encryptor = cipher.encryptor()
+        cipher = AES.new(ENCRYPTION_KEY, AES.MODE_CBC, iv)
 
-        pad_length = 16 - (len(key) % 16)
-        padded_key = key + chr(pad_length) * pad_length
-
-        ciphertext = encryptor.update(padded_key.encode()) + encryptor.finalize()
+        ciphertext = cipher.encrypt(pad(key_bytes, AES.block_size))
+        
         return base64.b64encode(iv + ciphertext).decode()
 
     @staticmethod
-    def decrypt_key(encrypted_key: str) -> str:
+    def decrypt_key(encrypted_key: str) -> bytes:
+        """Decrypts the given base64-encoded string back to bytes using AES-256-CBC."""
         encrypted_data = base64.b64decode(encrypted_key)
         iv, ciphertext = encrypted_data[:16], encrypted_data[16:]
 
-        cipher = Cipher(algorithms.AES(ENCRYPTION_KEY), modes.CBC(iv), backend=default_backend())
-        decryptor = cipher.decryptor()
+        cipher = AES.new(ENCRYPTION_KEY, AES.MODE_CBC, iv)
+        decrypted_padded = cipher.decrypt(ciphertext)
 
-        decrypted_padded = decryptor.update(ciphertext) + decryptor.finalize()
-
-        pad_length = decrypted_padded[-1]
-        return decrypted_padded[:-pad_length].decode()
+        return unpad(decrypted_padded, AES.block_size)  
