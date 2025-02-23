@@ -1,7 +1,7 @@
 import uuid
 import json
 from datetime import datetime, UTC
-from sqlalchemy import Column, String, Integer, DateTime, Text
+from sqlalchemy import Column, String, Integer, DateTime, Text, Boolean
 from sqlalchemy.orm import relationship
 from base import Base  
 
@@ -19,7 +19,7 @@ class Room(Base):
     end_timing = Column(DateTime, nullable=True)
     no_of_participant = Column(Integer, nullable=False)
     encryption_key = Column(String, nullable=False)
-    restrict = Column(bool, nullable=False)
+    restrict = Column(Boolean, nullable=False, default=False)
     blocked_user = Column(Text, nullable=True)
 
     users = relationship("User", back_populates="room")
