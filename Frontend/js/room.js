@@ -43,7 +43,6 @@ const restrictMode = document.getElementById("restrict-mode");
 const toggleRestrict = document.getElementById("toggle-restrict");
 const requestBox = document.getElementById("request-container");
 localStorage.setItem("roomMode", "dark");
-const userRole = sessionStorage.setItem("role", "host");
 
 document.addEventListener("DOMContentLoaded", () => {
     if (localStorage.getItem("roomMode") === "dark") {
@@ -52,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lightMode();
     }
     addNewTextField();
+    displayValue();
 });
 
 moon.forEach((element) => {
@@ -428,9 +428,10 @@ removeOverflow.addEventListener("click", () => {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    const userRole = sessionStorage.getItem("role");
+    let data = JSON.parse(sessionStorage.getItem('roomData'));
+    const userRole = data.role;
 
-    if (userRole === "host") {
+    if (userRole === "Host") {
         document.getElementById("edit-user").classList.remove("hidden");
         document.getElementById("edit-time").classList.remove("hidden");
     }
@@ -444,9 +445,9 @@ document.addEventListener("DOMContentLoaded", function () {
             editBtn.classList.add("hidden");
             const wrapperDiv = document.createElement("div");
             wrapperDiv.classList.add("flex", "items-center", "gap-2", "ml-3");
-            const inputStyles = "border px-2 h-8 w-36 rounded focus:ring focus:outline-none"; 
-            const selectStylesUser = "border px-2 h-8 w-16 rounded focus:ring focus:outline-none"; 
-            const selectStylesTime = "border px-2 h-8 w-24 rounded focus:ring focus:outline-none"; 
+            const inputStyles = "border px-2 h-8 w-36 rounded focus:ring focus:outline-none";
+            const selectStylesUser = "border px-2 h-8 w-16 rounded focus:ring focus:outline-none";
+            const selectStylesTime = "border px-2 h-8 w-24 rounded focus:ring focus:outline-none";
             const checkIcon = document.createElement("i");
             checkIcon.classList.add("fa-solid", "fa-check", "cursor-pointer");
             if (editBtn.id === "edit-name") {
@@ -476,7 +477,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     wrapperDiv.remove();
                     showMessage(`Name changed to ${newName}`);
                 });
-            }else if (editBtn.id === "edit-user") {
+            } else if (editBtn.id === "edit-user") {
                 const [current, max] = value.split("/").map(Number);
                 if (current === 10) {
                     showError("Cannot change total users. Room is already full!");
@@ -485,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
                 let options = "";
-                for (let i = current ; i <= 10; i++) {
+                for (let i = current; i <= 10; i++) {
                     options += `<option value="${i}" class="bg-gray-800 text-white">${i}</option>`;
                 }
                 const select = document.createElement("select");
@@ -503,7 +504,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     wrapperDiv.remove();
                     showMessage(`Total users updated to ${current}/${select.value}`);
                 });
-            }else if (editBtn.id === "edit-time") {
+            } else if (editBtn.id === "edit-time") {
                 const timeOptions = [
                     { text: "30 min", value: "0 30 0" },
                     { text: "1 hour", value: "1 0 0" },
@@ -532,7 +533,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     wrapperDiv.remove();
                     startCountdown(hour, minute, second);
                     showMessage(`Remaining Time changed to ${selectedText}`);
-                });                
+                });
             }
             parentDiv.insertBefore(wrapperDiv, editBtn);
         });
@@ -564,8 +565,6 @@ function startCountdown(hours, minutes, seconds) {
     }
     updateTime();
 }
-
-startCountdown(1, 0, 0);
 
 function applyThemeClasses() {
     const roomMode = localStorage.getItem("roomMode");
@@ -1189,7 +1188,7 @@ function addUsers(usersArray) {
     const userCountElement = document.getElementById("no-of-user");
     let [currentUsers, maxUsers] = userCountElement.textContent.split("/").map(num => parseInt(num.trim(), 10) || 0);
     usersArray.forEach(user => {
-        if (currentUsers >= maxUsers) return; 
+        if (currentUsers >= maxUsers) return;
         const userRole = sessionStorage.getItem("role");
         const card = document.createElement("div");
         card.className = `w-60 bg-gray-800 change-role p-4 rounded-lg shadow-lg border-l-4 border flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-500"}`;
@@ -1203,7 +1202,7 @@ function addUsers(usersArray) {
             : "";
         card.innerHTML = userInfo + removeIcon;
         container.appendChild(card);
-        currentUsers++; 
+        currentUsers++;
     });
     userCountElement.textContent = `${currentUsers}/${maxUsers}`;
     if (localStorage.getItem("roomMode") === "dark") {
@@ -1223,7 +1222,7 @@ const users = [
 
 addUsers(users);
 
-restrictMode.addEventListener("click",()=>{
+restrictMode.addEventListener("click", () => {
     if (toggleRestrict.classList.contains("fa-toggle-off")) {
         toggleRestrict.classList.remove("fa-toggle-off");
         toggleRestrict.classList.add("fa-toggle-on");
@@ -1236,7 +1235,7 @@ restrictMode.addEventListener("click",()=>{
 });
 
 function showJoinRequest(username) {
-    if (sessionStorage.getItem("role") !== "host") return;
+    if (sessionStorage.getItem("role") !== "Host") return;
     const requestContainer = document.getElementById("request");
     const userCountElement = document.getElementById("no-of-user");
     let [currentUsers, maxUsers] = userCountElement.textContent.trim().split("/").map(num => parseInt(num.trim(), 10) || 0);
@@ -1296,5 +1295,39 @@ function hideRequestBoxIfEmpty() {
     const requestContainer = document.getElementById("request");
     if (requestContainer.childElementCount === 0) {
         requestBox.classList.add("hidden");
+    }
+}
+
+function displayValue() {
+    let data = JSON.parse(sessionStorage.getItem('roomData'));
+    let username = sessionStorage.getItem("username")
+    if (data) {
+        document.getElementById('room-code').textContent = data.code;
+        document.getElementById('username').innerHTML = username;
+        document.getElementById('user-role').textContent = data.role;
+        document.getElementById('no-of-user').textContent = `: ${data.current_participants}/${data.max_participants}`;
+        if (data.time === 30) {
+            startCountdown(0, 30, 0);
+        } else if (data.time === 60) {
+            startCountdown(1, 0, 0);
+        } else if (data.time === 90) {
+            startCountdown(1, 30, 0);
+        } else if (data.time === 120) {
+            startCountdown(2, 0, 0);
+        } else if (data.time === 150) {
+            startCountdown(2, 30, 0);
+        } else {
+            startCountdown(3, 0, 0);
+        }
+        let restrictToggle = document.getElementById('toggle-restrict');
+        if (data.restrict === true) {
+            restrictToggle.classList.remove('fa-toggle-off');
+            restrictToggle.classList.add('fa-toggle-on');
+        } else {
+            restrictToggle.classList.remove('fa-toggle-on');
+            restrictToggle.classList.add('fa-toggle-off');
+        }
+    } else {
+        console.error('No room data found in localStorage.');
     }
 }

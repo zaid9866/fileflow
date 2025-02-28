@@ -58,6 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         lightMode();
     }
+    sessionStorage.removeItem('roomData');
+    sessionStorage.removeItem('username');
 });
 
 moon.forEach((element) => {
@@ -421,7 +423,7 @@ validateInput(document.getElementById("room-code"));
 document.getElementById("submit-form").addEventListener("click", async function (event) {
     event.preventDefault();
     const roomCode = document.getElementById("room-code").value;
-    if (roomCode!==6) {
+    if (roomCode.length!==6) {
         alert("Room code must be 6 characters long!");
         return;
     }
@@ -438,7 +440,7 @@ document.getElementById("submit-form").addEventListener("click", async function 
         });
 
         const verifyData = await verifyResponse.json();
-
+        
         if (!verifyResponse.ok) {
             alert(verifyData.detail);
             return;
@@ -458,6 +460,7 @@ document.getElementById("submit-form").addEventListener("click", async function 
         });
 
         const createData = await createResponse.json();
+        saveRoomData(createData);
         if (!createResponse.ok) throw new Error(createData.message);
         form.classList.remove("flex");
         form.classList.add("hidden");
@@ -482,6 +485,7 @@ document.getElementById("instant-sharing").addEventListener("click", async funct
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const data = await response.json();
+        saveRoomData(data);
         await fetchUsername(data.data.code);
     } catch (error) {
         console.error("Error:", error);
@@ -559,9 +563,19 @@ document.getElementById("enter-room").addEventListener("click", async function (
         overlay.classList.add("hidden");
         document.body.style.overflow = "";
         document.body.style.pointerEvents = "";
+        sessionStorage.setItem('username',username);
+        window.location.href = 'room.html';
     } catch (error) {
         console.error("Error verifying username:", error);
         alert(error.message || "Error verifying username");
     }
     handleCode.clearRoomCode();
 });
+
+function saveRoomData(responseData) {
+    if (responseData.status === 'success' && responseData.data) {
+        sessionStorage.setItem('roomData', JSON.stringify(responseData.data));
+    } else {
+        console.error('Invalid response data:', responseData);
+    }
+}

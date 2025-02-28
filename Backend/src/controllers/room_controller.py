@@ -28,7 +28,8 @@ def get_room_code(db: Session):
             "current_participants": 1,
             "max_participants": 10,
             "time": 60,
-            "restrict": False
+            "restrict": False,
+            "role":"Host"
         }
 
         response = requests.post("http://localhost:8000/room/createRoom", json=room_data)  
@@ -92,11 +93,11 @@ def create_room(db: Session, data: dict):
 
         return APIResponse.success(message="Room created", data={
             "code": data["code"],
-            "start_time": start_time.isoformat(),
-            "end_time": end_time.isoformat(),
+            "time": data["time"],
             "restrict": data["restrict"],
             "current_participant": data["current_participants"],
             "max_participant": data["max_participants"],
+            "role":"Host"
         })
 
     except APIError as e:
