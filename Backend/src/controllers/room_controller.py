@@ -95,8 +95,8 @@ def create_room(db: Session, data: dict):
             "code": data["code"],
             "time": data["time"],
             "restrict": data["restrict"],
-            "current_participant": data["current_participants"],
-            "max_participant": data["max_participants"],
+            "current_participants": data["current_participants"],
+            "max_participants": data["max_participants"],
             "role":"Host"
         })
 

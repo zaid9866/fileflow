@@ -429,9 +429,9 @@ removeOverflow.addEventListener("click", () => {
 
 document.addEventListener("DOMContentLoaded", function () {
     let data = JSON.parse(sessionStorage.getItem('roomData'));
-    const userRole = data.role;
+    const role = data.role;
 
-    if (userRole === "Host") {
+    if (role === "Host") {
         document.getElementById("edit-user").classList.remove("hidden");
         document.getElementById("edit-time").classList.remove("hidden");
     }

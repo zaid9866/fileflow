@@ -564,6 +564,7 @@ document.getElementById("enter-room").addEventListener("click", async function (
         document.body.style.overflow = "";
         document.body.style.pointerEvents = "";
         sessionStorage.setItem('username',username);
+        createUser(username,roomCode);
         window.location.href = 'room.html';
     } catch (error) {
         console.error("Error verifying username:", error);
@@ -577,5 +578,30 @@ function saveRoomData(responseData) {
         sessionStorage.setItem('roomData', JSON.stringify(responseData.data));
     } else {
         console.error('Invalid response data:', responseData);
+    }
+}
+
+async function createUser(username,code) {
+    const data = JSON.parse(sessionStorage.getItem('roomData'));
+    const role = data.role;
+    try {
+        const response = await fetch("http://127.0.0.1:8000/user/createUser", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, code, role })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Failed to create user");
+        }
+
+        console.log("User created successfully:", data);
+        return data;
+    } catch (error) {
+        console.error("Error:", error.message);
     }
 }
