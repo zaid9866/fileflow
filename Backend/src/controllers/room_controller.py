@@ -106,3 +106,60 @@ def create_room(db: Session, data: dict):
     except Exception as e:
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
+
+from datetime import datetime, timedelta
+
+def join_room(code: str, db: Session):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+        
+        if not room:
+            raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        if room.current_participant >= room.max_participant:
+            raise APIError(status_code=403, detail="Room is full.")
+
+        if room.restrict:
+            raise APIError(status_code=403, detail="Room is restricted. Wait for host approval.")
+
+        room.current_participant += 1
+        db.commit()
+        db.refresh(room)
+
+        current_time = datetime.now()
+
+        if room.end_timing:
+            end_time = datetime.combine(current_time.date(), room.end_timing)
+
+            if end_time < current_time:
+                end_time += timedelta(days=1)
+
+            remaining_seconds = max(int((end_time - current_time).total_seconds()), 0)
+        else:
+            remaining_seconds = None
+
+        if remaining_seconds is not None:
+            hours, remainder = divmod(remaining_seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            remaining_time = f"{hours}:{minutes:02}:{seconds:02}"
+        else:
+            remaining_time = "0:00:00"
+
+        return APIResponse.success(
+            message="Joined room successfully",
+            data={
+                "code": room.code,
+                "current_participants": room.current_participant,
+                "max_participants": room.max_participant,
+                "time": remaining_time,
+                "restrict": room.restrict,
+                "role": "Guest"
+            }
+        )
+
+    except APIError as e:
+        raise e
+
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")

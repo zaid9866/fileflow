@@ -1308,9 +1308,16 @@ function displayValue() {
             startCountdown(2, 0, 0);
         } else if (data.time === 150) {
             startCountdown(2, 30, 0);
-        } else {
+        } else if (data.time === 180) {
             startCountdown(3, 0, 0);
+        } else {
+            let timeParts = data.time.split(":"); 
+            let hours = parseInt(timeParts[0], 10);
+            let minutes = parseInt(timeParts[1], 10);
+            let seconds = parseInt(timeParts[2], 10);
+            startCountdown(hours, minutes, seconds);
         }
+        
         let restrictToggle = document.getElementById('toggle-restrict');
         if (data.restrict === true) {
             restrictToggle.classList.remove('fa-toggle-off');
@@ -1323,3 +1330,29 @@ function displayValue() {
         console.error('No room data found in localStorage.');
     }
 }
+
+const socket = new WebSocket("ws://127.0.0.1:8000/ws");
+
+socket.addEventListener("open", () => {
+    console.log("Connected to WebSocket server!");
+});
+
+socket.addEventListener("message", (event) => {
+    let receivedData = JSON.parse(event.data);
+    
+    console.log("Received:", receivedData);
+
+    switch (receivedData.type) {
+        case "chat":
+            console.log(`Chat from ${receivedData.data.user}: ${receivedData.data.message}`);
+            break;
+        case "user":
+            console.log(`New User Joined: ${receivedData.data.username}`);
+            break;
+        case "file":
+            console.log(`File Shared: ${receivedData.data.fileName}`);
+            break;
+        default:
+            console.log("Unknown message type received.");
+    }
+});

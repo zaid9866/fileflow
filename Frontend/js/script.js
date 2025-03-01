@@ -605,3 +605,28 @@ async function createUser(username,code) {
         console.error("Error:", error.message);
     }
 }
+
+document.getElementById("codeInput").addEventListener("input", async function () {
+    let inputValue = this.value.trim();
+    if (inputValue.length === 6) {
+        try {
+            let response = await fetch("http://127.0.0.1:8000/room/joinRoom", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: inputValue })
+            });
+
+            let data = await response.json();
+            alert(data.message);
+            saveRoomData(data);
+
+            if (data.data && data.data.code) {
+                await fetchUsername(data.data.code);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+});
+
+

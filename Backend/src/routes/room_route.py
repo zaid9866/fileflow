@@ -20,3 +20,7 @@ def check_room_code(request: RoomCodeRequest, db: Session = Depends(get_db)):
 @room_router.post("/createRoom")
 def create_room(data: dict, db: Session = Depends(get_db)):
     return room_controller.create_room(db, data)
+
+@room_router.post("/joinRoom")
+def join_room(request: RoomCodeRequest, db: Session = Depends(get_db)):
+    return room_controller.join_room(request.code, db)
