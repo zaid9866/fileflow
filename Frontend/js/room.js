@@ -96,8 +96,8 @@ function lightMode() {
         dropzone.classList.add("hover:bg-gray-300");
         textSection.classList.remove("bg-slate-900");
         textSection.classList.add("bg-gray-200");
-        roomChat.classList.remove("bg-gray-900");
-        roomChat.classList.add("bg-white");
+        roomChat.classList.remove("bg-slate-900");
+        roomChat.classList.add("bg-gray-200");
         feature.classList.remove("bg-zinc-950");
         feature.classList.add("bg-gray-300");
         work.classList.remove("bg-stone-950");
@@ -201,8 +201,8 @@ function darkMode() {
         dropzone.classList.add("hover:bg-gray-700");
         textSection.classList.remove("bg-gray-200");
         textSection.classList.add("bg-slate-900");
-        roomChat.classList.remove("bg-white");
-        roomChat.classList.add("bg-gray-900");
+        roomChat.classList.remove("bg-gray-200");
+        roomChat.classList.add("bg-slate-900");
         feature.classList.remove("bg-gray-300");
         feature.classList.add("bg-zinc-950");
         work.classList.remove("bg-gray-200");
@@ -750,7 +750,7 @@ function addNewTextField() {
     const textContainer = document.getElementById("text-container");
     const newTextField = document.createElement("div");
 
-    newTextField.className = "w-full rounded-lg border p-4 min-h-[400px] relative text-field";
+    newTextField.className = "w-full rounded-lg border p-4 min-h-[380px] relative text-field";
     newTextField.setAttribute("id", `text-field-${textFieldCount}`);
     newTextField.innerHTML = `
             <div class="hidden remove-text">
@@ -758,7 +758,7 @@ function addNewTextField() {
             </div>
             <div class="flex flex-wrap gap-x-4 gap-3 mt-4 mb-3">
                <input type="text" id="title-input-${textFieldCount}" placeholder="Enter file name"
-                    class="text-name border p-2 rounded min-w-48 sm:w-auto flex-1 change-text bg-gray-800">
+                    class="text-name border p-3 rounded min-w-48 sm:w-auto flex-1 change-text bg-gray-800">
                 <div class="flex justify-start">
                 <select id="format-select-${textFieldCount}" class="format-select w-36 select2 border p-2 rounded bg-gray-800">
                         <option value="txt">TXT (.txt)</option>
@@ -799,15 +799,15 @@ function addNewTextField() {
                 </div>
                 <div class="relative">
                     <textarea id="text-box-${textFieldCount}" rows="10" placeholder="Enter text here..."
-                        class="text-box w-full p-2 border rounded resize-none change-text bg-gray-800"></textarea>
+                        class="text-box w-full p-3 border rounded resize-none change-text bg-gray-800"></textarea>
                 </div>
                 <div class="flex flex-wrap justify-center gap-2 mt-2">
                     <button
-                        class="bg-emerald-600 border text-white change-border px-4 py-2 rounded-lg flex items-center gap-2 copy-btn">
+                        class="bg-emerald-600 border text-white change-border px-4 py-2 rounded-md flex items-center gap-2 copy-btn">
                             <i class="fa-solid fa-copy"></i> Copy Text
                       </button>
                     <button
-                        class="bg-red-600 border text-white change-border px-4 py-2 rounded-lg flex items-center gap-2 clear-btn">
+                        class="bg-red-600 border text-white change-border px-4 py-2 rounded-md flex items-center gap-2 clear-btn">
                             <i class="fa-solid fa-delete-left"></i> Clear Text
                     </button>
                 </div>
