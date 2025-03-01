@@ -35,7 +35,7 @@ const fileSection = document.getElementById("file-section");
 const textSection = document.getElementById("text-section");
 const roomInfo = document.getElementById("room-info");
 const roomShare = document.getElementById("room-share");
-const roomChat = document.getElementById("room-chat");
+const roomChat = document.getElementById("chat-section");
 const moon = document.querySelectorAll(".fa-moon");
 const change = document.querySelectorAll(".change");
 const warn = document.getElementById("warn");
@@ -569,7 +569,7 @@ function startCountdown(hours, minutes, seconds) {
 function applyThemeClasses() {
     const roomMode = localStorage.getItem("roomMode");
 
-    document.querySelectorAll("#share-file, #share-text").forEach((el) => {
+    document.querySelectorAll("#share-file, #share-text,#share-chat").forEach((el) => {
         el.classList.remove("bg-slate-900", "bg-gray-200", "border", "rounded-t-lg", "border-b-0", "text-white", "text-black");
 
         if (el.classList.contains("open")) {
@@ -586,7 +586,7 @@ function applyThemeClasses() {
 }
 
 function toggleShareType(activeId) {
-    document.querySelectorAll("#share-file, #share-text").forEach((el) => {
+    document.querySelectorAll("#share-file, #share-text,#share-chat").forEach((el) => {
         el.classList.remove("open");
     });
 
@@ -595,11 +595,12 @@ function toggleShareType(activeId) {
 
     document.getElementById("file-section").classList.toggle("hidden", activeId !== "share-file");
     document.getElementById("text-section").classList.toggle("hidden", activeId !== "share-text");
+    document.getElementById("chat-section").classList.toggle("hidden", activeId !== "share-chat");
 
     applyThemeClasses();
 }
 
-document.querySelectorAll("#share-file, #share-text").forEach((btn) => {
+document.querySelectorAll("#share-file, #share-text,#share-chat").forEach((btn) => {
     btn.addEventListener("click", function () {
         toggleShareType(this.id);
     });
@@ -1212,16 +1213,6 @@ function addUsers(usersArray) {
     }
 }
 
-
-const users = [
-    { name: "Zaid Kotimbire", role: "Host" },
-    { name: "Khalid Khilji", role: "Guest" },
-    { name: "Izhar Khan", role: "Guest" },
-    { name: "Rizwan Khan", role: "Guest" }
-];
-
-addUsers(users);
-
 restrictMode.addEventListener("click", () => {
     if (toggleRestrict.classList.contains("fa-toggle-off")) {
         toggleRestrict.classList.remove("fa-toggle-off");
@@ -1300,7 +1291,8 @@ function hideRequestBoxIfEmpty() {
 
 function displayValue() {
     let data = JSON.parse(sessionStorage.getItem('roomData'));
-    let username = sessionStorage.getItem("username")
+    let username = sessionStorage.getItem("username");
+    addUsers([{ name: username, role: data.role }]);
     if (data) {
         document.getElementById('room-code').textContent = data.code;
         document.getElementById('username').innerHTML = username;

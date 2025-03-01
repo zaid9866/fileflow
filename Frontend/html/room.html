@@ -84,6 +84,8 @@
             <a class="hover:text-gray-300 cursor-pointer show-to-work">How it works</a>
             <a class="hover:text-gray-300 cursor-pointer show-to-feature">Features</a>
             <a class="hover:text-gray-300 cursor-pointer show-to-about">About Us</a>
+            <a id="share-room" class="hover:text-gray-300 cursor-pointer"><i
+                    class="fa-solid fa-share"></i></a>
             <a id="leave-room" href="./index.html" class="hover:text-gray-300 cursor-pointer"><i
                     class="fa-solid fa-right-from-bracket"></i></a>
             <a class="hover:cursor-pointer hover:text-gray-300"><i class="fa-solid fa-moon"></i></a>
@@ -111,6 +113,10 @@
                     Us</a>
             </li>
             <li>
+                <a id="mobile-share-room" class="hover:text-gray-300 cursor-pointer"><i
+                        class="fa-solid fa-share"></i></a>
+            </li>
+            <li>
                 <a id="mobile-leave-room" href="./index.html" class="hover:text-gray-300 cursor-pointer"><i
                         class="fa-solid fa-right-from-bracket"></i></a>
             </li>
@@ -120,26 +126,27 @@
         </ul>
     </div>
     <main class="hide">
-        <section id="request-container" class="bg-slate-900 border m-5 sm:mx-20 md:mx-32 lg:mx-40 rounded-lg p-4 shadow-lg hidden">
+        <section id="request-container"
+            class="bg-slate-900 border m-5 sm:mx-20 md:mx-32 lg:mx-40 rounded-lg p-4 shadow-lg hidden">
             <h2 class="text-lg sm:text-xl font-semibold mb-5 text-center">Join Requests</h2>
             <div id="request" class="flex flex-wrap gap-5 items-center justify-evenly"></div>
-        </section>                        
+        </section>
         <section id="room-info"
             class="flex items-baseline relative max-[1800px]:pr-10 text-white border border-b-0 m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl">
             <div id="head"
                 class="flex flex-wrap w-full items-center justify-between h-8 overflow-hidden gap-x-8 sm:gap-x-10 gap-4">
-                <div class="w-48">Room Code : <span id="room-code">ABCDEF</span></div>
+                <div class="w-48">Room Code : <span id="room-code"></span></div>
                 <div class="w-64 flex items-center">
-                    Name<span id="username" class="ml-2">: Rizwan Khan 10</span>
+                    Name<span id="username" class="ml-2"></span>
                     <div id="edit-name" class="ml-3 cursor-pointer"><i class="fa-solid fa-edit"></i></div>
                 </div>
-                <div class="w-28">Role : <span id="user-role">Host</span></div>
+                <div class="w-28">Role : <span id="user-role"></span></div>
                 <div class="w-56 flex items-center">
-                    Total Users<span id="no-of-user" class="ml-2">: 0/10</span>
+                    Total Users<span id="no-of-user" class="ml-2"></span>
                     <div id="edit-user" class="ml-3 hidden cursor-pointer"><i class="fa-solid fa-edit"></i></div>
                 </div>
                 <div class="w-72 flex items-center">
-                    Remaining Time<span id="time-remaining" class="ml-2">: 58:00</span>
+                    Remaining Time<span id="time-remaining" class="ml-2"></span>
                     <div id="edit-time" class="ml-3 hidden cursor-pointer"><i class="fa-solid fa-edit"></i></div>
                 </div>
                 <div id="restrict-mode" class="w-40 flex items-center">
@@ -154,19 +161,21 @@
         </section>
         <section id="room-share"
             class="bg-zinc-950 items-center text-white flex flex-col-reverse border border-y-0 sm:flex-row justify-between m-5 sm:mx-20 md:mx-32 lg:mx-40 my-0 text-base sm:text-lg">
-            <div class="flex items-baseline justify-center w-full sm:w-96 h-full">
+            <div class="flex items-baseline justify-center w-full h-full">
                 <div id="share-file"
-                    class="flex items-center justify-center gap-3 py-3 w-28 sm:w-40 bg-slate-900 border rounded-t-lg border-b-0 outline-0 open">
+                    class="flex items-center justify-center gap-3 py-3 w-full bg-slate-900 border rounded-t-lg border-b-0 outline-0 open">
                     <i class="fa-solid fa-file"></i>
                     <span>File</span>
                 </div>
-                <div id="share-text" class="flex items-center justify-center gap-3 py-3 w-28 sm:w-40">
+                <div id="share-text" class="flex items-center justify-center gap-3 py-3 w-full">
                     <i class="fa-solid fa-font"></i>
                     <span>Text</span>
                 </div>
+                <div id="share-chat" class="flex items-center justify-center gap-3 py-3 w-full">
+                    <i class="fa-regular fa-comment"></i>
+                    <span>Chat</span>
+                </div>
             </div>
-            <button
-                class="w-30 p-2 mr-0 sm:mr-5 mb-4 sm:mb-2 bg-emerald-500 change-border text-white border hover:bg-emerald-600 font-medium rounded-lg transition">Share</button>
         </section>
         <section id="file-section"
             class="bg-slate-900 p-6 rounded-b-xl shadow-lg  border border-t-0 text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
@@ -211,53 +220,50 @@
                 </button>
             </div>
         </section>
+        <section id="chat-section"
+        class="bg-slate-900 p-6 hidden rounded-b-xl shadow-lg border border-t-0 text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10">
+            <div id="chats-box" class="flex-1 overflow-y-auto space-y-4 p-2 scrollbar-hide flex flex-col justify-end">
+                <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Zaid Kotimbire</span>
+                    <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
+                        <p>Hey guys, what's up?</p>
+                        <span class="text-xs block text-right mt-1">10:10 AM</span>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Izhar Khan</span>
+                    <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
+                        <p>Not much, just chilling!</p>
+                        <span class="text-xs block text-right mt-1">10:12 AM</span>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Khalid Khilji</span>
+                    <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
+                        <p>Let's plan something for the weekend.</p>
+                        <span class="text-xs block text-right mt-1">10:14 AM</span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-sm font-semibold">You</span>
+                    <div
+                        class="bg-emerald-600 p-3 your-chat border-white text-white rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
+                        <p>Sounds good! Any ideas?</p>
+                        <span class="text-xs block text-right mt-1">10:16 AM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-2 flex items-center">
+                <textarea id="chat-input" placeholder="Type a message..."
+                    class="flex-1 change-chat border default-scrollbar bg-gray-800 px-3 py-2 rounded-lg focus:outline-none text-sm resize-none h-10 max-h-32 overflow-y-auto"
+                    rows="1"></textarea>
+                <button
+                    class="ml-2 bg-emerald-600 p-3 flex border items-center justify-center rounded-full hover:bg-emerald-700 transition">
+                    <i class="fa-solid fa-paper-plane text-white text-lg"></i>
+                </button>
+            </div>
+        </section>
     </main>
-    <section id="room-chat"
-        class="m-5 sm:mx-20 md:mx-32 lg:mx-40 bg-gray-900 rounded-lg shadow-lg p-4 flex flex-col min-h-[600px] hide border">
-        <div class="text-center border-b border-gray-700 pb-2 mb-2">
-            <h2 class="text-lg font-semibold">Room Code: <span class="text-emerald-400">ABCDEF</span></h2>
-        </div>
-        <div id="chats-box" class="flex-1 overflow-y-auto space-y-4 p-2 scrollbar-hide flex flex-col justify-end">
-            <div class="flex flex-col">
-                <span class="text-sm font-semibold">Zaid Kotimbire</span>
-                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
-                    <p>Hey guys, what's up?</p>
-                    <span class="text-xs block text-right mt-1">10:10 AM</span>
-                </div>
-            </div>
-            <div class="flex flex-col">
-                <span class="text-sm font-semibold">Izhar Khan</span>
-                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
-                    <p>Not much, just chilling!</p>
-                    <span class="text-xs block text-right mt-1">10:12 AM</span>
-                </div>
-            </div>
-            <div class="flex flex-col">
-                <span class="text-sm font-semibold">Khalid Khilji</span>
-                <div class="bg-gray-800 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
-                    <p>Let's plan something for the weekend.</p>
-                    <span class="text-xs block text-right mt-1">10:14 AM</span>
-                </div>
-            </div>
-            <div class="flex flex-col items-end">
-                <span class="text-sm font-semibold">You</span>
-                <div
-                    class="bg-emerald-600 p-3 your-chat border-white text-white rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
-                    <p>Sounds good! Any ideas?</p>
-                    <span class="text-xs block text-right mt-1">10:16 AM</span>
-                </div>
-            </div>
-        </div>
-        <div class="border-t border-gray-700 pt-2 flex items-center">
-            <textarea id="chat-input" placeholder="Type a message..."
-                class="flex-1 change-chat border default-scrollbar bg-gray-800 px-3 py-2 rounded-lg focus:outline-none text-sm resize-none max-h-32 overflow-y-auto"
-                rows="1"></textarea>
-            <button
-                class="ml-2 bg-emerald-600 p-3 flex border items-center justify-center rounded-full hover:bg-emerald-700 transition">
-                <i class="fa-solid fa-paper-plane text-white text-lg"></i>
-            </button>
-        </div>
-    </section>
     <section id="user-container"
         class="p-4 mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10 flex flex-wrap justify-center gap-4 hide"></section>
     <div class="w-full flex justify-center hide">
