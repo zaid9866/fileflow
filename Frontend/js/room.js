@@ -434,6 +434,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (role === "Host") {
         document.getElementById("edit-user").classList.remove("hidden");
         document.getElementById("edit-time").classList.remove("hidden");
+        restrictMode.classList.remove("hidden");
+        restrictMode.classList.add("flex");
     }
 
     document.querySelectorAll("div[id^='edit-']").forEach(editBtn => {
@@ -541,28 +543,46 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function startCountdown(hours, minutes, seconds) {
+    let now = new Date();
+    let currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    let inputSeconds = hours * 3600 + minutes * 60 + seconds;
+    
+    let remainingSeconds = inputSeconds - currentSeconds;
+
+    if (remainingSeconds <= 0) {
+        document.getElementById("time-remaining").innerText = "00:00:00";
+        console.log("Time Over!");
+        return;
+    }
+
     function updateTime() {
-        if (seconds > 0) {
-            seconds--;
-        } else if (minutes > 0) {
-            minutes--;
-            seconds = 59;
-        } else if (hours > 0) {
-            hours--;
-            minutes = 59;
-            seconds = 59;
-        } else {
+        if (remainingSeconds <= 0) {
             document.getElementById("time-remaining").innerText = "00:00:00";
             console.log("Time Over!");
             return;
         }
+
+        let h = Math.floor(remainingSeconds / 3600);
+        let m = Math.floor((remainingSeconds % 3600) / 60);
+        let s = remainingSeconds % 60;
+
         let formattedTime =
-            String(hours).padStart(2, '0') + ":" +
-            String(minutes).padStart(2, '0') + ":" +
-            String(seconds).padStart(2, '0');
+            String(h).padStart(2, '0') + ":" +
+            String(m).padStart(2, '0') + ":" +
+            String(s).padStart(2, '0');
+
         document.getElementById("time-remaining").innerText = formattedTime;
-        setTimeout(updateTime, 1000);
+        
+        remainingSeconds--;
+
+        if (remainingSeconds >= 0) {
+            setTimeout(updateTime, 1000);
+        } else {
+            document.getElementById("time-remaining").innerText = "00:00:00";
+            console.log("Time Over!");
+        }
     }
+
     updateTime();
 }
 
@@ -1289,35 +1309,23 @@ function hideRequestBoxIfEmpty() {
     }
 }
 
+let data = JSON.parse(sessionStorage.getItem('roomData'));
+let username = sessionStorage.getItem("username");
+let code = data.code;
+
 function displayValue() {
     let data = JSON.parse(sessionStorage.getItem('roomData'));
-    let username = sessionStorage.getItem("username");
     addUsers([{ name: username, role: data.role }]);
     if (data) {
         document.getElementById('room-code').textContent = data.code;
         document.getElementById('username').innerHTML = username;
         document.getElementById('user-role').textContent = data.role;
         document.getElementById('no-of-user').textContent = `: ${data.current_participants}/${data.max_participants}`;
-        if (data.time === 30) {
-            startCountdown(0, 30, 0);
-        } else if (data.time === 60) {
-            startCountdown(1, 0, 0);
-        } else if (data.time === 90) {
-            startCountdown(1, 30, 0);
-        } else if (data.time === 120) {
-            startCountdown(2, 0, 0);
-        } else if (data.time === 150) {
-            startCountdown(2, 30, 0);
-        } else if (data.time === 180) {
-            startCountdown(3, 0, 0);
-        } else {
-            let timeParts = data.time.split(":"); 
-            let hours = parseInt(timeParts[0], 10);
-            let minutes = parseInt(timeParts[1], 10);
-            let seconds = parseInt(timeParts[2], 10);
-            startCountdown(hours, minutes, seconds);
-        }
-        
+        let timeParts = data.time.split(":");
+        let hours = parseInt(timeParts[0], 10);
+        let minutes = parseInt(timeParts[1], 10);
+        let seconds = parseInt(timeParts[2], 10);
+        startCountdown(hours, minutes, seconds);
         let restrictToggle = document.getElementById('toggle-restrict');
         if (data.restrict === true) {
             restrictToggle.classList.remove('fa-toggle-off');
@@ -1331,7 +1339,8 @@ function displayValue() {
     }
 }
 
-const socket = new WebSocket("ws://127.0.0.1:8000/ws");
+const encodedUsername = encodeURIComponent(username);
+const socket = new WebSocket(`ws://127.0.0.1:8000/ws/${code}/${encodedUsername}`);
 
 socket.addEventListener("open", () => {
     console.log("Connected to WebSocket server!");
@@ -1339,15 +1348,13 @@ socket.addEventListener("open", () => {
 
 socket.addEventListener("message", (event) => {
     let receivedData = JSON.parse(event.data);
-    
-    console.log("Received:", receivedData);
 
     switch (receivedData.type) {
         case "chat":
             console.log(`Chat from ${receivedData.data.user}: ${receivedData.data.message}`);
             break;
         case "user":
-            console.log(`New User Joined: ${receivedData.data.username}`);
+            updateUser(receivedData.data);
             break;
         case "file":
             console.log(`File Shared: ${receivedData.data.fileName}`);
@@ -1356,3 +1363,12 @@ socket.addEventListener("message", (event) => {
             console.log("Unknown message type received.");
     }
 });
+
+function updateUser(data) {
+    console.log(data)
+    let roomData = JSON.parse(sessionStorage.getItem('roomData')) || {};
+    roomData.current_participants = data.current_participants;
+    roomData.time = data.time;
+    sessionStorage.setItem('roomData', JSON.stringify(roomData));
+    displayValue();
+}

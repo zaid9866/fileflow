@@ -617,7 +617,7 @@ document.getElementById("codeInput").addEventListener("input", async function ()
             });
 
             let data = await response.json();
-            alert(data.message);
+            alert(data.detail||data.message);
             saveRoomData(data);
 
             if (data.data && data.data.code) {

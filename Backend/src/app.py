@@ -1,5 +1,5 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from middlewares.WebSocket import ws_manager
+from fastapi import FastAPI
+from routes.websocket_route import router as websocket_router
 from fastapi.middleware.cors import CORSMiddleware
 from db.connection import engine
 from models.room import Base as RoomBase
@@ -11,14 +11,6 @@ from routes.room_route import room_router;
 
 app = FastAPI()
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await ws_manager.connect(websocket)
-    try:
-        while True:
-            await websocket.receive_text()  
-    except WebSocketDisconnect:
-        ws_manager.disconnect(websocket)
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,6 +29,7 @@ app.include_router(room_router, prefix="/room", tags=["Room"])
 app.include_router(user_router, prefix="/user", tags=["User"])
 # app.include_router(chat_routes.router, prefix="/chat", tags=["Chat"])
 # app.include_router(shared_content_routes.router, prefix="/shared-content", tags=["Shared Content"])
+app.include_router(websocket_router)
 
 @app.get("/")
 def home():

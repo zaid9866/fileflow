@@ -1,7 +1,7 @@
 import random
 import string
 import requests
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from models.room import Room
 from utils.ApiResponse import APIResponse  
@@ -29,16 +29,16 @@ def get_room_code(db: Session):
             "max_participants": 10,
             "time": 60,
             "restrict": False,
-            "role":"Host"
+            "role": "Host"
         }
 
-        response = requests.post("http://localhost:8000/room/createRoom", json=room_data)  
+        response = requests.post("http://localhost:8000/room/createRoom", json=room_data)
 
         if response.status_code != 200:
             raise APIError(status_code=response.status_code, detail="Failed to create room.")
 
-        return APIResponse.success(message="Room code generated", data=room_data)
-    
+        return response.json() 
+
     except Exception as e:
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
@@ -70,11 +70,10 @@ def create_room(db: Session, data: dict):
 
         time_minutes = int(data["time"]) if isinstance(data["time"], (int, str)) and str(data["time"]).isdigit() else 60
 
-        start_time = datetime.now(UTC)
+        start_time = datetime.now(timezone.utc) 
         end_time = start_time + timedelta(minutes=time_minutes)
 
         encryption_key = generate_encryption_key()
-
         encrypted_key = AdditionalEncryption.encrypt_key(encryption_key)
 
         room = Room(
@@ -92,12 +91,12 @@ def create_room(db: Session, data: dict):
         db.refresh(room)
 
         return APIResponse.success(message="Room created", data={
-            "code": data["code"],
-            "time": data["time"],
-            "restrict": data["restrict"],
-            "current_participants": data["current_participants"],
-            "max_participants": data["max_participants"],
-            "role":"Host"
+            "code": room.code,  
+            "time": room.end_timing.strftime("%H:%M:%S"), 
+            "restrict": room.restrict,
+            "current_participants": room.current_participant,
+            "max_participants": room.max_participant,
+            "role": "Host"
         })
 
     except APIError as e:
@@ -107,7 +106,6 @@ def create_room(db: Session, data: dict):
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
 
-from datetime import datetime, timedelta
 
 def join_room(code: str, db: Session):
     try:
@@ -126,32 +124,13 @@ def join_room(code: str, db: Session):
         db.commit()
         db.refresh(room)
 
-        current_time = datetime.now()
-
-        if room.end_timing:
-            end_time = datetime.combine(current_time.date(), room.end_timing)
-
-            if end_time < current_time:
-                end_time += timedelta(days=1)
-
-            remaining_seconds = max(int((end_time - current_time).total_seconds()), 0)
-        else:
-            remaining_seconds = None
-
-        if remaining_seconds is not None:
-            hours, remainder = divmod(remaining_seconds, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            remaining_time = f"{hours}:{minutes:02}:{seconds:02}"
-        else:
-            remaining_time = "0:00:00"
-
         return APIResponse.success(
             message="Joined room successfully",
             data={
                 "code": room.code,
                 "current_participants": room.current_participant,
                 "max_participants": room.max_participant,
-                "time": remaining_time,
+                "time": room.end_timing.strftime("%H:%M:%S") if room.end_timing else None,
                 "restrict": room.restrict,
                 "role": "Guest"
             }

@@ -24,5 +24,5 @@ def verify_username(request: VerifyUsernameRequest, db: Session = Depends(get_db
     return check_username(request, db)
 
 @user_router.post("/createUser")
-def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
-    return create_user(request, db)
+async def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
+    return await create_user(request, db)
