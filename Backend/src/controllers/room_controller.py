@@ -78,7 +78,6 @@ def create_room(db: Session, data: dict):
 
         room = Room(
             code=data["code"],
-            start_timing=start_time,
             end_timing=end_time,
             current_participant=data["current_participants"],
             max_participant=data["max_participants"],

@@ -52,6 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     addNewTextField();
     displayValue();
+    applyThemeClasses();
+    getUser();
 });
 
 moon.forEach((element) => {
@@ -87,7 +89,6 @@ function lightMode() {
         roomShare.classList.add("bg-gray-700");
         roomShare.classList.remove("border-white");
         roomShare.classList.add("border-black");
-        applyThemeClasses();
         fileSection.classList.remove("bg-slate-900");
         fileSection.classList.add("bg-gray-200");
         dropzone.classList.remove("bg-gray-800");
@@ -151,6 +152,7 @@ function lightMode() {
                 element.classList.add("bg-white");
             });
             applyTheme();
+            applyThemeClasses();
         }, 100);
         document.querySelectorAll(".dark-theme").forEach((element) => {
             element.classList.remove("dark-theme");
@@ -192,7 +194,6 @@ function darkMode() {
         roomShare.classList.add("bg-zinc-950");
         roomShare.classList.remove("border-black");
         roomShare.classList.add("border-white");
-        applyThemeClasses();
         fileSection.classList.remove("bg-gray-200");
         fileSection.classList.add("bg-slate-900");
         dropzone.classList.remove("bg-gray-400");
@@ -256,6 +257,7 @@ function darkMode() {
                 element.classList.add("bg-gray-800");
             });
             applyTheme();
+            applyThemeClasses();
         }, 100);
         document.querySelectorAll(".dark-theme").forEach((element) => {
             element.classList.remove("light-theme");
@@ -546,14 +548,11 @@ function startCountdown(hours, minutes, seconds) {
     let now = new Date();
     let currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
     let inputSeconds = hours * 3600 + minutes * 60 + seconds;
-    
-    let remainingSeconds = inputSeconds - currentSeconds;
-
-    if (remainingSeconds <= 0) {
-        document.getElementById("time-remaining").innerText = "00:00:00";
-        console.log("Time Over!");
-        return;
+    if (inputSeconds <= currentSeconds) {
+        inputSeconds += 24 * 3600; 
     }
+
+    let remainingSeconds = inputSeconds - currentSeconds;
 
     function updateTime() {
         if (remainingSeconds <= 0) {
@@ -572,7 +571,7 @@ function startCountdown(hours, minutes, seconds) {
             String(s).padStart(2, '0');
 
         document.getElementById("time-remaining").innerText = formattedTime;
-        
+
         remainingSeconds--;
 
         if (remainingSeconds >= 0) {
@@ -587,20 +586,34 @@ function startCountdown(hours, minutes, seconds) {
 }
 
 function applyThemeClasses() {
-    const roomMode = localStorage.getItem("roomMode");
-
-    document.querySelectorAll("#share-file, #share-text,#share-chat").forEach((el) => {
-        el.classList.remove("bg-slate-900", "bg-gray-200", "border", "rounded-t-lg", "border-b-0", "text-white", "text-black");
-
+    const roomMode = localStorage.getItem("roomMode"); 
+    document.querySelectorAll("#share-file, #share-text, #share-chat").forEach((el) => {
+        el.classList.remove("bg-slate-900", "bg-gray-200", "border", "rounded-t-lg", "border-b-0", "text-white", "text-black", "border-r-0");
         if (el.classList.contains("open")) {
             el.classList.add("border", "rounded-t-lg", "border-b-0", "outline-0");
+            el.classList.add("border-b");
             if (roomMode === "dark") {
-                el.classList.add("bg-slate-900", "text-white");
+                el.classList.remove("border-black");
+                el.classList.add("border-slate-900", "bg-slate-900", "text-white", "border-white");
             } else {
-                el.classList.add("bg-gray-200", "text-black");
+                el.classList.remove("border-white");
+                el.classList.add("border-gray-200", "bg-gray-200", "text-black", "border-black");
+            }
+            if (el.id === "share-file") {
+                el.classList.add("border-l-0", "rounded-tl-none");
+            }
+            if (el.id === "share-chat") {
+                el.classList.add("border-r-0", "rounded-tr-none");
             }
         } else {
-            el.classList.add("text-white");
+            el.classList.add("border-b");
+            if (roomMode === "dark") {
+                el.classList.remove("border-black");
+                el.classList.add("border-white", "text-white");
+            } else {
+                el.classList.remove("border-white");
+                el.classList.add("border-black", "text-white");
+            }
         }
     });
 }
@@ -1255,7 +1268,6 @@ function showJoinRequest(username) {
         return;
     }
     if (toggleRestrict.classList.contains("fa-toggle-off")) {
-        addUsers([{ name: username, role: "Guest" }]);
         userCountElement.textContent = `${currentUsers + 1}/${maxUsers}`;
         showMessage(`${username} added successfully!`);
         return;
@@ -1277,7 +1289,6 @@ function showJoinRequest(username) {
             showError(`Room is full! Cannot add ${username}.`);
             return;
         }
-        addUsers([{ name: username, role: "Guest" }]);
         userCountElement.textContent = `${updatedUsers + 1}/${maxUsers}`;
         inviteCard.remove();
         showMessage(`${username} added successfully!`);
@@ -1315,7 +1326,6 @@ let code = data.code;
 
 function displayValue() {
     let data = JSON.parse(sessionStorage.getItem('roomData'));
-    addUsers([{ name: username, role: data.role }]);
     if (data) {
         document.getElementById('room-code').textContent = data.code;
         document.getElementById('username').innerHTML = username;
@@ -1342,10 +1352,6 @@ function displayValue() {
 const encodedUsername = encodeURIComponent(username);
 const socket = new WebSocket(`ws://127.0.0.1:8000/ws/${code}/${encodedUsername}`);
 
-socket.addEventListener("open", () => {
-    console.log("Connected to WebSocket server!");
-});
-
 socket.addEventListener("message", (event) => {
     let receivedData = JSON.parse(event.data);
 
@@ -1371,4 +1377,24 @@ function updateUser(data) {
     roomData.time = data.time;
     sessionStorage.setItem('roomData', JSON.stringify(roomData));
     displayValue();
+}
+
+async function getUser() {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/user/getUser?code=${code}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        addUsers(data.data);
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return null;
+    }
 }

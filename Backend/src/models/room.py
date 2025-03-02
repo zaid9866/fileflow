@@ -15,7 +15,6 @@ class Room(Base):
     __tablename__ = "rooms"
     
     code = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    start_timing = Column(Time, default=lambda: datetime.now().time()) 
     end_timing = Column(Time, nullable=True)
     current_participant = Column(Integer, nullable=False,default=1)
     max_participant = Column(Integer, nullable=False, default=10)

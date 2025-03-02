@@ -115,3 +115,25 @@ async def create_user(request, db: Session):
         print("Unexpected Error:", str(e))
         db.rollback()
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
+
+def get_users_by_code(code: str, db: Session):
+    try:
+        if not code or code.strip() == "":
+            raise APIError(status_code=400, detail="Room code is required.")
+
+        users = db.query(User).filter(User.code == code).all()
+
+        if not users:
+            raise APIError(status_code=404, detail="No users found for this room code.")
+
+        return APIResponse.success(
+            message="Users fetched successfully.",
+            data=[{"name": user.username, "role": user.role} for user in users]
+        )
+
+    except APIError as e:
+        raise e  
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        db.rollback()
+        raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")

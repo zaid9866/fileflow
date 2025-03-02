@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.connection import get_db
-from controllers.user_controller import get_username, check_username, create_user
+from controllers.user_controller import get_username, check_username, create_user, get_users_by_code
 from pydantic import BaseModel
 
 user_router = APIRouter()
@@ -26,3 +26,7 @@ def verify_username(request: VerifyUsernameRequest, db: Session = Depends(get_db
 @user_router.post("/createUser")
 async def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
     return await create_user(request, db)
+
+@user_router.get("/getUser")
+def get_users(code: str, db: Session = Depends(get_db)):
+    return get_users_by_code(code, db)

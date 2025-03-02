@@ -628,5 +628,3 @@ document.getElementById("codeInput").addEventListener("input", async function ()
         }
     }
 });
-
-
