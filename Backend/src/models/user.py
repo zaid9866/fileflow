@@ -12,7 +12,5 @@ class User(Base):
     role = Column(String, nullable=False)
 
     room = relationship("Room", back_populates="users")
-    chats = relationship("Chat", back_populates="sender_user")
-    shared_contents = relationship("SharedContent", back_populates="shared_by_user")
 
 __all__ = ["User"]

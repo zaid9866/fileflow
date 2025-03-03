@@ -3,18 +3,22 @@ import json
 from sqlalchemy.orm import Session
 from models.user import User
 from models.room import Room
-from utils.GenerateUsername import generate_username
 from utils.ApiResponse import APIResponse
 from utils.ApiError import APIError  
 from controllers.broadcast_controller import websocket_manager
+from faker import Faker
+fake = Faker()
 
 def get_username(code: str, db: Session):
     try:
         if not code or code.strip() == "":
             raise APIError(status_code=400, detail="Room code is required.")
-
+        
         for _ in range(100):  
-            new_username = generate_username()
+            new_username = fake.name()
+            if len(new_username) > 15:
+                continue  
+
             existing_user = db.query(User).filter(User.username == new_username, User.code == code).first()
 
             if not existing_user:
@@ -22,9 +26,9 @@ def get_username(code: str, db: Session):
                     message="Generated new username.",
                     data={"username": new_username}
                 )
-
+            
         raise APIError(status_code=500, detail="Failed to generate a unique username. Try again.")
-
+    
     except APIError as e:
         raise e  
     except Exception as e:

@@ -656,6 +656,18 @@
   .mb-12 {
     margin-bottom: calc(var(--spacing) * 12);
   }
+  .mb-14 {
+    margin-bottom: calc(var(--spacing) * 14);
+  }
+  .mb-16 {
+    margin-bottom: calc(var(--spacing) * 16);
+  }
+  .mb-18 {
+    margin-bottom: calc(var(--spacing) * 18);
+  }
+  .mb-20 {
+    margin-bottom: calc(var(--spacing) * 20);
+  }
   .ml-2 {
     margin-left: calc(var(--spacing) * 2);
   }
@@ -701,9 +713,6 @@
   .h-\[120\%\] {
     height: 120%;
   }
-  .h-\[480px\] {
-    height: 480px;
-  }
   .h-\[550px\] {
     height: 550px;
   }
@@ -724,6 +733,9 @@
   }
   .max-h-32 {
     max-height: calc(var(--spacing) * 32);
+  }
+  .min-h-\[100px\] {
+    min-height: 100px;
   }
   .min-h-\[380px\] {
     min-height: 380px;
@@ -1003,10 +1015,6 @@
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 0px;
   }
-  .border-b-2 {
-    border-bottom-style: var(--tw-border-style);
-    border-bottom-width: 2px;
-  }
   .border-l-0 {
     border-left-style: var(--tw-border-style);
     border-left-width: 0px;
@@ -1040,38 +1048,14 @@
   .border-zinc-600 {
     border-color: var(--color-zinc-600);
   }
-  .border-b-\[bg-gray-200\] {
-    border-bottom-color: bg-gray-200;
-  }
-  .border-b-\[bg-gray-900\] {
-    border-bottom-color: bg-gray-900;
-  }
-  .border-b-\[bg-slate-900\] {
-    border-bottom-color: bg-slate-900;
-  }
-  .border-b-\[black\] {
-    border-bottom-color: black;
-  }
-  .border-b-\[white\] {
-    border-bottom-color: white;
-  }
-  .border-b-black {
-    border-bottom-color: var(--color-black);
-  }
-  .border-b-gray-200 {
-    border-bottom-color: var(--color-gray-200);
-  }
-  .border-b-slate-900 {
-    border-bottom-color: var(--color-slate-900);
-  }
-  .border-b-white {
-    border-bottom-color: var(--color-white);
-  }
   .bg-black {
     background-color: var(--color-black);
   }
   .bg-blue-500 {
     background-color: var(--color-blue-500);
+  }
+  .bg-cyan-600 {
+    background-color: var(--color-cyan-600);
   }
   .bg-emerald-500 {
     background-color: var(--color-emerald-500);
@@ -1099,9 +1083,6 @@
   }
   .bg-gray-800 {
     background-color: var(--color-gray-800);
-  }
-  .bg-gray-900 {
-    background-color: var(--color-gray-900);
   }
   .bg-neutral-950 {
     background-color: var(--color-neutral-950);

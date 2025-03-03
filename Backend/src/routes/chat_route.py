@@ -1,40 +1,36 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from typing import List
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from db.connection import get_db
+from controllers.chat_controller import get_chat,add_chat
+from pydantic import BaseModel
+from typing import List, Union
 
 chat_router = APIRouter()
 
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: dict[str, List[WebSocket]] = {}
+class ChatRequest(BaseModel):
+    code: str
+    sender: str
+    message: str
+    timing: str  
 
-    async def connect(self, websocket: WebSocket, room_code: str):
-        await websocket.accept()
-        if room_code not in self.active_connections:
-            self.active_connections[room_code] = []
-        self.active_connections[room_code].append(websocket)
+    class Config:
+        from_attributes = True  
 
-    def disconnect(self, websocket: WebSocket, room_code: str):
-        if room_code in self.active_connections:
-            self.active_connections[room_code].remove(websocket)
-            if not self.active_connections[room_code]:  
-                del self.active_connections[room_code]
+class ChatResponse(BaseModel):
+    success: bool
+    chat_id: str
+    code: str
+    sender: str
+    message: str
+    timing: str
 
-    async def broadcast(self, room_code: str, message: dict):
-        if room_code in self.active_connections:
-            for connection in self.active_connections[room_code]:
-                await connection.send_json(message)
+class ErrorResponse(BaseModel):
+    error: str
 
-manager = ConnectionManager()
+@chat_router.get("/getChat", response_model=List[ChatRequest])
+def get_chat_route(code: str, db: Session = Depends(get_db)):
+    return get_chat(code, db)
 
-@chat_router.websocket("/ws/{username}")
-async def websocket_endpoint(websocket: WebSocket, username: str):
-    await manager.connect(websocket)
-    await manager.broadcast(f"{username} joined the chat")
-    
-    try:
-        while True:
-            data = await websocket.receive_text()
-            await manager.broadcast(f"{username}: {data}")
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await manager.broadcast(f"{username} left the chat")
+@chat_router.post("/addChat", response_model=Union[ChatResponse, ErrorResponse])
+async def add_chat_route(request: ChatRequest, db: Session = Depends(get_db)):
+    return await add_chat(request.dict(), db) 

@@ -84,8 +84,7 @@
             <a class="hover:text-gray-300 cursor-pointer show-to-work">How it works</a>
             <a class="hover:text-gray-300 cursor-pointer show-to-feature">Features</a>
             <a class="hover:text-gray-300 cursor-pointer show-to-about">About Us</a>
-            <a id="share-room" class="hover:text-gray-300 cursor-pointer"><i
-                    class="fa-solid fa-share"></i></a>
+            <a id="share-room" class="hover:text-gray-300 cursor-pointer"><i class="fa-solid fa-share"></i></a>
             <a id="leave-room" href="./index.html" class="hover:text-gray-300 cursor-pointer"><i
                     class="fa-solid fa-right-from-bracket"></i></a>
             <a class="hover:cursor-pointer hover:text-gray-300"><i class="fa-solid fa-moon"></i></a>
@@ -194,7 +193,8 @@
                     Browse Files
                 </button>
                 <input type="file" id="fileInput" multiple class="hidden">
-                <p class="mt-4 text-center text-xs sm:text-sm">You can upload up to 20 files, with a total size limit of 500MB.</p>
+                <p class="mt-4 text-center text-xs sm:text-sm">You can upload up to 20 files, with a total size limit of
+                    500MB.</p>
             </div>
             <div id="file-list-container" class="hidden">
                 <div id="file-list" class="mt-6 space-y-3"></div>
@@ -221,12 +221,13 @@
             </div>
         </section>
         <section id="chat-section"
-        class="bg-slate-900 p-6 hidden rounded-b-xl shadow-lg border border-t-0 text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10 relative">
-            <div id="chats-box" class="flex-1 h-[550px] overflow-y-auto space-y-4 p-2 scrollbar-hide flex flex-col justify-end pb-14">
+            class="bg-slate-900 p-6 hidden rounded-b-xl shadow-lg border border-t-0 text-base sm:text-lg mx-5 sm:mx-20 md:mx-32 lg:mx-40 mb-10 relative">
+            <div id="chats-box"
+                class="h-[550px] min-h-[100px] overflow-y-auto space-y-4 p-2 scrollbar-hide flex flex-col mb-12">
             </div>
-            <div class="border-t flex items-center absolute bottom-0 left-0 w-full p-3 z-50">
+            <div class="border change-text rounded-b-xl bg-gray-800 flex items-center absolute bottom-0 left-0 w-full p-3 z-50">
                 <textarea id="chat-input" placeholder="Type a message..."
-                    class="flex-1 change-text border default-scrollbar bg-gray-800 px-4 py-3 rounded-lg focus:outline-none text-sm resize-none h-12 max-h-32 overflow-y-auto"
+                    class="flex-1 border default-scrollbar px-4 py-3 rounded-lg focus:outline-none text-sm resize-none h-12 max-h-32 overflow-y-auto"
                     rows="1"></textarea>
                 <button
                     class="ml-2 bg-emerald-600 p-3 flex border items-center justify-center rounded-full hover:bg-emerald-700 transition">
@@ -243,7 +244,7 @@
         </span>
     </div>
     <div id="message"
-        class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-emerald-600 px-4 py-2 rounded-md text-sm sm:text-lg hidden">
+        class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-emerald-600 px-4 py-2 rounded-md text-sm sm:text-lg hidden z-50">
     </div>
     <div id="error"
         class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-600 px-4 py-2 rounded-md text-sm sm:text-lg hidden">

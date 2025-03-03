@@ -15,6 +15,5 @@ class SharedContent(Base):
     timing = Column(DateTime, default=lambda: datetime.now(UTC))
 
     room = relationship("Room", back_populates="shared_contents")
-    shared_by_user = relationship("User", back_populates="shared_contents")
 
 __all__ = ["SharedContent"]

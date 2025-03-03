@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     displayValue();
     applyThemeClasses();
     getUser();
+    fetchChatMessages();
 });
 
 moon.forEach((element) => {
@@ -126,20 +127,15 @@ function lightMode() {
             });
             const changeChat = document.querySelectorAll(".change-chat");
             changeChat.forEach((element) => {
-                element.classList.remove("bg-gray-800");
-                element.classList.add("bg-gray-200");
+                element.classList.remove("border-white");
+                element.classList.add("border-black");
+                element.classList.remove("text-black");
+                element.classList.add("text-white");
             });
             const changeRole = document.querySelectorAll(".change-role");
             changeRole.forEach((element) => {
                 element.classList.remove("bg-gray-800");
                 element.classList.add("bg-white");
-            });
-            const yourChat = document.querySelectorAll(".your-chat");
-            yourChat.forEach((element) => {
-                element.classList.remove("border-white");
-                element.classList.add("border-black");
-                element.classList.remove("text-black");
-                element.classList.add("text-white");
             });
             const changeBorder = document.querySelectorAll(".change-border");
             changeBorder.forEach((element) => {
@@ -231,20 +227,15 @@ function darkMode() {
             });
             const changeChat = document.querySelectorAll(".change-chat");
             changeChat.forEach((element) => {
-                element.classList.remove("bg-gray-200");
-                element.classList.add("bg-gray-800");
+                element.classList.remove("border-black");
+                element.classList.add("border-white");
+                element.classList.remove("text-black");
+                element.classList.add("text-white");
             });
             const changeRole = document.querySelectorAll(".change-role");
             changeRole.forEach((element) => {
                 element.classList.remove("bg-white");
                 element.classList.add("bg-gray-800");
-            });
-            const yourChat = document.querySelectorAll(".your-chat");
-            yourChat.forEach((element) => {
-                element.classList.remove("border-black");
-                element.classList.add("border-white");
-                element.classList.remove("text-black");
-                element.classList.add("text-white");
             });
             const changeBorder = document.querySelectorAll(".change-border");
             changeBorder.forEach((element) => {
@@ -549,7 +540,7 @@ function startCountdown(hours, minutes, seconds) {
     let currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
     let inputSeconds = hours * 3600 + minutes * 60 + seconds;
     if (inputSeconds <= currentSeconds) {
-        inputSeconds += 24 * 3600; 
+        inputSeconds += 24 * 3600;
     }
 
     let remainingSeconds = inputSeconds - currentSeconds;
@@ -586,7 +577,7 @@ function startCountdown(hours, minutes, seconds) {
 }
 
 function applyThemeClasses() {
-    const roomMode = localStorage.getItem("roomMode"); 
+    const roomMode = localStorage.getItem("roomMode");
     document.querySelectorAll("#share-file, #share-text, #share-chat").forEach((el) => {
         el.classList.remove("bg-slate-900", "bg-gray-200", "border", "rounded-t-lg", "border-b-0", "text-white", "text-black", "border-r-0");
         if (el.classList.contains("open")) {
@@ -1141,9 +1132,9 @@ chatInput.addEventListener("input", function () {
     this.style.height = (this.scrollHeight) + "px";
 });
 
+const chatBox = document.getElementById("chats-box");
 document.addEventListener("DOMContentLoaded", function () {
     const sendButton = document.querySelector(".fa-paper-plane").parentElement;
-    const chatBox = document.getElementById("chats-box");
 
     sendButton.addEventListener("click", async function () {
         const message = chatInput.value.trim();
@@ -1154,28 +1145,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const minutes = now.getMinutes();
         const ampm = hours >= 12 ? "PM" : "AM";
         const formattedTime = `${hours % 12 || 12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
-        chatBox.appendChild(createSentMessage(message, formattedTime));
         chatInput.value = "";
         chatBox.scrollTop = chatBox.scrollHeight;
-        // try {
-        //     const response = await fetch("http://localhost:3000/chats", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         body: JSON.stringify({ message }),
-        //     });
+        try {
+            const response = await fetch("http://127.0.0.1:8000/chat/addChat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ code: data.code, sender: username.trim(), message: message, timing: formattedTime }),
+            });
 
-        //     if (response.ok) {
-        //         chatBox.appendChild(createSentMessage(message, formattedTime));
-        //         chatInput.value = "";
-        //         chatBox.scrollTop = chatBox.scrollHeight;
-        //     } else {
-        //         showMessage("Message not sent! Please try again.");
-        //     }
-        // } catch (error) {
-        //     console.error("Error sending message:", error);
-        // }
+            if (response.ok) {
+                chatBox.appendChild(createSentMessage(message, formattedTime));
+                chatInput.value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } else {
+                showMessage("Message not sent! Please try again.");
+            }
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
     });
 });
 
@@ -1185,7 +1175,7 @@ function createSentMessage(message, time) {
 
     messageDiv.innerHTML = `
         <span class="text-sm font-semibold">You</span>
-        <div class="bg-emerald-600 your-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
+        <div class="bg-emerald-600 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
             <p>${message}</p>
             <span class="text-xs block text-right mt-1">${time}</span>
         </div>
@@ -1204,7 +1194,7 @@ function createReceivedMessage(name, message, time) {
     messageDiv.className = "flex flex-col";
     messageDiv.innerHTML = `
         <span class="text-sm font-semibold">${name}</span>
-        <div class="bg-gray-800 change-chat text-white p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
+        <div class="bg-cyan-600 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
             <p>${message}</p>
             <span class="text-xs block text-right mt-1">${time}</span>
         </div>
@@ -1219,11 +1209,11 @@ function createReceivedMessage(name, message, time) {
 
 function addUsers(usersArray) {
     const container = document.getElementById("user-container");
+    container.innerHTML = "";
     const userCountElement = document.getElementById("no-of-user");
     let [currentUsers, maxUsers] = userCountElement.textContent.split("/").map(num => parseInt(num.trim(), 10) || 0);
     usersArray.forEach(user => {
         if (currentUsers >= maxUsers) return;
-        const userRole = sessionStorage.getItem("role");
         const card = document.createElement("div");
         card.className = `w-60 bg-gray-800 change-role p-4 rounded-lg shadow-lg border-l-4 border flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-500"}`;
         const userInfo = `
@@ -1231,7 +1221,7 @@ function addUsers(usersArray) {
                 <h3 class="text-lg font-semibold">${user.name}</h3>
                 <p class="text-sm ${user.role === "Host" ? "text-emerald-500" : "text-cyan-500"}">${user.role}</p>
             </div>`;
-        const removeIcon = user.role === "Guest" && userRole !== "Guest"
+        const removeIcon = user.role === "Guest" && data.role !== "Guest"
             ? `<i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400 remove-guests"></i>`
             : "";
         card.innerHTML = userInfo + removeIcon;
@@ -1357,7 +1347,7 @@ socket.addEventListener("message", (event) => {
 
     switch (receivedData.type) {
         case "chat":
-            console.log(`Chat from ${receivedData.data.user}: ${receivedData.data.message}`);
+            updateChat(receivedData.data);
             break;
         case "user":
             updateUser(receivedData.data);
@@ -1371,12 +1361,22 @@ socket.addEventListener("message", (event) => {
 });
 
 function updateUser(data) {
-    console.log(data)
     let roomData = JSON.parse(sessionStorage.getItem('roomData')) || {};
     roomData.current_participants = data.current_participants;
     roomData.time = data.time;
     sessionStorage.setItem('roomData', JSON.stringify(roomData));
     displayValue();
+    getUser();
+}
+
+function updateChat(data) {
+    if (data.sender === username) {
+        return
+    } else {
+        chatBox.appendChild(createReceivedMessage(data.sender, data.message, data.timing));
+    }
+    chatInput.value = "";
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 async function getUser() {
@@ -1397,4 +1397,42 @@ async function getUser() {
         console.error("Error fetching user:", error);
         return null;
     }
+}
+
+async function fetchChatMessages() {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/chat/getChat?code=${data.code}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const chatData = await response.json();
+
+        if (chatData.error) {
+            console.error("Error fetching chats:", chatData.error);
+            return [];
+        }
+        sortChats(chatData);
+    } catch (error) {
+        console.error("Failed to fetch chats:", error);
+        return [];
+    }
+}
+
+function sortChats(data) {
+    data.forEach((chat) => {
+        if (chat.sender === username) {
+            chatBox.appendChild(createSentMessage(chat.message, chat.timing));
+        } else {
+            chatBox.appendChild(createReceivedMessage(chat.sender, chat.message, chat.timing));
+        }
+        chatInput.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+    })
 }

@@ -1,8 +1,7 @@
 import uuid
-from sqlalchemy import Column, String, ForeignKey, DateTime, Text
+from sqlalchemy import Column, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from base import Base  
-from datetime import datetime, UTC
 
 class Chat(Base):
     __tablename__ = "chats"
@@ -11,9 +10,8 @@ class Chat(Base):
     code = Column(String, ForeignKey("rooms.code"), nullable=False)
     sender = Column(String, ForeignKey("users.user_id"), nullable=False)
     message = Column(Text, nullable=False)
-    timing = Column(DateTime, default=lambda: datetime.now(UTC))
+    timing = Column(String, nullable=False)
 
     room = relationship("Room", back_populates="chats")
-    sender_user = relationship("User", back_populates="chats")
 
 __all__ = ["Chat"]
