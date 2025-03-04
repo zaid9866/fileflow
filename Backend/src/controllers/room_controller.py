@@ -1,13 +1,18 @@
 import random
 import string
 import requests
+import json
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from models.room import Room
+from models.user import User
+from models.chat import Chat
+from models.sharedcontent import SharedContent
 from utils.ApiResponse import APIResponse  
 from utils.ApiError import APIError  
 from utils.GenerateEncryptionKey import generate_encryption_key
 from middlewares.additonalProtection import AdditionalEncryption
+from controllers.broadcast_controller import websocket_manager
 
 def generate_random_code(length=6):
     chars = string.ascii_letters + string.digits  
@@ -140,4 +145,64 @@ def join_room(code: str, db: Session):
 
     except Exception as e:
         print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error. Please try again later.") 
+
+async def leave_room(request, db: Session):
+    try:
+        if not request.code.strip():
+            raise APIError(status_code=400, detail="Room code is required.")
+
+        if not request.username.strip():
+            raise APIError(status_code=400, detail="Username is required.")
+
+        existing_user = db.query(User).filter(User.username == request.username, User.code == request.code).first()
+        
+        if not existing_user:
+            raise APIError(status_code=404, detail="User not found in this room.")
+
+        room = db.query(Room).filter(Room.code == request.code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room not found.")
+
+        if request.role == "Host":
+            db.query(Chat).filter(Chat.code == request.code).delete()
+            db.query(SharedContent).filter(SharedContent.code == request.code).delete()
+            db.query(User).filter(User.code == request.code).delete()
+            db.delete(room)
+            db.commit()
+            response = {
+                "room": request.code,
+                "type": "roomClosed",
+                "data": {
+                    "message": f"Host {request.username} has left. Room closed."
+                }
+            }
+        else:
+            if room.current_participant > 0:
+                room.current_participant -= 1
+            db.delete(existing_user)
+            db.commit()
+            response = {
+                "room": request.code,
+                "type": "userLeft",
+                "data": {
+                    "username": request.username,
+                    "current_participants": room.current_participant,
+                    "message": f"{request.username} has left the room."
+                }
+            }
+
+        if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+            await websocket_manager.broadcast(request.code, json.dumps(response))
+
+        return APIResponse.success(
+            message="User left successfully.",
+            data={"username": request.username, "current_participants": room.current_participant if request.role != "host" else 0}
+        )
+
+    except APIError as e:
+        raise e  
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        db.rollback()
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")

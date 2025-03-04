@@ -42,11 +42,14 @@ const warn = document.getElementById("warn");
 const restrictMode = document.getElementById("restrict-mode");
 const toggleRestrict = document.getElementById("toggle-restrict");
 const requestBox = document.getElementById("request-container");
-const openModal = document.querySelectorAll(".openModal");
 const closeModal = document.getElementById("closeModal");
 const modal = document.getElementById("modal");
 const removeGuest = document.getElementById("removeGuest");
 const blockGuest = document.getElementById("blockGuest");
+const leaveRoom = document.getElementById("leaveRoom");
+const leave = document.getElementById("leave");
+const cancel = document.getElementById("cancel");
+const modalText = leaveRoom.querySelector("p");
 let guestName = "";
 localStorage.setItem("roomMode", "dark");
 
@@ -118,6 +121,8 @@ function lightMode() {
         requestBox.classList.add("bg-gray-200");
         modal.firstElementChild.classList.remove("bg-slate-900");
         modal.firstElementChild.classList.add("bg-gray-200");
+        leaveRoom.firstElementChild.classList.remove("bg-slate-900");
+        leaveRoom.firstElementChild.classList.add("bg-gray-200");
         change.forEach((element) => {
             element.classList.remove("bg-zinc-900");
             element.classList.add("bg-gray-200");
@@ -220,6 +225,8 @@ function darkMode() {
         requestBox.classList.add("bg-slate-900");
         modal.firstElementChild.classList.remove("bg-gray-200");
         modal.firstElementChild.classList.add("bg-slate-900");
+        leaveRoom.firstElementChild.classList.remove("bg-gray-200");
+        leaveRoom.firstElementChild.classList.add("bg-slate-900");
         change.forEach((element) => {
             element.classList.remove("bg-gray-200");
             element.classList.add("bg-zinc-900");
@@ -1237,7 +1244,11 @@ function addUsers(usersArray) {
         card.innerHTML = userInfo + removeIcon;
         container.appendChild(card);
         currentUsers++;
-        showMessage(`${user.name} joined the room.`);
+        if (username === user.name) {
+            showMessage("You joined the room.");
+        } else {
+            showMessage(`${user.name} joined the room.`);
+        }
     });
     userCountElement.textContent = `${currentUsers}/${maxUsers}`;
     if (localStorage.getItem("roomMode") === "dark") {
@@ -1367,7 +1378,13 @@ socket.addEventListener("message", (event) => {
             console.log(`File Shared: ${receivedData.data.fileName}`);
             break;
         case "removeUser":
-            updateRemovedUser(receivedData.data);
+            updateRemovedUser(receivedData.data, "removed");
+            break;
+        case "userLeft":
+            updateRemovedUser(receivedData.data, "left");
+            break;
+        case "roomClosed":
+            updateRemovedUser(receivedData.data, "closed");
             break;
         default:
             console.log("Unknown message type received.");
@@ -1382,21 +1399,29 @@ function updateUser(data) {
     getUser();
 }
 
-function updateRemovedUser(data) {
-    if (data.user === username) {
-        console.log("hello");
+function updateRemovedUser(data, str) {
+    if (str === "closed") {
+        showMessage(data.message);
         window.location.href = "./index.html";
-        console.log("hi");
+        return;
+    }
+    if (data.username === username) {
+        if (str === "remove") {
+            showMessage("You have been removed from the room");
+        } else {
+            showMessage("You have left the room");
+        }
+        window.location.href = "./index.html";
         return;
     }
     const userCards = document.querySelectorAll("#user-container .change-role");
     userCards.forEach(card => {
         const userNameElement = card.querySelector("h3");
-        if (userNameElement && userNameElement.textContent === data.user) {
+        if (userNameElement && userNameElement.textContent === data.username) {
             card.remove();
         }
     });
-    showMessage(`${data.user} has been Remove from the room.`);
+    showMessage(data.message);
     let roomData = JSON.parse(sessionStorage.getItem('roomData')) || {};
     roomData.current_participants = data.current_participants;
     sessionStorage.setItem('roomData', JSON.stringify(roomData));
@@ -1484,7 +1509,6 @@ document.addEventListener("click", (event) => {
     }
 });
 
-
 closeModal.addEventListener("click", () => {
     modal.classList.remove("flex");
     modal.classList.add("hidden");
@@ -1504,6 +1528,49 @@ removeGuest.addEventListener("click", async () => {
         const result = await response.json();
         modal.classList.remove("flex");
         modal.classList.add("hidden");
+        document.body.style.overflow = "auto";
+        if (response.ok) {
+            return
+        } else {
+            console.error("Error removing user:", result.message);
+        }
+    } catch (error) {
+        console.error("Request failed:", error);
+    }
+});
+
+document.addEventListener("click", (event) => {
+    if (event.target.classList.contains("openLeaveRoom")) {
+        leaveRoom.classList.remove("hidden");
+        leaveRoom.classList.add("flex");
+        document.body.style.overflow = "hidden";
+        if (data.role === "Host") {
+            modalText.textContent = "Do you want to Close this room?\nAll users will be removed from the room and all data will be lost.";
+        } else {
+            modalText.textContent = "Do you want to leave this room?";
+        }
+    }
+});
+
+cancel.addEventListener("click", () => {
+    leaveRoom.classList.remove("flex");
+    leaveRoom.classList.add("hidden");
+    document.body.style.overflow = "auto";
+});
+
+leave.addEventListener("click", async () => {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/room/leaveRoom", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ code: data.code, username: username, role: data.role }),
+        });
+
+        const result = await response.json();
+        leaveRoom.classList.remove("flex");
+        leaveRoom.classList.add("hidden");
         document.body.style.overflow = "auto";
         if (response.ok) {
             return

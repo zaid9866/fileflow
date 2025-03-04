@@ -168,8 +168,9 @@ async def remove_user(request, db: Session):
             "room": request.code,
             "type": "removeUser",
             "data": {
-                "user": request.username,
-                "current_participants": room.current_participant
+                "username": request.username,
+                "current_participants": room.current_participant,
+                "message": "{request.username} has been removed from the room."
             }
         }
 

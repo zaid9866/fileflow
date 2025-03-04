@@ -19,6 +19,8 @@ class RemoveUserRequest(BaseModel):
     username: str
     code: str
 
+
+
 @user_router.get("/getUsername")
 def generate_username(code: str, db: Session = Depends(get_db)):
     return get_username(code, db)
