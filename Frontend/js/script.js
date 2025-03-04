@@ -599,8 +599,6 @@ async function createUser(username,code) {
             throw new Error(data.detail || "Failed to create user");
         }
 
-        console.log("User created successfully:", data);
-        return data;
     } catch (error) {
         console.error("Error:", error.message);
     }
@@ -617,7 +615,9 @@ document.getElementById("codeInput").addEventListener("input", async function ()
             });
 
             let data = await response.json();
-            alert(data.detail||data.message);
+            if (data.detail) {
+                alert(data.detail);
+            }
             saveRoomData(data);
 
             if (data.data && data.data.code) {

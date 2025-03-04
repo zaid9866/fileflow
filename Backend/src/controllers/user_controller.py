@@ -95,7 +95,6 @@ async def create_user(request, db: Session):
             "user": request.username,
             "data": {
                 "current_participants": participants_count,
-                "time": formatted_end_time 
             }
         }
 
@@ -133,6 +132,53 @@ def get_users_by_code(code: str, db: Session):
         return APIResponse.success(
             message="Users fetched successfully.",
             data=[{"name": user.username, "role": user.role} for user in users]
+        )
+
+    except APIError as e:
+        raise e  
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        db.rollback()
+        raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
+    
+async def remove_user(request, db: Session):
+    try:
+        if not request.code.strip():
+            raise APIError(status_code=400, detail="Room code is required.")
+
+        if not request.username.strip():
+            raise APIError(status_code=400, detail="Username is required.")
+
+        existing_user = db.query(User).filter(User.username == request.username, User.code == request.code).first()
+        
+        if not existing_user:
+            raise APIError(status_code=404, detail="User not found in this room.")
+
+        room = db.query(Room).filter(Room.code == request.code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room not found.")
+
+        if room.current_participant > 0:
+            room.current_participant -= 1
+
+        db.delete(existing_user)
+        db.commit()
+
+        response = {
+            "room": request.code,
+            "type": "removeUser",
+            "data": {
+                "user": request.username,
+                "current_participants": room.current_participant
+            }
+        }
+
+        if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+            await websocket_manager.broadcast(request.code, json.dumps(response))
+
+        return APIResponse.success(
+            message="User removed successfully.",
+            data={"username": request.username, "current_particpant": room.current_participant}
         )
 
     except APIError as e:

@@ -42,6 +42,12 @@ const warn = document.getElementById("warn");
 const restrictMode = document.getElementById("restrict-mode");
 const toggleRestrict = document.getElementById("toggle-restrict");
 const requestBox = document.getElementById("request-container");
+const openModal = document.querySelectorAll(".openModal");
+const closeModal = document.getElementById("closeModal");
+const modal = document.getElementById("modal");
+const removeGuest = document.getElementById("removeGuest");
+const blockGuest = document.getElementById("blockGuest");
+let guestName = "";
 localStorage.setItem("roomMode", "dark");
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -110,6 +116,8 @@ function lightMode() {
         warn.classList.add("bg-white");
         requestBox.classList.remove("bg-slate-900");
         requestBox.classList.add("bg-gray-200");
+        modal.firstElementChild.classList.remove("bg-slate-900");
+        modal.firstElementChild.classList.add("bg-gray-200");
         change.forEach((element) => {
             element.classList.remove("bg-zinc-900");
             element.classList.add("bg-gray-200");
@@ -210,6 +218,8 @@ function darkMode() {
         warn.classList.add("bg-zinc-950");
         requestBox.classList.remove("bg-gray-200");
         requestBox.classList.add("bg-slate-900");
+        modal.firstElementChild.classList.remove("bg-gray-200");
+        modal.firstElementChild.classList.add("bg-slate-900");
         change.forEach((element) => {
             element.classList.remove("bg-gray-200");
             element.classList.add("bg-zinc-900");
@@ -825,13 +835,13 @@ function addNewTextField() {
                     <textarea id="text-box-${textFieldCount}" rows="10" placeholder="Enter text here..."
                         class="text-box w-full p-3 border rounded resize-none change-text bg-gray-800"></textarea>
                 </div>
-                <div class="flex flex-wrap justify-center gap-2 mt-2">
+                <div class="flex justify-around sm:justify-center gap-1 sm:gap-2 mt-2">
                     <button
-                        class="bg-emerald-600 border text-white change-border px-4 py-2 rounded-md flex items-center gap-2 copy-btn">
+                        class="bg-emerald-600 border text-xs sm:text-sm text-white change-border px-3 sm:px-4 py-2 rounded-md flex items-center gap-1 sm:gap-2 copy-btn">
                             <i class="fa-solid fa-copy"></i> Copy Text
                       </button>
                     <button
-                        class="bg-red-600 border text-white change-border px-4 py-2 rounded-md flex items-center gap-2 clear-btn">
+                        class="bg-red-600 border text-xs sm:text-sm text-white change-border px-3 sm:px-4 py-2 rounded-md flex items-center gap-1 sm:gap-2 clear-btn">
                             <i class="fa-solid fa-delete-left"></i> Clear Text
                     </button>
                 </div>
@@ -1222,11 +1232,12 @@ function addUsers(usersArray) {
                 <p class="text-sm ${user.role === "Host" ? "text-emerald-500" : "text-cyan-500"}">${user.role}</p>
             </div>`;
         const removeIcon = user.role === "Guest" && data.role !== "Guest"
-            ? `<i class="fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400 remove-guests"></i>`
+            ? `<i class="fa-solid fa-times openModal text-red-500 text-lg cursor-pointer hover:text-red-400 remove-guests"></i>`
             : "";
         card.innerHTML = userInfo + removeIcon;
         container.appendChild(card);
         currentUsers++;
+        showMessage(`${user.name} joined the room.`);
     });
     userCountElement.textContent = `${currentUsers}/${maxUsers}`;
     if (localStorage.getItem("roomMode") === "dark") {
@@ -1355,6 +1366,9 @@ socket.addEventListener("message", (event) => {
         case "file":
             console.log(`File Shared: ${receivedData.data.fileName}`);
             break;
+        case "removeUser":
+            updateRemovedUser(receivedData.data);
+            break;
         default:
             console.log("Unknown message type received.");
     }
@@ -1363,10 +1377,30 @@ socket.addEventListener("message", (event) => {
 function updateUser(data) {
     let roomData = JSON.parse(sessionStorage.getItem('roomData')) || {};
     roomData.current_participants = data.current_participants;
-    roomData.time = data.time;
     sessionStorage.setItem('roomData', JSON.stringify(roomData));
     displayValue();
     getUser();
+}
+
+function updateRemovedUser(data) {
+    if (data.user === username) {
+        console.log("hello");
+        window.location.href = "./index.html";
+        console.log("hi");
+        return;
+    }
+    const userCards = document.querySelectorAll("#user-container .change-role");
+    userCards.forEach(card => {
+        const userNameElement = card.querySelector("h3");
+        if (userNameElement && userNameElement.textContent === data.user) {
+            card.remove();
+        }
+    });
+    showMessage(`${data.user} has been Remove from the room.`);
+    let roomData = JSON.parse(sessionStorage.getItem('roomData')) || {};
+    roomData.current_participants = data.current_participants;
+    sessionStorage.setItem('roomData', JSON.stringify(roomData));
+    displayValue();
 }
 
 function updateChat(data) {
@@ -1374,6 +1408,7 @@ function updateChat(data) {
         return
     } else {
         chatBox.appendChild(createReceivedMessage(data.sender, data.message, data.timing));
+        showMessage(`${data.sender} sent a chat.`);
     }
     chatInput.value = "";
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -1436,3 +1471,46 @@ function sortChats(data) {
         chatBox.scrollTop = chatBox.scrollHeight;
     })
 }
+
+document.addEventListener("click", (event) => {
+    if (event.target.classList.contains("openModal")) {
+        const card = event.target.closest(".change-role");
+        if (card) {
+            guestName = card.querySelector("h3").textContent.trim();
+        }
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.body.style.overflow = "hidden";
+    }
+});
+
+
+closeModal.addEventListener("click", () => {
+    modal.classList.remove("flex");
+    modal.classList.add("hidden");
+    document.body.style.overflow = "auto";
+});
+
+removeGuest.addEventListener("click", async () => {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/user/removeUser", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ code: data.code, username: guestName }),
+        });
+
+        const result = await response.json();
+        modal.classList.remove("flex");
+        modal.classList.add("hidden");
+        document.body.style.overflow = "auto";
+        if (response.ok) {
+            return
+        } else {
+            console.error("Error removing user:", result.message);
+        }
+    } catch (error) {
+        console.error("Request failed:", error);
+    }
+});
