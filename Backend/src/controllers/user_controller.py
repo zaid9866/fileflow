@@ -87,7 +87,6 @@ async def create_user(request, db: Session):
         db.commit()
 
         participants_count = db.query(User).filter(User.code == request.code).count()
-        formatted_end_time = room.end_timing.strftime("%H:%M:%S") if room.end_timing else "00:00:00"
 
         response = {
             "room": request.code,
@@ -104,11 +103,10 @@ async def create_user(request, db: Session):
         return APIResponse.success( 
             message="User created successfully.",
             data={
-                "user_id": new_user.user_id,
+                "userId": new_user.user_id,
                 "username": new_user.username,
                 "code": new_user.code,
                 "role": new_user.role,
-                "time": formatted_end_time  
             }
         )
 
@@ -149,28 +147,51 @@ async def remove_user(request, db: Session):
         if not request.username.strip():
             raise APIError(status_code=400, detail="Username is required.")
 
-        existing_user = db.query(User).filter(User.username == request.username, User.code == request.code).first()
-        
-        if not existing_user:
-            raise APIError(status_code=404, detail="User not found in this room.")
+        if not request.userId:
+            raise APIError(status_code=400, detail="User ID is required.")
+
+        if not request.guestName.strip():
+            raise APIError(status_code=400, detail="Guest name is required.")
 
         room = db.query(Room).filter(Room.code == request.code).first()
         if not room:
             raise APIError(status_code=404, detail="Room not found.")
 
+        host_user = db.query(User).filter(
+            User.username == request.username,
+            User.code == request.code
+        ).first()
+
+        if not host_user:
+            raise APIError(status_code=404, detail="User not found in this room.")
+
+        if host_user.user_id != request.userId:
+            raise APIError(status_code=403, detail="User ID does not match.")
+
+        if host_user.role.lower() != "host":
+            raise APIError(status_code=403, detail="Only the host can remove users.")
+
+        guest_user = db.query(User).filter(
+            User.username == request.guestName,
+            User.code == request.code
+        ).first()
+
+        if not guest_user:
+            raise APIError(status_code=404, detail="Guest not found in this room.")
+
         if room.current_participant > 0:
             room.current_participant -= 1
 
-        db.delete(existing_user)
+        db.delete(guest_user)
         db.commit()
 
         response = {
             "room": request.code,
             "type": "removeUser",
             "data": {
-                "username": request.username,
+                "username": request.guestName,
                 "current_participants": room.current_participant,
-                "message": "{request.username} has been removed from the room."
+                "message": f"{request.guestName} has been removed from the room."
             }
         }
 
@@ -178,8 +199,8 @@ async def remove_user(request, db: Session):
             await websocket_manager.broadcast(request.code, json.dumps(response))
 
         return APIResponse.success(
-            message="User removed successfully.",
-            data={"username": request.username, "current_particpant": room.current_participant}
+            message="Guest removed successfully.",
+            data={"username": request.guestName, "current_particpant": room.current_participant}
         )
 
     except APIError as e:

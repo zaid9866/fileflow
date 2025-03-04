@@ -38,6 +38,7 @@ localStorage.setItem("roomMode", "dark");
 class HandleCode {
     constructor() {
         this.roomCode = null;
+        this.role = "";
     }
     setRoomCode(code) {
         this.roomCode = code;
@@ -47,6 +48,15 @@ class HandleCode {
     }
     clearRoomCode() {
         this.roomCode = null;
+    }
+    setRoomRole(role) {
+        this.roomRole = role;
+    }
+    getRoomRole() {
+        return this.roomRole;
+    }
+    clearRoomRole() {
+        this.roomRole = null;
     }
 }
 
@@ -59,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lightMode();
     }
     sessionStorage.removeItem('roomData');
-    sessionStorage.removeItem('username');
+    sessionStorage.removeItem('userData');
 });
 
 moon.forEach((element) => {
@@ -423,7 +433,7 @@ validateInput(document.getElementById("room-code"));
 document.getElementById("submit-form").addEventListener("click", async function (event) {
     event.preventDefault();
     const roomCode = document.getElementById("room-code").value;
-    if (roomCode.length!==6) {
+    if (roomCode.length !== 6) {
         alert("Room code must be 6 characters long!");
         return;
     }
@@ -440,7 +450,7 @@ document.getElementById("submit-form").addEventListener("click", async function 
         });
 
         const verifyData = await verifyResponse.json();
-        
+
         if (!verifyResponse.ok) {
             alert(verifyData.detail);
             return;
@@ -461,6 +471,7 @@ document.getElementById("submit-form").addEventListener("click", async function 
 
         const createData = await createResponse.json();
         saveRoomData(createData);
+        handleCode.setRoomRole("Host");
         if (!createResponse.ok) throw new Error(createData.message);
         form.classList.remove("flex");
         form.classList.add("hidden");
@@ -486,6 +497,7 @@ document.getElementById("instant-sharing").addEventListener("click", async funct
 
         const data = await response.json();
         saveRoomData(data);
+        handleCode.setRoomRole("Host");
         await fetchUsername(data.data.code);
     } catch (error) {
         console.error("Error:", error);
@@ -563,9 +575,7 @@ document.getElementById("enter-room").addEventListener("click", async function (
         overlay.classList.add("hidden");
         document.body.style.overflow = "";
         document.body.style.pointerEvents = "";
-        sessionStorage.setItem('username',username);
-        createUser(username,roomCode);
-        window.location.href = 'room.html';
+        await createUser(username, roomCode);
     } catch (error) {
         console.error("Error verifying username:", error);
         alert(error.message || "Error verifying username");
@@ -581,24 +591,26 @@ function saveRoomData(responseData) {
     }
 }
 
-async function createUser(username,code) {
-    const data = JSON.parse(sessionStorage.getItem('roomData'));
-    const role = data.role;
+async function createUser(username, code) {
+    let role = handleCode.getRoomRole();
     try {
         const response = await fetch("http://127.0.0.1:8000/user/createUser", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ username, code, role })
+            body: JSON.stringify({ username: username, code: code, role: role })
         });
 
         const data = await response.json();
-
+        if (data.data) {
+            sessionStorage.setItem('userData', JSON.stringify(data.data));
+            window.location.href = 'room.html';
+        }
         if (!response.ok) {
             throw new Error(data.detail || "Failed to create user");
         }
-
+        handleCode.clearRoomRole();
     } catch (error) {
         console.error("Error:", error.message);
     }
@@ -619,7 +631,7 @@ document.getElementById("codeInput").addEventListener("input", async function ()
                 alert(data.detail);
             }
             saveRoomData(data);
-
+            handleCode.setRoomRole("Guest");
             if (data.data && data.data.code) {
                 await fetchUsername(data.data.code);
             }

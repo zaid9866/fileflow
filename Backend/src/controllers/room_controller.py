@@ -34,7 +34,6 @@ def get_room_code(db: Session):
             "max_participants": 10,
             "time": 60,
             "restrict": False,
-            "role": "Host"
         }
 
         response = requests.post("http://localhost:8000/room/createRoom", json=room_data)
@@ -100,7 +99,6 @@ def create_room(db: Session, data: dict):
             "restrict": room.restrict,
             "current_participants": room.current_participant,
             "max_participants": room.max_participant,
-            "role": "Host"
         })
 
     except APIError as e:
@@ -136,7 +134,6 @@ def join_room(code: str, db: Session):
                 "max_participants": room.max_participant,
                 "time": room.end_timing.strftime("%H:%M:%S") if room.end_timing else None,
                 "restrict": room.restrict,
-                "role": "Guest"
             }
         )
 
@@ -151,12 +148,17 @@ async def leave_room(request, db: Session):
     try:
         if not request.code.strip():
             raise APIError(status_code=400, detail="Room code is required.")
-
         if not request.username.strip():
             raise APIError(status_code=400, detail="Username is required.")
+        if not request.userId.strip():
+            raise APIError(status_code=400, detail="User ID is required.")
 
-        existing_user = db.query(User).filter(User.username == request.username, User.code == request.code).first()
-        
+        existing_user = db.query(User).filter(
+            User.username == request.username,
+            User.user_id == request.userId, 
+            User.code == request.code
+        ).first()
+
         if not existing_user:
             raise APIError(status_code=404, detail="User not found in this room.")
 
@@ -197,7 +199,7 @@ async def leave_room(request, db: Session):
 
         return APIResponse.success(
             message="User left successfully.",
-            data={"username": request.username, "current_participants": room.current_participant if request.role != "host" else 0}
+            data={"username": request.username, "current_participants": room.current_participant if request.role != "Host" else 0}
         )
 
     except APIError as e:

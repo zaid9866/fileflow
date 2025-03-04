@@ -1170,7 +1170,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ code: data.code, sender: username.trim(), message: message, timing: formattedTime }),
+                body: JSON.stringify({ code: roomData.code, sender: userData.username, message: message, timing: formattedTime }),
             });
 
             if (response.ok) {
@@ -1238,13 +1238,13 @@ function addUsers(usersArray) {
                 <h3 class="text-lg font-semibold">${user.name}</h3>
                 <p class="text-sm ${user.role === "Host" ? "text-emerald-500" : "text-cyan-500"}">${user.role}</p>
             </div>`;
-        const removeIcon = user.role === "Guest" && data.role !== "Guest"
+        const removeIcon = user.role === "Guest" && userData.role !== "Guest"
             ? `<i class="fa-solid fa-times openModal text-red-500 text-lg cursor-pointer hover:text-red-400 remove-guests"></i>`
             : "";
         card.innerHTML = userInfo + removeIcon;
         container.appendChild(card);
         currentUsers++;
-        if (username === user.name) {
+        if (userData.username === user.name) {
             showMessage("You joined the room.");
         } else {
             showMessage(`${user.name} joined the room.`);
@@ -1332,24 +1332,23 @@ function hideRequestBoxIfEmpty() {
     }
 }
 
-let data = JSON.parse(sessionStorage.getItem('roomData'));
-let username = sessionStorage.getItem("username");
-let code = data.code;
+let roomData = JSON.parse(sessionStorage.getItem('roomData'));
+let userData = JSON.parse(sessionStorage.getItem('userData'));
 
 function displayValue() {
     let data = JSON.parse(sessionStorage.getItem('roomData'));
     if (data) {
-        document.getElementById('room-code').textContent = data.code;
-        document.getElementById('username').innerHTML = username;
-        document.getElementById('user-role').textContent = data.role;
-        document.getElementById('no-of-user').textContent = `: ${data.current_participants}/${data.max_participants}`;
-        let timeParts = data.time.split(":");
+        document.getElementById('room-code').textContent = roomData.code;
+        document.getElementById('username').innerHTML = userData.username;
+        document.getElementById('user-role').textContent = userData.role;
+        document.getElementById('no-of-user').textContent = `: ${roomData.current_participants}/${roomData.max_participants}`;
+        let timeParts = roomData.time.split(":");
         let hours = parseInt(timeParts[0], 10);
         let minutes = parseInt(timeParts[1], 10);
         let seconds = parseInt(timeParts[2], 10);
         startCountdown(hours, minutes, seconds);
         let restrictToggle = document.getElementById('toggle-restrict');
-        if (data.restrict === true) {
+        if (roomData.restrict === true) {
             restrictToggle.classList.remove('fa-toggle-off');
             restrictToggle.classList.add('fa-toggle-on');
         } else {
@@ -1361,8 +1360,8 @@ function displayValue() {
     }
 }
 
-const encodedUsername = encodeURIComponent(username);
-const socket = new WebSocket(`ws://127.0.0.1:8000/ws/${code}/${encodedUsername}`);
+const encodedUsername = encodeURIComponent(userData.username);
+const socket = new WebSocket(`ws://127.0.0.1:8000/ws/${roomData.code}/${encodedUsername}`);
 
 socket.addEventListener("message", (event) => {
     let receivedData = JSON.parse(event.data);
@@ -1405,7 +1404,7 @@ function updateRemovedUser(data, str) {
         window.location.href = "./index.html";
         return;
     }
-    if (data.username === username) {
+    if (data.username === userData.username) {
         if (str === "remove") {
             showMessage("You have been removed from the room");
         } else {
@@ -1429,7 +1428,7 @@ function updateRemovedUser(data, str) {
 }
 
 function updateChat(data) {
-    if (data.sender === username) {
+    if (data.sender === userData.username) {
         return
     } else {
         chatBox.appendChild(createReceivedMessage(data.sender, data.message, data.timing));
@@ -1441,7 +1440,7 @@ function updateChat(data) {
 
 async function getUser() {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/user/getUser?code=${code}`, {
+        const response = await fetch(`http://127.0.0.1:8000/user/getUser?code=${roomData.code}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -1461,7 +1460,7 @@ async function getUser() {
 
 async function fetchChatMessages() {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/chat/getChat?code=${data.code}`, {
+        const response = await fetch(`http://127.0.0.1:8000/chat/getChat?code=${roomData.code}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -1487,7 +1486,7 @@ async function fetchChatMessages() {
 
 function sortChats(data) {
     data.forEach((chat) => {
-        if (chat.sender === username) {
+        if (chat.sender === userData.username) {
             chatBox.appendChild(createSentMessage(chat.message, chat.timing));
         } else {
             chatBox.appendChild(createReceivedMessage(chat.sender, chat.message, chat.timing));
@@ -1522,7 +1521,7 @@ removeGuest.addEventListener("click", async () => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ code: data.code, username: guestName }),
+            body: JSON.stringify({ code: roomData.code, username: userData.username, guestName: guestName, userId: userData.userId, role: userData.role }),
         });
 
         const result = await response.json();
@@ -1544,7 +1543,7 @@ document.addEventListener("click", (event) => {
         leaveRoom.classList.remove("hidden");
         leaveRoom.classList.add("flex");
         document.body.style.overflow = "hidden";
-        if (data.role === "Host") {
+        if (userData.role === "Host") {
             modalText.textContent = "Do you want to Close this room?\nAll users will be removed from the room and all data will be lost.";
         } else {
             modalText.textContent = "Do you want to leave this room?";
@@ -1565,7 +1564,7 @@ leave.addEventListener("click", async () => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ code: data.code, username: username, role: data.role }),
+            body: JSON.stringify({ code: roomData.code, username: userData.username, userId: userData.userId, role: userData.role }),
         });
 
         const result = await response.json();

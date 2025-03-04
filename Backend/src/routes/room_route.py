@@ -10,8 +10,9 @@ class RoomCodeRequest(BaseModel):
     code: str
 
 class LeaveRoomRequest(BaseModel):
-    username: str
     code: str
+    username: str
+    userId: str
     role: str
 
 @room_router.get("/getCode")

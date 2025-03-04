@@ -16,10 +16,11 @@ class CreateUserRequest(BaseModel):
     role: str
 
 class RemoveUserRequest(BaseModel):
-    username: str
     code: str
-
-
+    username: str
+    guestName: str
+    userId: str
+    role: str
 
 @user_router.get("/getUsername")
 def generate_username(code: str, db: Session = Depends(get_db)):
@@ -38,5 +39,5 @@ def get_users(code: str, db: Session = Depends(get_db)):
     return get_users_by_code(code, db)
 
 @user_router.post("/removeUser")
-async def remove_user_route(request: VerifyUsernameRequest, db: Session = Depends(get_db)):
+async def remove_user_route(request: RemoveUserRequest, db: Session = Depends(get_db)):
     return await remove_user(request, db)
