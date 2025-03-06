@@ -33,6 +33,7 @@ const homePageVideoDiv = document.getElementById("homepage-video-div");
 const homePageVideo = document.getElementById("homepage-video");
 const homePageSrc = document.getElementById("homepage-src");
 const moon = document.querySelectorAll(".fa-moon");
+let roomDetail = "";
 localStorage.setItem("roomMode", "dark");
 
 class HandleCode {
@@ -551,14 +552,17 @@ document.getElementById("username").addEventListener("input", function () {
     }
 });
 
-document.getElementById("enter-room").addEventListener("click", async function (event) {
-    event.preventDefault();
-
+document.getElementById("enter-room").addEventListener("click", async (event) => {
     const username = document.getElementById("username").value.trim();
     const roomCode = handleCode.getRoomCode();
+    event.preventDefault();
     if (!username || !roomCode) {
         alert("Room code or username is missing!");
         console.log({ username: username, code: roomCode });
+        return;
+    }
+    if (roomDetail === "restricted") {
+        handleRestrictedRoom(username, roomCode);
         return;
     }
     try {
@@ -568,24 +572,67 @@ document.getElementById("enter-room").addEventListener("click", async function (
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
+
         const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || "Failed to verify username");
-        document.getElementById("display-username").classList.remove("flex");
-        document.getElementById("display-username").classList.add("hidden");
-        overlay.classList.add("hidden");
-        document.body.style.overflow = "";
-        document.body.style.pointerEvents = "";
         await createUser(username, roomCode);
+        if (!response.ok) throw new Error(data.detail || "Failed to verify username");
+        closeDisplayName();
     } catch (error) {
         console.error("Error verifying username:", error);
         alert(error.message || "Error verifying username");
     }
-    handleCode.clearRoomCode();
 });
+
+function startSocket(username, roomCode) {
+    const encodedUsername = encodeURIComponent(username);
+    const socket = new WebSocket(`ws://127.0.0.1:8000/ws/${roomCode}/${encodedUsername}`);
+    socket.onmessage = async function (event) {
+        const recievedData = JSON.parse(event.data);
+        switch (recievedData.type) {
+            case "approveUser":
+                await createUser(username, roomCode);
+                socket.close();
+                break;
+            case "rejectUser":
+                alert(recievedData.data.message);
+                socket.close();
+                break;
+            }
+    };
+}
+async function handleRestrictedRoom(username, roomCode) {
+    closeDisplayName();
+    startSocket(username, roomCode);
+    try {
+        const payload = { username: username, code: roomCode };
+        const response = await fetch("http://127.0.0.1:8000/room/restricted", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail);
+        saveRoomData(data);
+    } catch (error) {
+        console.error("Error in Joining Room:", error);
+        alert(error.message || "Error in Joining Room");
+        socket.close();
+    }
+}
+
+function closeDisplayName() {
+    document.getElementById("display-username").classList.remove("flex");
+    document.getElementById("display-username").classList.add("hidden");
+    overlay.classList.add("hidden");
+    document.body.style.overflow = "";
+    document.body.style.pointerEvents = "";
+    handleCode.clearRoomCode();
+}
 
 function saveRoomData(responseData) {
     if (responseData.status === 'success' && responseData.data) {
         sessionStorage.setItem('roomData', JSON.stringify(responseData.data));
+
     } else {
         console.error('Invalid response data:', responseData);
     }
@@ -605,8 +652,16 @@ async function createUser(username, code) {
         const data = await response.json();
         if (data.data) {
             sessionStorage.setItem('userData', JSON.stringify(data.data));
-            window.location.href = 'room.html';
-        }
+            function checkRoomData() {
+                const roomData = sessionStorage.getItem('roomData'); 
+                if (roomData) {
+                    window.location.href = './room.html'; 
+                } else {
+                    setTimeout(checkRoomData, 500);
+                }
+            }
+            checkRoomData(); 
+        }        
         if (!response.ok) {
             throw new Error(data.detail || "Failed to create user");
         }
@@ -618,6 +673,7 @@ async function createUser(username, code) {
 
 document.getElementById("codeInput").addEventListener("input", async function () {
     let inputValue = this.value.trim();
+    handleCode.setRoomCode(inputValue);
     if (inputValue.length === 6) {
         try {
             let response = await fetch("http://127.0.0.1:8000/room/joinRoom", {
@@ -630,11 +686,18 @@ document.getElementById("codeInput").addEventListener("input", async function ()
             if (data.detail) {
                 alert(data.detail);
             }
-            saveRoomData(data);
-            handleCode.setRoomRole("Guest");
             if (data.data && data.data.code) {
                 await fetchUsername(data.data.code);
             }
+            if (data.message) {
+                if (data.message === "Joined room successfully") {
+                    saveRoomData(data);
+                } else {
+                    alert(data.message);
+                    roomDetail = "restricted";
+                }
+            }
+            handleCode.setRoomRole("Guest");
         } catch (error) {
             console.error("Error:", error);
         }

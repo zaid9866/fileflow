@@ -10,11 +10,11 @@ async def websocket_endpoint(
     code: str,
     username: str = Path(..., title="Username")
 ):
-    username = username.replace("%20", " ")  
-    await websocket_manager.connect(code, websocket)
+    username = username.replace("%20", " ") 
+    await websocket_manager.connect(code, websocket, username)  
 
     try:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        await websocket_manager.disconnect(code, websocket)
+        await websocket_manager.disconnect(code, websocket, username)  

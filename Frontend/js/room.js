@@ -1271,7 +1271,6 @@ restrictMode.addEventListener("click", () => {
 });
 
 function showJoinRequest(username) {
-    if (sessionStorage.getItem("role") !== "Host") return;
     const requestContainer = document.getElementById("request");
     const userCountElement = document.getElementById("no-of-user");
     let [currentUsers, maxUsers] = userCountElement.textContent.trim().split("/").map(num => parseInt(num.trim(), 10) || 0);
@@ -1284,44 +1283,47 @@ function showJoinRequest(username) {
         showMessage(`${username} added successfully!`);
         return;
     }
-    requestBox.classList.remove("hidden");
-    const inviteCard = document.createElement("div");
-    inviteCard.className = "bg-gray-800 p-2 border rounded-md shadow-lg flex items-center change-request border-l-4 border-cyan-500 px-3 py-2";
-    inviteCard.style.width = "220px";
-    const userInfo = document.createElement("span");
-    userInfo.textContent = username;
-    userInfo.className = "text-base font-medium truncate flex-grow";
-    const actions = document.createElement("div");
-    actions.className = "flex gap-2 ml-2";
-    const acceptIcon = document.createElement("i");
-    acceptIcon.className = "fa-solid fa-check text-green-500 text-lg cursor-pointer hover:text-green-400";
-    acceptIcon.addEventListener("click", () => {
-        let [updatedUsers, maxUsers] = userCountElement.textContent.split("/").map(num => parseInt(num.trim(), 10) || 0);
-        if (updatedUsers >= maxUsers) {
-            showError(`Room is full! Cannot add ${username}.`);
-            return;
+    if (userData.role === "Host") {
+        requestBox.classList.remove("hidden");
+        const inviteCard = document.createElement("div");
+        inviteCard.className = "bg-gray-800 p-2 border rounded-md shadow-lg flex items-center change-request border-l-4 border-cyan-500 px-3 py-2";
+        inviteCard.style.width = "220px";
+        const userInfo = document.createElement("span");
+        userInfo.textContent = username;
+        userInfo.className = "text-base font-medium truncate flex-grow";
+        const actions = document.createElement("div");
+        actions.className = "flex gap-2 ml-2";
+        const acceptIcon = document.createElement("i");
+        acceptIcon.className = "fa-solid fa-check text-green-500 text-lg cursor-pointer hover:text-green-400";
+        acceptIcon.addEventListener("click", () => {
+            let [updatedUsers, maxUsers] = userCountElement.textContent.split("/").map(num => parseInt(num.trim(), 10) || 0);
+            if (updatedUsers >= maxUsers) {
+                showError(`Room is full! Cannot add ${username}.`);
+                return;
+            }
+            approveUser(username, roomData.code);
+            inviteCard.remove();
+            showMessage(`${username} added successfully!`);
+            hideRequestBoxIfEmpty();
+        });
+        const rejectIcon = document.createElement("i");
+        rejectIcon.className = "fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400";
+        rejectIcon.addEventListener("click", () => {
+            rejectUser(username, roomData.code);
+            inviteCard.remove();
+            showMessage(`${username} request declined.`);
+            hideRequestBoxIfEmpty();
+        });
+        actions.appendChild(acceptIcon);
+        actions.appendChild(rejectIcon);
+        inviteCard.appendChild(userInfo);
+        inviteCard.appendChild(actions);
+        requestContainer.appendChild(inviteCard);
+        if (localStorage.getItem("roomMode") === "dark") {
+            darkMode();
+        } else {
+            lightMode();
         }
-        userCountElement.textContent = `${updatedUsers + 1}/${maxUsers}`;
-        inviteCard.remove();
-        showMessage(`${username} added successfully!`);
-        hideRequestBoxIfEmpty();
-    });
-    const rejectIcon = document.createElement("i");
-    rejectIcon.className = "fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400";
-    rejectIcon.addEventListener("click", () => {
-        inviteCard.remove();
-        showError(`${username} request declined.`);
-        hideRequestBoxIfEmpty();
-    });
-    actions.appendChild(acceptIcon);
-    actions.appendChild(rejectIcon);
-    inviteCard.appendChild(userInfo);
-    inviteCard.appendChild(actions);
-    requestContainer.appendChild(inviteCard);
-    if (localStorage.getItem("roomMode") === "dark") {
-        darkMode();
-    } else {
-        lightMode();
     }
 }
 
@@ -1385,8 +1387,12 @@ socket.addEventListener("message", (event) => {
         case "roomClosed":
             updateRemovedUser(receivedData.data, "closed");
             break;
+        case "joinRequest":
+            showJoinRequest(receivedData.data.username);
+            break;
         default:
             console.log("Unknown message type received.");
+            console.log(receivedData);
     }
 });
 
@@ -1580,3 +1586,19 @@ leave.addEventListener("click", async () => {
         console.error("Request failed:", error);
     }
 });
+
+async function approveUser(username, code) {
+    await fetch("http://127.0.0.1:8000/room/approveUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code, username: username, hostName: userData.username, userId: userData.userId })
+    });
+}
+
+async function rejectUser(username, code) {
+    await fetch("http://127.0.0.1:8000/room/rejectUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code, username: username, hostName: userData.username, userId: userData.userId })
+    });
+}

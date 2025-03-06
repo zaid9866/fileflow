@@ -2,6 +2,8 @@ import random
 import string
 import requests
 import json
+import asyncio
+pending_requests = {}  
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from models.room import Room
@@ -120,7 +122,12 @@ def join_room(code: str, db: Session):
             raise APIError(status_code=403, detail="Room is full.")
 
         if room.restrict:
-            raise APIError(status_code=403, detail="Room is restricted. Wait for host approval.")
+            return APIResponse.success(
+            message="Room is Restricted wait for Host Approval",
+            data={
+                "code": room.code
+            }
+        )
 
         room.current_participant += 1
         db.commit()
@@ -208,3 +215,155 @@ async def leave_room(request, db: Session):
         print("Unexpected Error:", str(e))
         db.rollback()
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
+
+async def join_restrict_room(code: str, db: Session, username: str):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+
+        if not room:
+            raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        if room.current_participant >= room.max_participant:
+            raise APIError(status_code=403, detail="Room is full.")
+
+        if room.restrict:
+            response = {
+                "room": code,
+                "type": "joinRequest",
+                "data": {
+                    "username": username
+                }
+            }
+
+            if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+                await websocket_manager.broadcast(code, json.dumps(response))
+
+            if code not in pending_requests:
+                pending_requests[code] = []
+            pending_requests[code].append(username)
+
+            try:
+                await asyncio.wait_for(wait_for_host_approval(code, username), timeout=120)
+            except asyncio.TimeoutError:
+                pending_requests[code].remove(username)
+                raise APIError(status_code=403, detail="Host did not approve.")
+
+        room.current_participant += 1
+        db.commit()
+        db.refresh(room)
+
+        return APIResponse.success(
+            message="Joined room successfully",
+            data={
+                "code": room.code,
+                "current_participants": room.current_participant,
+                "max_participants": room.max_participant,
+                "time": room.end_timing.strftime("%H:%M:%S") if room.end_timing else None,
+                "restrict": room.restrict,
+            }
+        )
+
+    except APIError as e:
+        raise e
+
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
+
+
+async def wait_for_host_approval(code: str, username: str):
+    while username in pending_requests.get(code, []):
+        await asyncio.sleep(2)  
+
+async def approve_user(code: str, db: Session, username: str, hostName: str, userId: int):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        user = db.query(User).filter(User.username == hostName, User.user_id == userId).first()
+        if not user or user.role != "Host": 
+            raise APIError(status_code=403, detail="User is not authorized as Host.")
+
+        if user.username != hostName or user.user_id != userId:
+            raise APIError(status_code=403, detail="Host details mismatch.")
+
+        if username not in pending_requests.get(code, []):
+            raise APIError(status_code=404, detail="User not found in waiting list.")
+
+        if room.current_participant >= room.max_participant:
+            response = {
+                "room": code,
+                "type": "roomFull",
+                "data": {
+                    "username": username,
+                    "status": "room is full"
+                }
+            }
+            if hasattr(websocket_manager, "send_to_user") and callable(websocket_manager.send_to_user):
+                await websocket_manager.send_to_user(username, json.dumps(response))
+
+            return APIResponse.success(message="Room is full. Cannot approve user.")
+
+        pending_requests[code].remove(username)
+        room.current_participant += 1
+        db.commit()  
+        db.refresh(room)
+
+        response = {
+            "room": code,
+            "type": "approveUser",
+            "data": {
+                "username": username,
+                "status": "approved"
+            }
+        }
+        if hasattr(websocket_manager, "send_to_user") and callable(websocket_manager.send_to_user):
+            await websocket_manager.send_to_user(username, json.dumps(response))
+
+        return APIResponse.success(message="User approved successfully.")
+
+    except APIError as e:
+        raise e
+
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error.")
+
+async def reject_user(code: str, db: Session, username: str, hostName: str, userId: int):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        user = db.query(User).filter(User.username == hostName, User.user_id == userId).first()
+        if not user or user.role != "Host": 
+            raise APIError(status_code=403, detail="User is not authorized as Host.")
+
+        if user.username != hostName or user.user_id != userId:
+            raise APIError(status_code=403, detail="Host details mismatch.")
+
+        if username not in pending_requests.get(code, []):
+            raise APIError(status_code=404, detail="User not found in waiting list.")
+
+        pending_requests[code].remove(username)
+
+        response = {
+            "room": code,
+            "type": "rejectUser",
+            "data": {
+                "username": username,
+                "message": "Your invite was rejected by the host"
+            }
+        }
+        if hasattr(websocket_manager, "send_to_user") and callable(websocket_manager.send_to_user):
+            await websocket_manager.send_to_user(username, json.dumps(response))
+
+        return APIResponse.success(message="User rejected successfully.")
+
+    except APIError as e:
+        raise e
+
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error.")

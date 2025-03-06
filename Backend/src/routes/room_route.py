@@ -9,6 +9,16 @@ room_router = APIRouter()
 class RoomCodeRequest(BaseModel):
     code: str
 
+class RestrictRoomRequest(BaseModel):
+    code: str
+    username: str
+
+class HostResponse(BaseModel):
+    code: str
+    username: str
+    hostName: str
+    userId: str
+
 class LeaveRoomRequest(BaseModel):
     code: str
     username: str
@@ -30,6 +40,30 @@ def create_room(data: dict, db: Session = Depends(get_db)):
 @room_router.post("/joinRoom")
 def join_room(request: RoomCodeRequest, db: Session = Depends(get_db)):
     return room_controller.join_room(request.code, db)
+
+@room_router.post("/restricted")
+async def join_restrict_room(request: RestrictRoomRequest, db: Session = Depends(get_db)):
+    return await room_controller.join_restrict_room(request.code, db, request.username)
+
+@room_router.post("/approveUser")
+async def approve_user_route(request: HostResponse, db: Session = Depends(get_db)):
+    return await room_controller.approve_user(
+        request.code, 
+        db, 
+        request.username, 
+        request.hostName,  
+        request.userId   
+    )
+
+@room_router.post("/rejectUser")
+async def reject_user_route(request: HostResponse, db: Session = Depends(get_db)):
+    return await room_controller.reject_user(
+        request.code, 
+        db, 
+        request.username, 
+        request.hostName,
+        request.userId   
+    )
 
 @room_router.post("/leaveRoom")
 async def leave_room_route(request: LeaveRoomRequest, db: Session = Depends(get_db)):

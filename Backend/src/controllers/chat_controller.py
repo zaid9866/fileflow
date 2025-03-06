@@ -12,20 +12,14 @@ from middlewares.decryption import DecryptionMiddleware
 
 class ChatResponse(BaseModel):
     success: bool = True
-    chat_id: str
     code: str
     sender: str
     message: str
     timing: str
+    chat_id: str
 
 class ErrorResponse(BaseModel):
     error: str
-
-from sqlalchemy.orm import Session
-from models.chat import Chat
-from models.room import Room
-from middlewares.encryption import EncryptionMiddleware
-from middlewares.additonalProtection import AdditionalEncryption
 
 def get_chat(code: str, db: Session):
     try:
@@ -111,7 +105,6 @@ async def add_chat(chat_data: dict, db: Session):
             await websocket_manager.broadcast(new_chat.code, json.dumps(chat_message))
 
         return ChatResponse(
-            chat_id=new_chat.chat_id,
             code=new_chat.code,
             sender=new_chat.sender,
             message=new_chat.message,
