@@ -543,7 +543,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     editBtn.classList.remove("hidden");
                     wrapperDiv.remove();
                     startCountdown(hour, minute, second);
-                    showMessage(`Remaining Time changed to ${selectedText}`);
+                    let newTime = `${hour}:${minute}:${second}`;
+                    changeRoomTime(newTime);
                 });
             }
             parentDiv.insertBefore(wrapperDiv, editBtn);
@@ -551,10 +552,17 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+let countdownInterval;
+
 function startCountdown(hours, minutes, seconds) {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
+
     let now = new Date();
     let currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
     let inputSeconds = hours * 3600 + minutes * 60 + seconds;
+
     if (inputSeconds <= currentSeconds) {
         inputSeconds += 24 * 3600;
     }
@@ -565,6 +573,7 @@ function startCountdown(hours, minutes, seconds) {
         if (remainingSeconds <= 0) {
             document.getElementById("time-remaining").innerText = "00:00:00";
             console.log("Time Over!");
+            clearInterval(countdownInterval);
             return;
         }
 
@@ -572,25 +581,18 @@ function startCountdown(hours, minutes, seconds) {
         let m = Math.floor((remainingSeconds % 3600) / 60);
         let s = remainingSeconds % 60;
 
-        let formattedTime =
+        document.getElementById("time-remaining").innerText =
             String(h).padStart(2, '0') + ":" +
             String(m).padStart(2, '0') + ":" +
             String(s).padStart(2, '0');
 
-        document.getElementById("time-remaining").innerText = formattedTime;
-
         remainingSeconds--;
-
-        if (remainingSeconds >= 0) {
-            setTimeout(updateTime, 1000);
-        } else {
-            document.getElementById("time-remaining").innerText = "00:00:00";
-            console.log("Time Over!");
-        }
     }
 
     updateTime();
+    countdownInterval = setInterval(updateTime, 1000);
 }
+
 
 function applyThemeClasses() {
     const roomMode = localStorage.getItem("roomMode");
@@ -1401,8 +1403,8 @@ socket.addEventListener("message", (event) => {
             updateParticipants(receivedData.data);
             showMessage(`Max No of guests change from ${receivedData.data.old_max_participants} to ${receivedData.data.max_participants}`);
             break;
-        case "changeTime":
-            console.log(receivedData.data);
+        case "changeEndTime":
+            updateEndTime(receivedData.data);
             break;
         case "changeRoomMode":
             console.log(receivedData.data);
@@ -1693,4 +1695,50 @@ function updateParticipants(data) {
     roomData.max_participants = data.max_participants;
     sessionStorage.setItem('roomData', JSON.stringify(roomData));
     displayValue();
+}
+
+async function changeRoomTime(time) {
+    const requestData = {
+        code: roomData.code,
+        username: userData.username,
+        user_id: userData.userId,
+        new_time: time
+    };
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/room/changeRoomTime", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            return;
+        } else {
+            alert(`Error: ${data.detail}`);
+        }
+    } catch (error) {
+        console.error("Request failed:", error);
+        alert("Failed to update room time.");
+    }
+}
+
+function updateEndTime(data) {
+    if (data && data.end_time) {
+        let timeParts = data.end_time.split(":").map(Number);
+        if (timeParts.length === 3) {
+            startCountdown(timeParts[0], timeParts[1], timeParts[2]);
+            let roomData = JSON.parse(sessionStorage.getItem('roomData')) || {};
+            roomData.time = data.end_time;
+            sessionStorage.setItem('roomData', JSON.stringify(roomData));
+            displayValue();
+        } else {
+            console.error("Invalid time format received:", data.end_time);
+        }
+    } else {
+        console.error("No valid end_time received.");
+    }
 }

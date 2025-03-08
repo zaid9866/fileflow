@@ -407,3 +407,54 @@ async def update_room_participants(code: str, db: Session, username: str, user_i
     except Exception as e:
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error.")
+
+async def update_room_time(code: str, db: Session, username: str, user_id: str, new_time: str):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        user = db.query(User).filter(User.username == username).first()
+        if not user:
+            raise APIError(status_code=404, detail="User not found.")
+
+        if user.user_id != user_id:
+            raise APIError(status_code=403, detail="User ID mismatch.")
+
+        if user.role != "Host":
+            raise APIError(status_code=403, detail="User is not authorized as Host.")
+
+        current_time = datetime.now().time()
+
+        try:
+            time_parts = list(map(int, new_time.split(":")))
+            if len(time_parts) != 3:
+                raise ValueError("Invalid time format")
+            added_time = timedelta(hours=time_parts[0], minutes=time_parts[1], seconds=time_parts[2])
+        except ValueError:
+            raise APIError(status_code=400, detail="Invalid time format. Use HH:MM:SS.")
+
+        current_datetime = datetime.combine(datetime.now().date(), current_time)
+        new_end_time = (current_datetime + added_time).time()
+
+        room.end_timing = new_end_time
+        db.commit()
+        db.refresh(room)
+
+        response = {
+            "room": code,
+            "type": "changeEndTime",
+            "data": {
+                "end_time": new_end_time.strftime("%H:%M:%S")
+            }
+        }
+
+        if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+            await websocket_manager.broadcast(code, json.dumps(response))
+
+        return APIResponse.success(message="Room time updated successfully.")
+    except APIError as e:
+        raise e
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error.")

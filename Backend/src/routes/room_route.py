@@ -31,6 +31,11 @@ class ChangeParticipantRequest(BaseModel):
     user_id: str
     new_max_participant: int
 
+class ChangeTimeRequest(BaseModel):
+    code: str
+    username: str
+    user_id: str
+    new_time: str
 
 @room_router.get("/getCode")
 def get_room_code(db: Session = Depends(get_db)):
@@ -84,4 +89,14 @@ async def change_no_of_participant(request: ChangeParticipantRequest, db: Sessio
         request.username,
         request.user_id,
         request.new_max_participant
+    )
+
+@room_router.post("/changeRoomTime")
+async def change_room_time(request: ChangeTimeRequest, db: Session = Depends(get_db)):
+    return await room_controller.update_room_time(
+        request.code,
+        db,
+        request.username,
+        request.user_id,
+        request.new_time
     )
