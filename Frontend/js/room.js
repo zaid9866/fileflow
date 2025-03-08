@@ -513,7 +513,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     span.classList.remove("hidden");
                     editBtn.classList.remove("hidden");
                     wrapperDiv.remove();
-                    showMessage(`Total users updated to ${current}/${select.value}`);
+                    changeNoOfParticipants(select.value);
                 });
             } else if (editBtn.id === "edit-time") {
                 const timeOptions = [
@@ -1334,8 +1334,9 @@ function hideRequestBoxIfEmpty() {
 }
 
 function displayValue() {
-    let data = JSON.parse(sessionStorage.getItem('roomData'));
-    if (data) {
+    let roomData = JSON.parse(sessionStorage.getItem('roomData'));
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    if (roomData && userData) {
         document.getElementById('room-code').textContent = roomData.code;
         document.getElementById('username').innerHTML = userData.username;
         document.getElementById('user-role').textContent = userData.role;
@@ -1397,7 +1398,8 @@ socket.addEventListener("message", (event) => {
             showMessage(`${receivedData.data.oldUsername} changed name to ${receivedData.data.newUsername}`);
             break;
         case "changeNoOfUsers":
-            console.log(receivedData.data);
+            updateParticipants(receivedData.data);
+            showMessage(`Max No of guests change from ${receivedData.data.old_max_participants} to ${receivedData.data.max_participants}`);
             break;
         case "changeTime":
             console.log(receivedData.data);
@@ -1631,7 +1633,7 @@ async function changeUsername(username) {
         const data = await response.json();
 
         if (response.ok) {
-            return
+            return;
         } else {
             alert("Failed to change username: " + data.detail);
         }
@@ -1657,4 +1659,38 @@ function updateUsername(data) {
             name.innerText = data.newUsername;
         }
     });
+}
+
+async function changeNoOfParticipants(newMaxParticipant) {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/room/changeNoOfParticipant", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId,
+                new_max_participant: Number(newMaxParticipant)
+            })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            return;
+        } else {
+            alert(`Error: ${data.detail}`);
+        }
+    } catch (error) {
+        console.error("Error updating participants:", error);
+        alert("Failed to update participants.");
+    }
+}
+
+function updateParticipants(data) {
+    let roomData = JSON.parse(sessionStorage.getItem('roomData')) || {};
+    roomData.max_participants = data.max_participants;
+    sessionStorage.setItem('roomData', JSON.stringify(roomData));
+    displayValue();
 }

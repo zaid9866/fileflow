@@ -367,3 +367,43 @@ async def reject_user(code: str, db: Session, username: str, hostName: str, user
     except Exception as e:
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error.")
+
+async def update_room_participants(code: str, db: Session, username: str, user_id: int, new_max_participant: int):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        user = db.query(User).filter(User.username == username).first()
+        if not user:
+            raise APIError(status_code=404, detail="User not found.")
+
+        if user.user_id != user_id:
+            raise APIError(status_code=403, detail="User ID mismatch.")
+
+        if user.role != "Host":
+            raise APIError(status_code=403, detail="User is not authorized as Host.")
+
+        old_max_participant = room.max_participant
+        room.max_participant = new_max_participant
+        db.commit()
+        db.refresh(room)
+
+        response = {
+            "room": code,
+            "type": "changeNoOfUsers",
+            "data": {
+                "old_max_participants": old_max_participant,
+                "max_participants": room.max_participant
+            }
+        }
+
+        if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+            await websocket_manager.broadcast(code, json.dumps(response))
+
+        return APIResponse.success(message="Room participants updated successfully.")
+    except APIError as e:
+        raise e
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error.")

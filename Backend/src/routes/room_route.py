@@ -25,6 +25,13 @@ class LeaveRoomRequest(BaseModel):
     userId: str
     role: str
 
+class ChangeParticipantRequest(BaseModel):
+    code: str
+    username: str
+    user_id: str
+    new_max_participant: int
+
+
 @room_router.get("/getCode")
 def get_room_code(db: Session = Depends(get_db)):
     return room_controller.get_room_code(db)
@@ -68,3 +75,13 @@ async def reject_user_route(request: HostResponse, db: Session = Depends(get_db)
 @room_router.post("/leaveRoom")
 async def leave_room_route(request: LeaveRoomRequest, db: Session = Depends(get_db)):
     return await room_controller.leave_room(request, db)
+
+@room_router.post("/changeNoOfParticipant")
+async def change_no_of_participant(request: ChangeParticipantRequest, db: Session = Depends(get_db)):
+    return await room_controller.update_room_participants(
+        request.code,
+        db,
+        request.username,
+        request.user_id,
+        request.new_max_participant
+    )
