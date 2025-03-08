@@ -120,7 +120,7 @@ function lightMode() {
         about.classList.add("bg-gray-200");
         warn.classList.remove("bg-zinc-950");
         warn.classList.add("bg-white");
-        requestBox.classList.remove("bg-slate-900");
+        requestBox.classList.remove("bg-slate-950");
         requestBox.classList.add("bg-gray-200");
         modal.firstElementChild.classList.remove("bg-slate-900");
         modal.firstElementChild.classList.add("bg-gray-200");
@@ -160,7 +160,7 @@ function lightMode() {
             });
             const changeRequest = document.querySelectorAll(".change-request");
             changeRequest.forEach((element) => {
-                element.classList.remove("bg-gray-800");
+                element.classList.remove("bg-gray-900");
                 element.classList.add("bg-white");
             });
             applyTheme();
@@ -225,7 +225,7 @@ function darkMode() {
         warn.classList.remove("bg-white");
         warn.classList.add("bg-zinc-950");
         requestBox.classList.remove("bg-gray-200");
-        requestBox.classList.add("bg-slate-900");
+        requestBox.classList.add("bg-slate-950");
         modal.firstElementChild.classList.remove("bg-gray-200");
         modal.firstElementChild.classList.add("bg-slate-900");
         leaveRoom.firstElementChild.classList.remove("bg-gray-200");
@@ -265,7 +265,7 @@ function darkMode() {
             const changeRequest = document.querySelectorAll(".change-request");
             changeRequest.forEach((element) => {
                 element.classList.remove("bg-white");
-                element.classList.add("bg-gray-800");
+                element.classList.add("bg-gray-900");
             });
             applyTheme();
             applyThemeClasses();
@@ -1279,58 +1279,98 @@ function showJoinRequest(username) {
     const requestContainer = document.getElementById("request");
     const userCountElement = document.getElementById("no-of-user");
     let [currentUsers, maxUsers] = userCountElement.textContent.trim().split("/").map(num => parseInt(num.trim(), 10) || 0);
+
     if (currentUsers >= maxUsers) {
         showError(`Room is full! Cannot add ${username}.`);
         return;
     }
+
     if (toggleRestrict.classList.contains("fa-toggle-off")) {
         userCountElement.textContent = `${currentUsers + 1}/${maxUsers}`;
         showMessage(`${username} added successfully!`);
         return;
     }
+
     requestBox.classList.remove("hidden");
     const inviteCard = document.createElement("div");
-    inviteCard.className = "bg-gray-800 p-2 border rounded-md shadow-lg flex items-center change-request border-l-4 border-cyan-500 px-3 py-2";
-    inviteCard.style.width = "220px";
-    const userInfo = document.createElement("span");
-    userInfo.textContent = username;
-    userInfo.className = "text-base font-medium truncate flex-grow";
+    inviteCard.className = `relative bg-gray-900 change-request border-l-4 border-cyan-500 p-2 rounded-lg shadow-lg flex items-center gap-2 
+        w-[200px] h-[60px] justify-between border transition-all hover:scale-105 duration-200`;
+
+    const userInfo = document.createElement("div");
+    userInfo.className = "flex-grow";
+    userInfo.innerHTML = `
+        <h3 class="text-sm sm:text-base font-semibold">${username}</h3>
+        <p class="text-xs sm:text-sm text-cyan-400 mt-1">Requesting to Join</p>
+    `;
+
+    const timerAndActions = document.createElement("div");
+    timerAndActions.className = "flex flex-col items-center justify-center gap-2 absolute top-2 right-2";
+
+    const timer = document.createElement("span");
+    timer.className = "text-xs sm:text-sm font-mono w-14 text-center";
+    let timeLeft = 120;
+    timer.textContent = `${timeLeft}s`;
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        timer.textContent = `${timeLeft}s`;
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            inviteCard.remove();
+            showMessage(`${username}'s request expired.`);
+            hideRequestBoxIfEmpty();
+        }
+    }, 1000);
+
     const actions = document.createElement("div");
-    actions.className = "flex gap-2 ml-2";
-    if (userData.role === "Host") {
-    const acceptIcon = document.createElement("i");
-    acceptIcon.className = "fa-solid fa-check text-green-500 text-lg cursor-pointer hover:text-green-400";
+    actions.className = "flex gap-3";
+
+    if (userData.role === "Host") { 
+        const acceptIcon = document.createElement("i");
+        acceptIcon.className = "fa-solid fa-check text-green-400 text-xs sm:text-sm cursor-pointer transition-transform transform hover:scale-125 hover:text-green-300";
         acceptIcon.addEventListener("click", () => {
             let [updatedUsers, maxUsers] = userCountElement.textContent.split("/").map(num => parseInt(num.trim(), 10) || 0);
             if (updatedUsers >= maxUsers) {
                 showError(`Room is full! Cannot add ${username}.`);
                 return;
             }
+            clearInterval(countdown);
             approveUser(username, roomData.code);
             inviteCard.remove();
             showMessage(`${username} added successfully!`);
             hideRequestBoxIfEmpty();
         });
-    const rejectIcon = document.createElement("i");
-    rejectIcon.className = "fa-solid fa-times text-red-500 text-lg cursor-pointer hover:text-red-400";
+
+        const rejectIcon = document.createElement("i");
+        rejectIcon.className = "fa-solid fa-times text-red-400 text-xs sm:text-sm cursor-pointer transition-transform transform hover:scale-125 hover:text-red-300";
         rejectIcon.addEventListener("click", () => {
+            clearInterval(countdown);
             rejectUser(username, roomData.code);
             inviteCard.remove();
             showMessage(`${username} request declined.`);
             hideRequestBoxIfEmpty();
         });
+
         actions.appendChild(acceptIcon);
         actions.appendChild(rejectIcon);
     }
+
+    timerAndActions.appendChild(timer);
+    if (userData.role === "Host") {
+        timerAndActions.appendChild(actions);
+    }
+
     inviteCard.appendChild(userInfo);
-    inviteCard.appendChild(actions);
+    inviteCard.appendChild(timerAndActions);
     requestContainer.appendChild(inviteCard);
+
     if (localStorage.getItem("roomMode") === "dark") {
         darkMode();
     } else {
         lightMode();
     }
 }
+
 
 function hideRequestBoxIfEmpty() {
     const requestContainer = document.getElementById("request");

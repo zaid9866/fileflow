@@ -126,9 +126,10 @@
     </div>
     <main class="hide">
         <section id="request-container"
-            class="bg-slate-900 border m-5 sm:mx-20 md:mx-32 lg:mx-40 rounded-lg p-4 shadow-lg hidden">
-            <h2 class="text-lg sm:text-xl font-semibold mb-5 text-center">Join Requests</h2>
-            <div id="request" class="flex flex-wrap gap-5 items-center justify-evenly"></div>
+            class="backdrop-blur-lg bg-slate-950 border border-cyan-500 m-5 sm:mx-20 md:mx-32 lg:mx-40 rounded-2xl p-6 shadow-2xl hidden">
+            <h2 class="text-base sm:text-lg font-extrabold text-center mb-6 tracking-wide uppercase">Join
+                Requests</h2>
+            <div id="request" class="w-full flex flex-wrap gap-6 items-center justify-center"></div>
         </section>
         <section id="room-info"
             class="flex items-baseline relative max-[1800px]:pr-10 text-white border border-b-0 m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl pb-8">
@@ -225,7 +226,8 @@
             <div id="chats-box"
                 class="h-[550px] min-h-[100px] overflow-y-auto space-y-4 p-2 scrollbar-hide flex flex-col mb-12">
             </div>
-            <div class="border change-text rounded-b-xl bg-gray-800 flex items-center absolute bottom-0 left-0 w-full p-3 z-50">
+            <div
+                class="border change-text rounded-b-xl bg-gray-800 flex items-center absolute bottom-0 left-0 w-full p-3 z-50">
                 <textarea id="chat-input" placeholder="Type a message..."
                     class="flex-1 border default-scrollbar px-4 py-3 rounded-lg focus:outline-none text-sm resize-none h-12 max-h-32 overflow-y-auto"
                     rows="1"></textarea>
@@ -530,21 +532,25 @@
                 Removing guests allows them to rejoin this room, but blocking them will prevent rejoining.
             </p>
             <div class="flex justify-center gap-4">
-                <button id="removeGuest" class="px-4 py-2 border bg-emerald-500 text-white rounded-md hover:bg-emerald-600">Remove</button>
-                <button id="blockGuest" class="px-5 py-2 border bg-red-500 text-white rounded-md hover:bg-red-600">Block</button>
+                <button id="removeGuest"
+                    class="px-4 py-2 border bg-emerald-500 text-white rounded-md hover:bg-emerald-600">Remove</button>
+                <button id="blockGuest"
+                    class="px-5 py-2 border bg-red-500 text-white rounded-md hover:bg-red-600">Block</button>
             </div>
         </div>
-    </div>  
+    </div>
     <div id="leaveRoom" class="fixed inset-0 bg-opacity-50 backdrop-blur-sm items-center justify-center hidden">
         <div class="p-4 shadow-md bg-slate-900 border rounded-lg max-w-2xs sm:max-w-md text-center">
             <p class="mb-4">
             </p>
             <div class="flex justify-center gap-4">
-                <button id="leave" class="px-4 py-2 border bg-red-500 text-white rounded-md hover:bg-red-600">Leave</button>
-                <button id="cancel" class="px-4 py-2 border bg-emerald-500 text-white rounded-md hover:bg-emerald-600">Cancel</button>
+                <button id="leave"
+                    class="px-4 py-2 border bg-red-500 text-white rounded-md hover:bg-red-600">Leave</button>
+                <button id="cancel"
+                    class="px-4 py-2 border bg-emerald-500 text-white rounded-md hover:bg-emerald-600">Cancel</button>
             </div>
         </div>
-    </div>  
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js"></script>
