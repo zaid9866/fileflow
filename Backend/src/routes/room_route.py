@@ -37,6 +37,12 @@ class ChangeTimeRequest(BaseModel):
     user_id: str
     new_time: str
 
+class ChangeRestriction(BaseModel):
+    code: str
+    username: str
+    user_id: str
+    new_restrict: bool
+
 @room_router.get("/getCode")
 def get_room_code(db: Session = Depends(get_db)):
     return room_controller.get_room_code(db)
@@ -99,4 +105,14 @@ async def change_room_time(request: ChangeTimeRequest, db: Session = Depends(get
         request.username,
         request.user_id,
         request.new_time
+    )
+
+@room_router.post("/changeRestriction")
+async def change_room_time(request: ChangeRestriction, db: Session = Depends(get_db)):
+    return await room_controller.update_room_time(
+        request.code,
+        db,
+        request.username,
+        request.user_id,
+        request.new_restrict
     )

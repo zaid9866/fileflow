@@ -458,3 +458,44 @@ async def update_room_time(code: str, db: Session, username: str, user_id: str, 
     except Exception as e:
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error.")
+
+async def update_room_time(code: str, db: Session, username: str, user_id: str, new_restrict: bool):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        user = db.query(User).filter(User.username == username).first()
+        if not user:
+            raise APIError(status_code=404, detail="User not found.")
+
+        if user.user_id != user_id:
+            raise APIError(status_code=403, detail="User ID mismatch.")
+
+        if user.role != "Host":
+            raise APIError(status_code=403, detail="User is not authorized as Host.")
+
+        if not isinstance(new_restrict, bool):
+            raise APIError(status_code=400, detail="Invalid 'restrict' value. It should be a boolean.")
+
+        room.restrict = new_restrict
+        db.commit()
+        db.refresh(room)
+
+        response = {
+            "room": code,
+            "type": "changeRestriction",
+            "data": {
+                "restrict": room.restrict
+            }
+        }
+
+        if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+            await websocket_manager.broadcast(code, json.dumps(response))
+
+        return APIResponse.success(message="Room restriction updated successfully.")
+    except APIError as e:
+        raise e
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error.")
