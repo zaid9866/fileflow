@@ -209,3 +209,61 @@ async def remove_user(request, db: Session):
         print("Unexpected Error:", str(e))
         db.rollback()
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
+
+async def change_username(request, db: Session):
+    try:
+        if not request.code.strip():
+            raise APIError(status_code=400, detail="Room code is required.")
+        if not request.username.strip():
+            raise APIError(status_code=400, detail="Current username is required.")
+        if not request.newUsername.strip():
+            raise APIError(status_code=400, detail="New username is required.")
+        if not request.userId:
+            raise APIError(status_code=400, detail="User ID is required.")
+        
+        room = db.query(Room).filter(Room.code == request.code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room not found.")
+
+        user = db.query(User).filter(
+            User.username == request.username,
+            User.user_id == request.userId,
+            User.code == request.code
+        ).first()
+        
+        if not user:
+            raise APIError(status_code=404, detail="User not found or incorrect credentials.")
+        
+        existing_user = db.query(User).filter(
+            User.username == request.newUsername, User.code == request.code
+        ).first()
+        
+        if existing_user:
+            raise APIError(status_code=409, detail="New username is already taken. Please choose a different one.")
+        
+        user.username = request.newUsername
+        db.commit()
+        
+        response = {
+            "room": request.code,
+            "type": "changeUsername",
+            "data": {
+                "oldUsername": request.username,
+                "newUsername": request.newUsername
+            }
+        }
+        
+        if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+            await websocket_manager.broadcast(request.code, json.dumps(response))
+        
+        return APIResponse.success(
+            message="Username changed successfully.",
+            data={"oldUsername": request.username, "newUsername": request.newUsername}
+        )
+    
+    except APIError as e:
+        raise e  
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        db.rollback()
+        raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")

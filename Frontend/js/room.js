@@ -51,6 +51,9 @@ const leave = document.getElementById("leave");
 const cancel = document.getElementById("cancel");
 const modalText = leaveRoom.querySelector("p");
 let guestName = "";
+let roomData = JSON.parse(sessionStorage.getItem('roomData'));
+let userData = JSON.parse(sessionStorage.getItem('userData'));
+let UserName = document.querySelectorAll(".username");
 localStorage.setItem("roomMode", "dark");
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -438,8 +441,7 @@ removeOverflow.addEventListener("click", () => {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    let data = JSON.parse(sessionStorage.getItem('roomData'));
-    const role = data.role;
+    const role = userData.role;
 
     if (role === "Host") {
         document.getElementById("edit-user").classList.remove("hidden");
@@ -472,11 +474,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 input.classList.add(...inputStyles.split(" "));
                 input.maxLength = 16;
                 input.addEventListener("input", function () {
-                    let trimmedValue = input.value.replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, ' ');
-                    if (trimmedValue.length > 16) {
-                        trimmedValue = trimmedValue.slice(0, 16);
-                    }
-                    input.value = trimmedValue;
+                    let value = input.value.replace(/[^a-zA-Z0-9 ]/g, "");
+                    input.value = value.replace(/\s{2,}/g, ' ');
                 });
                 wrapperDiv.appendChild(input);
                 wrapperDiv.appendChild(checkIcon);
@@ -487,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     span.classList.remove("hidden");
                     editBtn.classList.remove("hidden");
                     wrapperDiv.remove();
-                    showMessage(`Name changed to ${newName}`);
+                    changeUsername(newName);
                 });
             } else if (editBtn.id === "edit-user") {
                 const [current, max] = value.split("/").map(Number);
@@ -1210,7 +1209,7 @@ function createReceivedMessage(name, message, time) {
     const messageDiv = document.createElement("div");
     messageDiv.className = "flex flex-col";
     messageDiv.innerHTML = `
-        <span class="text-sm font-semibold">${name}</span>
+        <span class="text-sm font-semibold username">${name}</span>
         <div class="bg-cyan-600 change-chat p-3 rounded-lg max-w-[80%] sm:max-w-xs w-fit border">
             <p>${message}</p>
             <span class="text-xs block text-right mt-1">${time}</span>
@@ -1235,7 +1234,7 @@ function addUsers(usersArray) {
         card.className = `w-60 bg-gray-800 change-role p-4 rounded-lg shadow-lg border-l-4 border flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-500"}`;
         const userInfo = `
             <div>
-                <h3 class="text-lg font-semibold">${user.name}</h3>
+                <h3 class="text-lg font-semibold username">${user.name}</h3>
                 <p class="text-sm ${user.role === "Host" ? "text-emerald-500" : "text-cyan-500"}">${user.role}</p>
             </div>`;
         const removeIcon = user.role === "Guest" && userData.role !== "Guest"
@@ -1334,9 +1333,6 @@ function hideRequestBoxIfEmpty() {
     }
 }
 
-let roomData = JSON.parse(sessionStorage.getItem('roomData'));
-let userData = JSON.parse(sessionStorage.getItem('userData'));
-
 function displayValue() {
     let data = JSON.parse(sessionStorage.getItem('roomData'));
     if (data) {
@@ -1390,9 +1386,27 @@ socket.addEventListener("message", (event) => {
         case "joinRequest":
             showJoinRequest(receivedData.data.username);
             break;
+        case "shareFile":
+            console.log(receivedData.data);
+            break;
+        case "shareText":
+            console.log(receivedData.data);
+            break;
+        case "changeUsername":
+            updateUsername(receivedData.data);
+            showMessage(`${receivedData.data.oldUsername} changed name to ${receivedData.data.newUsername}`);
+            break;
+        case "changeNoOfUsers":
+            console.log(receivedData.data);
+            break;
+        case "changeTime":
+            console.log(receivedData.data);
+            break;
+        case "changeRoomMode":
+            console.log(receivedData.data);
+            break;
         default:
             console.log("Unknown message type received.");
-            console.log(receivedData);
     }
 });
 
@@ -1452,7 +1466,6 @@ async function getUser() {
                 "Content-Type": "application/json",
             },
         });
-
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -1472,13 +1485,10 @@ async function fetchChatMessages() {
                 "Content-Type": "application/json"
             }
         });
-
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
-
         const chatData = await response.json();
-
         if (chatData.error) {
             console.error("Error fetching chats:", chatData.error);
             return [];
@@ -1529,7 +1539,6 @@ removeGuest.addEventListener("click", async () => {
             },
             body: JSON.stringify({ code: roomData.code, username: userData.username, guestName: guestName, userId: userData.userId, role: userData.role }),
         });
-
         const result = await response.json();
         modal.classList.remove("flex");
         modal.classList.add("hidden");
@@ -1572,7 +1581,6 @@ leave.addEventListener("click", async () => {
             },
             body: JSON.stringify({ code: roomData.code, username: userData.username, userId: userData.userId, role: userData.role }),
         });
-
         const result = await response.json();
         leaveRoom.classList.remove("flex");
         leaveRoom.classList.add("hidden");
@@ -1600,5 +1608,53 @@ async function rejectUser(username, code) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: code, username: username, hostName: userData.username, userId: userData.userId })
+    });
+}
+
+async function changeUsername(username) {
+    const requestData = {
+        code: roomData.code,
+        username: userData.username,
+        newUsername: username,
+        userId: userData.userId
+    };
+
+    try {
+        const response = await fetch("http://localhost:8000/user/changeUsername", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            return
+        } else {
+            alert("Failed to change username: " + data.detail);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Something went wrong!");
+    }
+}
+
+function updateUsername(data) {
+    let isUpdated = false;
+    document.querySelectorAll(".username").forEach((name) => {
+        let currentText = name.innerText.trim();
+        if (currentText === data.oldUsername) {
+            if (!isUpdated) {
+                let userData = JSON.parse(sessionStorage.getItem('userData')) || {};
+                if (userData.username === currentText) {
+                    userData.username = data.newUsername;
+                    sessionStorage.setItem('userData', JSON.stringify(userData));
+                    isUpdated = true;
+                }
+            }
+            name.innerText = data.newUsername;
+        }
     });
 }
