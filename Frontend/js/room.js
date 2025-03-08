@@ -569,10 +569,25 @@ function startCountdown(hours, minutes, seconds) {
 
     let remainingSeconds = inputSeconds - currentSeconds;
 
+    let warnedTimes = [60, 30, 10, 5, 0];
+
+    function showWarningMessage(timeLeft) {
+        if (timeLeft === 60) {
+            showMessage("The room will close in 1 minute.");
+        } else if (timeLeft === 30) {
+            showMessage("The room will close in 30 seconds.");
+        } else if (timeLeft === 10) {
+            showMessage("The room will close in 10 seconds.");
+        } else if (timeLeft === 5) {
+            showMessage("The room will close in 5 seconds.");
+        }
+    }
+
     function updateTime() {
         if (remainingSeconds <= 0) {
             document.getElementById("time-remaining").innerText = "00:00:00";
-            console.log("Time Over!");
+            showMessage("The room is closing now.");
+            closeRoom();
             clearInterval(countdownInterval);
             return;
         }
@@ -585,6 +600,10 @@ function startCountdown(hours, minutes, seconds) {
             String(h).padStart(2, '0') + ":" +
             String(m).padStart(2, '0') + ":" +
             String(s).padStart(2, '0');
+
+        if (warnedTimes.includes(remainingSeconds)) {
+            showWarningMessage(remainingSeconds);
+        }
 
         remainingSeconds--;
     }
@@ -970,7 +989,7 @@ function showMessage(text) {
     messageDiv.classList.remove("hidden");
     setTimeout(() => {
         messageDiv.classList.add("hidden");
-    }, 5000);
+    }, 3000);
 }
 
 function showError(text) {
@@ -1325,7 +1344,7 @@ function showJoinRequest(username) {
     const actions = document.createElement("div");
     actions.className = "flex gap-3";
 
-    if (userData.role === "Host") { 
+    if (userData.role === "Host") {
         const acceptIcon = document.createElement("i");
         acceptIcon.className = "fa-solid fa-check text-green-400 text-xs sm:text-sm cursor-pointer transition-transform transform hover:scale-125 hover:text-green-300";
         acceptIcon.addEventListener("click", () => {
@@ -1454,6 +1473,9 @@ socket.addEventListener("message", (event) => {
         case "changeRestriction":
             updateRestriction(receivedData.data);
             break;
+        case "closeRoom":
+            showMessage("The room time has expired. Closing the room now.")
+            setTimeout(window.location.href = "./index.html", 5000)
         default:
             console.log("Unknown message type received.");
     }
@@ -1822,4 +1844,32 @@ function updateRestriction(data) {
 
     sessionStorage.setItem('roomData', JSON.stringify(roomData));
     displayValue();
+}
+
+async function closeRoom() {
+    const requestData = {
+        code: roomData.code,
+        username: userData.username,
+        user_id: userData.userId
+    };
+
+    try {
+        const response = await fetch('http://127.0.0.1:8000/room/closeRoom', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
+
+        if (response.ok) {
+            return;
+        } else {
+            const errorData = await response.json();
+            alert(errorData.detail || "Failed to close the room.");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while closing the room.");
+    }
 }

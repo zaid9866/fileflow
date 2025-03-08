@@ -499,3 +499,37 @@ async def update_room_time(code: str, db: Session, username: str, user_id: str, 
     except Exception as e:
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error.")
+
+async def close_room(code: str, db: Session, username: str, user_id: str):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room doesn't exist.")
+        user = db.query(User).filter(User.username == username).first()
+        if not user:
+            raise APIError(status_code=404, detail="User not found.")
+        if user.user_id != user_id:
+            raise APIError(status_code=403, detail="User ID mismatch.")
+        if user.role != "Host":
+            raise APIError(status_code=403, detail="User is not authorized as Host.")
+        db.query(User).filter(User.code == code).delete()
+        db.query(Chat).filter(Chat.code == code).delete()
+        db.query(SharedContent).filter(SharedContent.code == code).delete()
+        db.query(Room).filter(Room.code == code).delete()
+        db.commit()
+        response = {
+            "room": code,
+            "type": "closeRoom",
+            "data": {
+                "message": f"Room {code} is being closed and all associated data is removed."
+            }
+        }
+        if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+            await websocket_manager.broadcast(code, json.dumps(response))
+        return APIResponse.success(message="Room closed successfully and all associated data removed.")
+
+    except APIError as e:
+        raise e
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error.")
