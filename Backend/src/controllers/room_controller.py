@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from models.room import Room
 from models.user import User
 from models.chat import Chat
-from models.sharedcontent import SharedContent
+from models.file import File
 from utils.ApiResponse import APIResponse  
 from utils.ApiError import APIError  
 from utils.GenerateEncryptionKey import generate_encryption_key
@@ -175,7 +175,7 @@ async def leave_room(request, db: Session):
 
         if request.role == "Host":
             db.query(Chat).filter(Chat.code == request.code).delete()
-            db.query(SharedContent).filter(SharedContent.code == request.code).delete()
+            db.query(File).filter(File.code == request.code).delete()
             db.query(User).filter(User.code == request.code).delete()
             db.delete(room)
             db.commit()
@@ -514,7 +514,7 @@ async def close_room(code: str, db: Session, username: str, user_id: str):
             raise APIError(status_code=403, detail="User is not authorized as Host.")
         db.query(User).filter(User.code == code).delete()
         db.query(Chat).filter(Chat.code == code).delete()
-        db.query(SharedContent).filter(SharedContent.code == code).delete()
+        db.query(File).filter(File.code == code).delete()
         db.query(Room).filter(Room.code == code).delete()
         db.commit()
         response = {

@@ -132,29 +132,25 @@
             <div id="request" class="w-full flex flex-wrap gap-6 items-center justify-center"></div>
         </section>
         <section id="room-info"
-            class="flex items-baseline relative max-[1800px]:pr-10 text-white border border-b-0 m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl pb-8">
+            class="flex items-baseline relative text-white border border-b-0 m-5 sm:mx-20 md:mx-32 lg:mx-40 p-4 px-6 mt-10 mb-0 gap-x-4 sm:gap-x-10 text-base sm:text-lg bg-zinc-950 rounded-t-2xl pb-8">
             <div id="head"
                 class="flex flex-wrap w-full items-center justify-between h-8 overflow-hidden gap-x-8 sm:gap-x-10 gap-4">
-                <div class="w-48">Room Code : <span id="room-code"></span></div>
-                <div class="w-64 flex items-center">
-                    Name<span id="username" class="ml-2 username"></span>
+                <div class="max-w-44">Room Code : <span id="room-code"></span></div>
+                <div class="max-w-52 flex items-center"><i class="fa-solid fa-user"></i><span id="username" class="ml-2 username"></span>
                     <div id="edit-name" class="ml-3 cursor-pointer"><i class="fa-solid fa-edit"></i></div>
                 </div>
-                <div class="w-28">Role : <span id="user-role"></span></div>
-                <div class="w-56 flex items-center">
-                    Total Users<span id="no-of-user" class="ml-2"></span>
+                <div class="max-w-28 items-center justify-center">Role : <span id="user-role"></span></div>
+                <div class="max-w-24 flex items-center"><i class="fa-solid fa-users"></i><span id="no-of-user" class="ml-2"></span>
                     <div id="edit-user" class="ml-3 hidden cursor-pointer"><i class="fa-solid fa-edit"></i></div>
                 </div>
-                <div class="w-72 flex items-center">
-                    Remaining Time<span id="time-remaining" class="ml-2"></span>
+                <div class="max-w-32 flex items-center"><i class="fa-regular fa-clock"></i><span id="time-remaining" class="ml-2"></span>
                     <div id="edit-time" class="ml-3 hidden cursor-pointer"><i class="fa-solid fa-edit"></i></div>
                 </div>
-                <div id="restrict-mode" class="w-40 hidden items-center">
-                    <span>Restrict Mode</span>
-                    <i id="toggle-restrict" class="fa-solid fa-toggle-off ml-3 cursor-pointer text-xl"></i>
+                <div id="restrict-mode" class="hidden">
+                    <i id="toggle-restrict" class="fa-solid fa-house cursor-pointer text-xl"></i>
                 </div>
             </div>
-            <div class="min-[1800px]:hidden absolute top-4 right-4">
+            <div class="hidden absolute top-4 right-4">
                 <i id="remove-overflow"
                     class="fa-solid fa-arrow-down cursor-pointer transition-transform duration-300"></i>
             </div>
@@ -200,7 +196,7 @@
             <div id="file-list-container" class="hidden">
                 <div id="file-list" class="mt-6 space-y-3"></div>
                 <div class="mt-4 flex justify-between">
-                    <p id="file-limit-display" class="text-sm"></p>
+                    <p id="file-limit-display" class="text-xs sm:text-sm w-full text-center"></p>
                 </div>
                 <div class="flex justify-center">
                     <button id="addMoreBtn"

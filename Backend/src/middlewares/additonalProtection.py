@@ -17,7 +17,6 @@ if len(ENCRYPTION_KEY) != 32:
 class AdditionalEncryption:
     @staticmethod
     def encrypt_key(key_bytes: bytes) -> str:
-        """Encrypts the given bytes using AES-256-CBC with the stored encryption key."""
         iv = os.urandom(16) 
         cipher = AES.new(ENCRYPTION_KEY, AES.MODE_CBC, iv)
 
@@ -27,7 +26,6 @@ class AdditionalEncryption:
 
     @staticmethod
     def decrypt_key(encrypted_key: str) -> bytes:
-        """Decrypts the given base64-encoded string back to bytes using AES-256-CBC."""
         encrypted_data = base64.b64decode(encrypted_key)
         iv, ciphertext = encrypted_data[:16], encrypted_data[16:]
 

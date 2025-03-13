@@ -23,15 +23,13 @@ class Room(Base):
     blocked_user = Column(Text, nullable=True)
 
     users = relationship("User", back_populates="room")
-    shared_contents = relationship("SharedContent", back_populates="room")
+    files = relationship("File", back_populates="room")
     chats = relationship("Chat", back_populates="room")
 
     def set_blocked_user(self, data: dict):
-        """ Convert dictionary to JSON string before storing """
         self.blocked_user = json.dumps(data)
 
     def get_blocked_user(self) -> dict:
-        """ Convert JSON string back to dictionary """
         return json.loads(self.blocked_user) if self.blocked_user else {}
 
 __all__ = ["Room"]

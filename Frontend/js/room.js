@@ -440,6 +440,19 @@ removeOverflow.addEventListener("click", () => {
     }
 });
 
+function checkOverflow() {
+    if (head.scrollHeight > head.clientHeight) {
+        removeOverflow.parentElement.classList.remove("hidden");
+        head.classList.add("pr-10"); 
+    } else {
+        removeOverflow.parentElement.classList.add("hidden"); 
+        head.classList.remove("pr-10");
+    }
+}
+
+window.addEventListener("load", checkOverflow);
+window.addEventListener("resize", checkOverflow);
+
 document.addEventListener("DOMContentLoaded", function () {
     const role = userData.role;
 
@@ -673,41 +686,34 @@ function formatSize(size) {
     else return (size / (1024 * 1024)).toFixed(2) + " MB";
 }
 
-function formatTime(seconds) {
-    if (seconds < 60) return `${seconds} sec ago`;
-    else if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
-    else return `${Math.floor(seconds / 3600)} hr ago`;
-}
-
-function updateTimeDisplay() {
-    document.querySelectorAll(".file-time").forEach((el, index) => {
-        let uploadTime = filesArray[index].uploadTime;
-        let elapsedTime = Math.floor((Date.now() - uploadTime) / 1000);
-        el.textContent = formatTime(elapsedTime);
-    });
-}
-
-function updateFileDisplay() {
+async function updateFileDisplay() {
     fileList.innerHTML = "";
     let totalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
 
     filesArray.forEach((file, index) => {
         const fileItem = document.createElement("div");
-        fileItem.className = "flex flex-wrap justify-between items-center bg-gray-700 p-2 rounded-lg gap-2 change-file";
+        fileItem.className = "flex justify-between w-full items-center bg-gray-700 p-3 rounded-lg gap-2 border-l-4 border-cyan-500 border change-file"; 
+
         fileItem.innerHTML = `
-            <span class="truncate">${file.name}</span>
-            <div class="flex flex-wrap gap-3 items-center">
-                <span class="text-sm file-time">${formatTime(Math.floor((Date.now() - file.uploadTime) / 1000))}</span>
-                <button class="text-emerald-500 hover:text-emerald-600" onclick="downloadFile(${index})">
-                    <i class="fa-solid fa-download"></i>
-                </button>
-                <span class="text-sm">${formatSize(file.size)}</span>
-                <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-600">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+            <div class="flex flex-col gap-2 items-start w-[70%]">
+                <span class="text-sm sm:text-base font-medium truncate w-full overflow-hidden whitespace-nowrap text-ellipsis">${file.name}</span>
+                <span class="text-xs sm:text-sm">You</span>
+            </div>
+            <div class="flex flex-col gap-2 items-center justify-center">
+                <div class="flex gap-3 items-center">
+                    <button class="text-emerald-500 hover:text-emerald-600 text-xs sm:text-sm" onclick="downloadFile(${index})">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+                    <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-600 text-xs sm:text-sm">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+                <span class="text-[10px] sm:text-sm">${formatSize(file.size)}</span>
             </div>
         `;
+
         fileList.appendChild(fileItem);
+        uploadFile(file);
         if (localStorage.getItem("roomMode") === "dark") {
             darkMode();
         } else {
@@ -753,7 +759,6 @@ function handleFileUpload(input) {
     let validFiles = [];
 
     if (newFiles.length > availableSlots) {
-        alert(`Only ${availableSlots} more files can be uploaded.`);
         showMessage(`Only ${availableSlots} more files can be uploaded.`);
         newFiles = newFiles.slice(0, availableSlots);
     }
@@ -761,10 +766,8 @@ function handleFileUpload(input) {
     newFiles.forEach(file => {
         let isDuplicate = filesArray.some(existingFile => existingFile.name === file.name && existingFile.size === file.size);
         if (isDuplicate) {
-            alert(`"${file.name}" is already added.`);
             showMessage(`"${file.name}" is already added.`);
         } else if (currentTotalSize + file.size > maxTotalSize) {
-            alert(`Adding "${file.name}" exceeds the 500MB total size limit.`);
             showMessage(`Adding "${file.name}" exceeds the 500MB total size limit.`);
         } else {
             file.uploadTime = Date.now();
@@ -795,8 +798,6 @@ dropzone.addEventListener("drop", (event) => {
     handleFileUpload(event.dataTransfer);
 });
 addMoreBtn.addEventListener("click", () => moreFileInput.click());
-
-setInterval(updateTimeDisplay, 1000);
 
 document.getElementById("add-text").addEventListener("click", addNewTextField);
 
@@ -1280,14 +1281,14 @@ function addUsers(usersArray) {
 
 restrictMode.addEventListener("click", () => {
     if (userData.role === "Host") {
-        if (toggleRestrict.classList.contains("fa-toggle-off")) {
-            toggleRestrict.classList.remove("fa-toggle-off");
-            toggleRestrict.classList.add("fa-toggle-on");
+        if (toggleRestrict.classList.contains("fa-house")) {
+            toggleRestrict.classList.remove("fa-house");
+            toggleRestrict.classList.add("fa-house-lock");
             requestBox.classList.remove("hidden");
             updateRoomRestriction(true);
         } else {
-            toggleRestrict.classList.remove("fa-toggle-on");
-            toggleRestrict.classList.add("fa-toggle-off");
+            toggleRestrict.classList.remove("fa-house-lock");
+            toggleRestrict.classList.add("fa-house");
             requestBox.classList.add("hidden");
             updateRoomRestriction(false);
         }
@@ -1304,7 +1305,7 @@ function showJoinRequest(username) {
         return;
     }
 
-    if (toggleRestrict.classList.contains("fa-toggle-off")) {
+    if (toggleRestrict.classList.contains("fa-house")) {
         userCountElement.textContent = `${currentUsers + 1}/${maxUsers}`;
         showMessage(`${username} added successfully!`);
         return;
@@ -1413,11 +1414,11 @@ function displayValue() {
         startCountdown(hours, minutes, seconds);
         let restrictToggle = document.getElementById('toggle-restrict');
         if (roomData.restrict === true) {
-            restrictToggle.classList.remove('fa-toggle-off');
-            restrictToggle.classList.add('fa-toggle-on');
+            restrictToggle.classList.remove('fa-house');
+            restrictToggle.classList.add('fa-house-lock');
         } else {
-            restrictToggle.classList.remove('fa-toggle-on');
-            restrictToggle.classList.add('fa-toggle-off');
+            restrictToggle.classList.remove('fa-house-lock');
+            restrictToggle.classList.add('fa-house');
         }
     } else {
         console.error('No room data found in localStorage.');
@@ -1438,7 +1439,7 @@ socket.addEventListener("message", (event) => {
             updateUser(receivedData.data);
             break;
         case "file":
-            console.log(`File Shared: ${receivedData.data.fileName}`);
+            console.log(`File Shared: ${receivedData.data}`);
             break;
         case "removeUser":
             updateRemovedUser(receivedData.data, "removed");
@@ -1478,6 +1479,8 @@ socket.addEventListener("message", (event) => {
             setTimeout(window.location.href = "./index.html", 5000)
         default:
             console.log("Unknown message type received.");
+            console.log(receivedData);
+            
     }
 });
 
@@ -1840,8 +1843,6 @@ async function updateRoomRestriction(value) {
 function updateRestriction(data) {
     let roomData = JSON.parse(sessionStorage.getItem('roomData')) || {};
     roomData.restrict = data.restrict;
-    console.log(data.restrict);
-
     sessionStorage.setItem('roomData', JSON.stringify(roomData));
     displayValue();
 }
@@ -1871,5 +1872,30 @@ async function closeRoom() {
     } catch (error) {
         console.error("Error:", error);
         alert("An error occurred while closing the room.");
+    }
+}
+
+async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append("room_code", roomData.code);
+    formData.append("user_id", userData.userId);
+    formData.append("username", userData.username);
+    formData.append("file", file);
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/file/uploadFile", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.status==='success'||data.success) {
+            return;
+        } else {
+            console.error("Failed to upload file:", data);
+        }
+    } catch (error) {
+        console.error("Error uploading file:", error);
     }
 }
