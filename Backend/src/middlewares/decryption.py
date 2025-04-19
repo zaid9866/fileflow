@@ -22,4 +22,3 @@ class DecryptionMiddleware:
                 decrypted_data[k] = None  
 
         return decrypted_data
-

@@ -10,7 +10,7 @@ const moreFileInput = document.getElementById("moreFileInput");
 let filesArray = [];
 const maxFiles = 20;
 const maxTotalSize = 500 * 1024 * 1024;
-let textFieldCount = document.querySelectorAll(".text-field").length;
+let textFieldCount = 0;
 const chatInput = document.getElementById("chat-input");
 const hamburgerDiv = document.getElementById("hamburger-div");
 const hamburger = document.getElementById("hamburger");
@@ -20,12 +20,16 @@ const cancelHamburger = document.getElementById("cancel-hamburger");
 const showToFeature = document.querySelectorAll(".show-to-feature");
 const showToAbout = document.querySelectorAll(".show-to-about");
 const showToWork = document.querySelectorAll(".show-to-work");
+const shareRoom = document.querySelectorAll(".share-room");
+const OpenLeaveRoom = document.querySelectorAll(".openLeaveRoom");
 const feature = document.getElementById("feature");
 const about = document.getElementById("about");
 const work = document.getElementById("work");
 const mobileViewFeature = document.getElementById("mobile-view-feature");
 const mobileViewAbout = document.getElementById("mobile-view-about");
 const mobileViewWork = document.getElementById("mobile-view-work");
+const mobileViewLeave = document.getElementById("mobile-view-leave");
+const mobileViewShare = document.getElementById("mobile-view-share");
 const closeWork = document.getElementById("close-work");
 const closeFeature = document.getElementById("close-feature");
 const closeAbout = document.getElementById("close-about");
@@ -67,6 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
     applyThemeClasses();
     getUser();
     fetchChatMessages();
+    getText();
+    getFile();
 });
 
 moon.forEach((element) => {
@@ -126,6 +132,8 @@ function lightMode() {
         modal.firstElementChild.classList.add("bg-gray-200");
         leaveRoom.firstElementChild.classList.remove("bg-slate-900");
         leaveRoom.firstElementChild.classList.add("bg-gray-200");
+        document.getElementById("showURL").firstElementChild.classList.remove("bg-slate-900");
+        document.getElementById("showURL").firstElementChild.classList.add("bg-gray-100");
         change.forEach((element) => {
             element.classList.remove("bg-zinc-900");
             element.classList.add("bg-gray-200");
@@ -134,7 +142,7 @@ function lightMode() {
             const changeFile = document.querySelectorAll(".change-file");
             changeFile.forEach((element) => {
                 element.classList.remove("bg-gray-700");
-                element.classList.add("bg-gray-300");
+                element.classList.add("bg-white");
             });
             const changeText = document.querySelectorAll(".change-text");
             changeText.forEach((element) => {
@@ -179,6 +187,14 @@ function lightMode() {
             element.classList.add("hover:text-white");
         });
         showToWork.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+        shareRoom.forEach((element) => {
+            element.classList.remove("hover:text-gray-400");
+            element.classList.add("hover:text-white");
+        });
+        OpenLeaveRoom.forEach((element) => {
             element.classList.remove("hover:text-gray-400");
             element.classList.add("hover:text-white");
         });
@@ -230,6 +246,8 @@ function darkMode() {
         modal.firstElementChild.classList.add("bg-slate-900");
         leaveRoom.firstElementChild.classList.remove("bg-gray-200");
         leaveRoom.firstElementChild.classList.add("bg-slate-900");
+        document.getElementById("showURL").firstElementChild.classList.remove("bg-gray-100");
+        document.getElementById("showURL").firstElementChild.classList.add("bg-slate-900");
         change.forEach((element) => {
             element.classList.remove("bg-gray-200");
             element.classList.add("bg-zinc-900");
@@ -237,7 +255,7 @@ function darkMode() {
         setTimeout(() => {
             const changeFile = document.querySelectorAll(".change-file");
             changeFile.forEach((element) => {
-                element.classList.remove("bg-gray-300");
+                element.classList.remove("bg-white");
                 element.classList.add("bg-gray-700");
             });
             const changeText = document.querySelectorAll(".change-text");
@@ -286,6 +304,14 @@ function darkMode() {
             element.classList.remove("hover:text-white");
             element.classList.add("hover:text-gray-400");
         });
+        shareRoom.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
+        OpenLeaveRoom.forEach((element) => {
+            element.classList.remove("hover:text-white");
+            element.classList.add("hover:text-gray-400");
+        });
         moon.forEach((element) => {
             element.classList.remove("hover:text-white");
             element.classList.add("hover:text-gray-400");
@@ -316,7 +342,7 @@ function mobileNavbar() {
 }
 
 addMobileNavEvents(
-    [cancelHamburger, mobileViewFeature, mobileViewAbout, mobileViewWork],
+    [cancelHamburger, mobileViewFeature, mobileViewAbout, mobileViewWork, mobileViewLeave, mobileViewShare],
     mobileNavbar
 );
 
@@ -443,9 +469,9 @@ removeOverflow.addEventListener("click", () => {
 function checkOverflow() {
     if (head.scrollHeight > head.clientHeight) {
         removeOverflow.parentElement.classList.remove("hidden");
-        head.classList.add("pr-10"); 
+        head.classList.add("pr-10");
     } else {
-        removeOverflow.parentElement.classList.add("hidden"); 
+        removeOverflow.parentElement.classList.add("hidden");
         head.classList.remove("pr-10");
     }
 }
@@ -687,41 +713,44 @@ function formatSize(size) {
 }
 
 async function updateFileDisplay() {
-    fileList.innerHTML = "";
     let totalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
-
+    alert("File display 1")
     filesArray.forEach((file, index) => {
-        const fileItem = document.createElement("div");
-        fileItem.className = "flex justify-between w-full items-center bg-gray-700 p-3 rounded-lg gap-2 border-l-4 border-cyan-500 border change-file"; 
+        if (![...fileList.children].some(el => el.dataset.fileName === file.name)) {
+            const fileItem = document.createElement("div");
+            fileItem.dataset.fileName = file.name;
+            fileItem.className = "flex justify-between w-full items-center bg-gray-700 p-3 rounded-lg gap-2 border-l-4 border-cyan-500 border change-file";
 
-        fileItem.innerHTML = `
-            <div class="flex flex-col gap-2 items-start w-[70%]">
-                <span class="text-sm sm:text-base font-medium truncate w-full overflow-hidden whitespace-nowrap text-ellipsis">${file.name}</span>
-                <span class="text-xs sm:text-sm">You</span>
-            </div>
-            <div class="flex flex-col gap-2 items-center justify-center">
-                <div class="flex gap-3 items-center">
-                    <button class="text-emerald-500 hover:text-emerald-600 text-xs sm:text-sm" onclick="downloadFile(${index})">
-                        <i class="fa-solid fa-download"></i>
-                    </button>
-                    <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-600 text-xs sm:text-sm">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+            fileItem.innerHTML = `
+                <div class="flex flex-col gap-2 items-start w-[70%]">
+                    <span class="text-sm sm:text-base font-medium truncate w-full overflow-hidden whitespace-nowrap text-ellipsis">${file.name}</span>
+                    <span class="text-xs sm:text-sm">You</span>
                 </div>
-                <span class="text-[10px] sm:text-sm">${formatSize(file.size)}</span>
-            </div>
-        `;
+                <div class="flex flex-col gap-2 items-center justify-center">
+                    <div class="flex gap-3 items-center">
+                        <button class="text-emerald-500 hover:text-emerald-600 text-xs sm:text-sm" onclick="downloadFile(${index})">
+                            <i class="fa-solid fa-download"></i>
+                        </button>
+                        <button onclick="removeFile(event, ${index})" id="${file.name}" class="text-red-500 hover:text-red-600 text-xs sm:text-sm">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <span class="text-[10px] sm:text-sm">${formatSize(file.size)}</span>
+                </div>
+            `;
 
-        fileList.appendChild(fileItem);
-        uploadFile(file);
-        if (localStorage.getItem("roomMode") === "dark") {
-            darkMode();
-        } else {
-            lightMode();
+            fileList.appendChild(fileItem);
         }
+        alert("File display end")
     });
 
     fileLimitDisplay.textContent = `Max Files: ${maxFiles}, Added: ${filesArray.length}/${maxFiles} | Max Total Size: 500MB, Used: ${formatSize(totalSize)}`;
+
+    if (localStorage.getItem("roomMode") === "dark") {
+        darkMode();
+    } else {
+        lightMode();
+    }
 
     if (filesArray.length > 0) {
         dropzone.classList.add("hidden");
@@ -732,8 +761,11 @@ async function updateFileDisplay() {
     }
 }
 
-function removeFile(index) {
+function removeFile(event, index) {
+    const fileName = event.currentTarget.id
     if (confirm("Are you sure you want to delete this file?")) {
+        let fileId = roomData.code + `_${fileName}`;
+        deleteFile(fileId);
         filesArray.splice(index, 1);
         updateFileDisplay();
     }
@@ -741,31 +773,74 @@ function removeFile(index) {
 
 function downloadFile(index) {
     const file = filesArray[index];
-    const url = URL.createObjectURL(file);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+
+    if (file.url) {
+        fetch(file.url)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = file.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error("Download failed:", error));
+    } else {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
 }
 
-function handleFileUpload(input) {
-    let newFiles = Array.from(input.files);
+function handleFileUpload(input, event) {
+    alert("Inside file 1")
 
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation(); // Also stop propagation
+    }
+
+    let newFiles = Array.from(input.files);
+    alert("Inside file 2")
     let availableSlots = maxFiles - filesArray.length;
     let currentTotalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
     let validFiles = [];
+
+    alert("Inside file 3")
 
     if (newFiles.length > availableSlots) {
         showMessage(`Only ${availableSlots} more files can be uploaded.`);
         newFiles = newFiles.slice(0, availableSlots);
     }
 
+    alert("INside file 4")
+
     newFiles.forEach(file => {
-        let isDuplicate = filesArray.some(existingFile => existingFile.name === file.name && existingFile.size === file.size);
-        if (isDuplicate) {
+        alert("file looo 1")
+        let isDuplicate = filesArray.some(existingFile =>
+            existingFile.name === file.name && existingFile.size === file.size
+        );
+        alert("Fle loop 2")
+        let isAlreadyDisplayed = [...fileList.children].some(fileItem => {
+            let fileName = fileItem.querySelector("span").textContent.trim();
+            let fileSizeElement = fileItem.querySelector("span[class*='text-'][class*='sm:text-sm']");
+
+            alert("File loop 3")
+            if (!fileSizeElement) return false;
+
+            let fileSize = fileSizeElement.textContent.trim();
+            return fileName === file.name && fileSize === formatSize(file.size);
+        });
+        alert("File loop 4")
+        if (isDuplicate || isAlreadyDisplayed) {
             showMessage(`"${file.name}" is already added.`);
         } else if (currentTotalSize + file.size > maxTotalSize) {
             showMessage(`Adding "${file.name}" exceeds the 500MB total size limit.`);
@@ -776,27 +851,63 @@ function handleFileUpload(input) {
         }
     });
 
+    alert("Inside file 5")
     if (validFiles.length > 0) {
         filesArray.push(...validFiles);
         updateFileDisplay();
+        alert("file loop 8")
+        const alp = "Ola"
+        console.log(event)
+        processFiles(validFiles)
+        showMessage("Sharing File...");
     }
 }
 
-fileInput.addEventListener("change", () => handleFileUpload(fileInput));
-moreFileInput.addEventListener("change", () => handleFileUpload(moreFileInput));
-dropzone.addEventListener("click", () => fileInput.click());
-dropzone.addEventListener("dragover", (event) => {
+function processFiles(files) {
+
+    files.forEach(file => uploadFile(file));
+}
+
+fileInput.addEventListener("change", (e) => {
+    e.preventDefault();
+    alert("File 1")
+    handleFileUpload(fileInput,e);
+    return false;
+});
+moreFileInput.addEventListener("change", (e) => {
+    e.preventDefault();
+    alert("File  2")
+    handleFileUpload(moreFileInput,e);
+    return false;
+});
+dropzone.addEventListener("click", (e) => {
+    fileInput.click();
+});
+
+dropzone.removeEventListener("dragover", preventDefault);
+dropzone.removeEventListener("dragleave", removeDragStyle);
+dropzone.removeEventListener("drop", handleDrop);
+
+dropzone.addEventListener("dragover", preventDefault);
+dropzone.addEventListener("dragleave", removeDragStyle);
+dropzone.addEventListener("drop", handleDrop);
+
+function preventDefault(event) {
     event.preventDefault();
     dropzone.classList.add("bg-gray-600");
-});
-dropzone.addEventListener("dragleave", () => {
+}
+
+function removeDragStyle() {
     dropzone.classList.remove("bg-gray-600");
-});
-dropzone.addEventListener("drop", (event) => {
+}
+
+function handleDrop(event) {
     event.preventDefault();
     dropzone.classList.remove("bg-gray-600");
-    handleFileUpload(event.dataTransfer);
-});
+    handleFileUpload(event.dataTransfer, event);
+    return false;
+}
+
 addMoreBtn.addEventListener("click", () => moreFileInput.click());
 
 document.getElementById("add-text").addEventListener("click", addNewTextField);
@@ -816,7 +927,10 @@ function addNewTextField() {
     newTextField.setAttribute("id", `text-field-${textFieldCount}`);
     newTextField.innerHTML = `
             <div class="hidden remove-text">
-                <i class="fa-solid fa-times absolute top-3 right-3"></i>
+                <i class="fa-solid fa-times absolute top-3 left-3 text-red-600"></i>
+            </div>
+            <div class="share-text">
+                <i class="fa-solid fa-check absolute top-3 right-3 text-emerald-400"></i>
             </div>
             <div class="flex flex-wrap gap-x-4 gap-3 mt-4 mb-3">
                <input type="text" id="title-input-${textFieldCount}" placeholder="Enter file name"
@@ -884,6 +998,9 @@ function addNewTextField() {
     if (textFieldCount === 5) {
         document.getElementById("add-text").classList.add("hidden");
     }
+    if (textFieldCount > 1) {
+        increaseTextField(`text-field-${textFieldCount}`);
+    }
 }
 
 $(document).ready(function () {
@@ -925,15 +1042,26 @@ $(document).ready(function () {
 document.addEventListener("click", function (e) {
     if (e.target.closest(".remove-text")) {
         if (textFieldCount > 1) {
+            let textField = e.target.closest(".text-field");
+            let textFieldId = textField.getAttribute("id");
             let confirmDelete = confirm("Are you sure you want to delete this text field?");
             if (confirmDelete) {
-                e.target.closest(".text-field").remove();
+                textField.remove();
+                decreaseField(textFieldId);
                 textFieldCount--;
-
                 updateRemoveIcons();
-
                 document.getElementById("add-text").classList.remove("hidden");
             }
+        }
+    }
+    if (e.target.closest(".share-text")) {
+        let textField = e.target.closest(".text-field");
+        let textFieldId = textField.getAttribute("id");
+        let textFieldNumber = textFieldId.split("-").pop();
+        let textArea = document.getElementById(`text-box-${textFieldNumber}`);
+        let text = textArea.value.trim();
+        if (text) {
+            sendTextToBackend(textFieldId, text);
         }
     }
 });
@@ -981,6 +1109,9 @@ document.addEventListener("click", function (e) {
     if (e.target.closest(".clear-btn")) {
         const textAreaId = e.target.closest(".text-field").querySelector("textarea").id;
         clearText(textAreaId);
+        let textField = e.target.closest(".text-field");
+        let textFieldId = textField.getAttribute("id");
+        removeText(textFieldId);
     }
 });
 
@@ -1004,11 +1135,11 @@ function showError(text) {
 
 document.addEventListener("click", function (e) {
     if (e.target.closest(".download")) {
-        downloadFile(e.target.closest(".download"));
+        downloadTextAsFile(e.target.closest(".download"));
     }
 });
 
-function downloadFile(button) {
+function downloadTextAsFile(button) {
     let textField = button.closest(".text-field");
 
     let fileName = textField.querySelector(".text-name").value.trim();
@@ -1185,6 +1316,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const formattedTime = `${hours % 12 || 12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
         chatInput.value = "";
         chatBox.scrollTop = chatBox.scrollHeight;
+        let userData = JSON.parse(sessionStorage.getItem('userData'));
         try {
             const response = await fetch("http://127.0.0.1:8000/chat/addChat", {
                 method: "POST",
@@ -1256,8 +1388,8 @@ function addUsers(usersArray) {
         card.className = `w-60 bg-gray-800 change-role p-4 rounded-lg shadow-lg border-l-4 border flex justify-between items-center ${user.role === "Host" ? "border-emerald-500" : "border-cyan-500"}`;
         const userInfo = `
             <div>
-                <h3 class="text-lg font-semibold username">${user.name}</h3>
-                <p class="text-sm ${user.role === "Host" ? "text-emerald-500" : "text-cyan-500"}">${user.role}</p>
+                <h3 class="text-sm sm:text-base font-semibold username">${user.name}</h3>
+                <p class="text-xs sm:text-sm ${user.role === "Host" ? "text-emerald-500" : "text-cyan-500"}">${user.role}</p>
             </div>`;
         const removeIcon = user.role === "Guest" && userData.role !== "Guest"
             ? `<i class="fa-solid fa-times openModal text-red-500 text-lg cursor-pointer hover:text-red-400 remove-guests"></i>`
@@ -1311,41 +1443,41 @@ function showJoinRequest(username) {
         return;
     }
 
-    requestBox.classList.remove("hidden");
-    const inviteCard = document.createElement("div");
-    inviteCard.className = `relative bg-gray-900 change-request border-l-4 border-cyan-500 p-2 rounded-lg shadow-lg flex items-center gap-2 
+    if (userData.role === "Host") {
+        requestBox.classList.remove("hidden");
+        const inviteCard = document.createElement("div");
+        inviteCard.className = `relative bg-gray-900 change-request border-l-4 border-cyan-500 p-2 rounded-lg shadow-lg flex items-center gap-2 
         w-[200px] h-[60px] justify-between border transition-all hover:scale-105 duration-200`;
 
-    const userInfo = document.createElement("div");
-    userInfo.className = "flex-grow";
-    userInfo.innerHTML = `
+        const userInfo = document.createElement("div");
+        userInfo.className = "flex-grow";
+        userInfo.innerHTML = `
         <h3 class="text-sm sm:text-base font-semibold">${username}</h3>
         <p class="text-xs sm:text-sm text-cyan-400 mt-1">Requesting to Join</p>
     `;
 
-    const timerAndActions = document.createElement("div");
-    timerAndActions.className = "flex flex-col items-center justify-center gap-2 absolute top-2 right-2";
+        const timerAndActions = document.createElement("div");
+        timerAndActions.className = "flex flex-col items-center justify-center gap-2 absolute top-2 right-2";
 
-    const timer = document.createElement("span");
-    timer.className = "text-xs sm:text-sm font-mono w-14 text-center";
-    let timeLeft = 120;
-    timer.textContent = `${timeLeft}s`;
-
-    const countdown = setInterval(() => {
-        timeLeft--;
+        const timer = document.createElement("span");
+        timer.className = "text-xs sm:text-sm font-mono w-14 text-center";
+        let timeLeft = 120;
         timer.textContent = `${timeLeft}s`;
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            inviteCard.remove();
-            showMessage(`${username}'s request expired.`);
-            hideRequestBoxIfEmpty();
-        }
-    }, 1000);
 
-    const actions = document.createElement("div");
-    actions.className = "flex gap-3";
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timer.textContent = `${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                inviteCard.remove();
+                showMessage(`${username}'s request expired.`);
+                hideRequestBoxIfEmpty();
+            }
+        }, 1000);
 
-    if (userData.role === "Host") {
+        const actions = document.createElement("div");
+        actions.className = "flex gap-3";
+
         const acceptIcon = document.createElement("i");
         acceptIcon.className = "fa-solid fa-check text-green-400 text-xs sm:text-sm cursor-pointer transition-transform transform hover:scale-125 hover:text-green-300";
         acceptIcon.addEventListener("click", () => {
@@ -1373,16 +1505,16 @@ function showJoinRequest(username) {
 
         actions.appendChild(acceptIcon);
         actions.appendChild(rejectIcon);
-    }
 
-    timerAndActions.appendChild(timer);
-    if (userData.role === "Host") {
-        timerAndActions.appendChild(actions);
-    }
+        timerAndActions.appendChild(timer);
+        if (userData.role === "Host") {
+            timerAndActions.appendChild(actions);
+        }
 
-    inviteCard.appendChild(userInfo);
-    inviteCard.appendChild(timerAndActions);
-    requestContainer.appendChild(inviteCard);
+        inviteCard.appendChild(userInfo);
+        inviteCard.appendChild(timerAndActions);
+        requestContainer.appendChild(inviteCard);
+    }
 
     if (localStorage.getItem("roomMode") === "dark") {
         darkMode();
@@ -1430,7 +1562,6 @@ const socket = new WebSocket(`ws://127.0.0.1:8000/ws/${roomData.code}/${encodedU
 
 socket.addEventListener("message", (event) => {
     let receivedData = JSON.parse(event.data);
-
     switch (receivedData.type) {
         case "chat":
             updateChat(receivedData.data);
@@ -1439,7 +1570,20 @@ socket.addEventListener("message", (event) => {
             updateUser(receivedData.data);
             break;
         case "file":
-            console.log(`File Shared: ${receivedData.data}`);
+            if (receivedData.data.shared_by !== userData.username) {
+                showMessage(`${receivedData.data.shared_by} shared file`);
+                handleReceivedFileUpload(receivedData.data);
+            } else {
+                showMessage("Shared File successfully");
+            }
+            break;
+        case "text":
+            if (receivedData.data.username === userData.username) {
+                showMessage(`You shared text`)
+            } else {
+                showMessage(`${receivedData.data.username} shared text`)
+                updateTextArea(receivedData.data.text_id, receivedData.data.text_content);
+            }
             break;
         case "removeUser":
             updateRemovedUser(receivedData.data, "removed");
@@ -1453,11 +1597,32 @@ socket.addEventListener("message", (event) => {
         case "joinRequest":
             showJoinRequest(receivedData.data.username);
             break;
-        case "shareFile":
-            console.log(receivedData.data);
+        case "increaseField":
+            if (receivedData.data.username === userData.username) {
+                showMessage(`You added new text field`);
+            } else {
+                addNewTextFieldWithId(receivedData.data.text_id);
+                showMessage(`${receivedData.data.username} added new text field`);
+            }
             break;
-        case "shareText":
-            console.log(receivedData.data);
+        case "decreaseField":
+            if (receivedData.data.username === userData.username) {
+                showMessage(`You remove text field`);
+            } else {
+                removeTextFieldById(receivedData.data.text_id);
+                showMessage(`${receivedData.data.username} removed text field`);
+            }
+            break;
+        case "removeText":
+            if (receivedData.data.username === userData.username) {
+                showMessage(`You clear text`);
+            } else {
+                let textFieldId = receivedData.data.text_id;
+                let textFieldNumber = textFieldId.split("-").pop();
+                let textArea = document.getElementById(`text-box-${textFieldNumber}`);
+                textArea.value = "";
+                showMessage(`${receivedData.data.username} clear text`);
+            }
             break;
         case "changeUsername":
             updateUsername(receivedData.data);
@@ -1477,10 +1642,26 @@ socket.addEventListener("message", (event) => {
         case "closeRoom":
             showMessage("The room time has expired. Closing the room now.")
             setTimeout(window.location.href = "./index.html", 5000)
-        default:
-            console.log("Unknown message type received.");
-            console.log(receivedData);
-            
+        case "block":
+            if (receivedData.data.blocked_username === userData.username) {
+                blockedUser();
+                removeUserFromRoom();
+                updateRemovedUser(receivedData.data.blocked_username, "blocked");
+            } else {
+                const userCards = document.querySelectorAll("#user-container .change-role");
+                userCards.forEach(card => {
+                    const userNameElement = card.querySelector("h3");
+                    if (userNameElement && userNameElement.textContent === receivedData.data.blocked_username) {
+                        card.remove();
+                    }
+                });
+                showMessage(receivedData.data.message);
+                let roomData = JSON.parse(sessionStorage.getItem('roomData')) || {};
+                roomData.current_participants = receivedData.data.current_participants;
+                sessionStorage.setItem('roomData', JSON.stringify(roomData));
+                displayValue();
+            }
+            break;
     }
 });
 
@@ -1501,8 +1682,10 @@ function updateRemovedUser(data, str) {
     if (data.username === userData.username) {
         if (str === "remove") {
             showMessage("You have been removed from the room");
-        } else {
+        } else if (str === "left") {
             showMessage("You have left the room");
+        } else {
+            showMessage("You has been blocked");
         }
         window.location.href = "./index.html";
         return;
@@ -1605,6 +1788,7 @@ closeModal.addEventListener("click", () => {
 });
 
 removeGuest.addEventListener("click", async () => {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
     try {
         const response = await fetch("http://127.0.0.1:8000/user/removeUser", {
             method: "POST",
@@ -1627,17 +1811,18 @@ removeGuest.addEventListener("click", async () => {
     }
 });
 
-document.addEventListener("click", (event) => {
-    if (event.target.classList.contains("openLeaveRoom")) {
+document.querySelectorAll(".openLeaveRoom").forEach((btn) => {
+    btn.addEventListener("click", () => {
         leaveRoom.classList.remove("hidden");
         leaveRoom.classList.add("flex");
         document.body.style.overflow = "hidden";
+
         if (userData.role === "Host") {
             modalText.textContent = "Do you want to Close this room?\nAll users will be removed from the room and all data will be lost.";
         } else {
             modalText.textContent = "Do you want to leave this room?";
         }
-    }
+    });
 });
 
 cancel.addEventListener("click", () => {
@@ -1646,28 +1831,46 @@ cancel.addEventListener("click", () => {
     document.body.style.overflow = "auto";
 });
 
-leave.addEventListener("click", async () => {
+async function removeUserFromRoom() {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
     try {
         const response = await fetch("http://127.0.0.1:8000/room/leaveRoom", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ code: roomData.code, username: userData.username, userId: userData.userId, role: userData.role }),
+            body: JSON.stringify({
+                code: roomData.code,
+                username: userData.username,
+                userId: userData.userId,
+                role: userData.role
+            }),
         });
+
         const result = await response.json();
-        leaveRoom.classList.remove("flex");
-        leaveRoom.classList.add("hidden");
-        document.body.style.overflow = "auto";
+
         if (response.ok) {
-            return
+            return;
         } else {
             console.error("Error removing user:", result.message);
+            return;
         }
     } catch (error) {
         console.error("Request failed:", error);
+        return false;
+    }
+}
+
+leave.addEventListener("click", async () => {
+    const success = await removeUserFromRoom();
+
+    if (success) {
+        leaveRoom.classList.remove("flex");
+        leaveRoom.classList.add("hidden");
+        document.body.style.overflow = "auto";
     }
 });
+
 
 async function approveUser(username, code) {
     await fetch("http://127.0.0.1:8000/room/approveUser", {
@@ -1686,6 +1889,7 @@ async function rejectUser(username, code) {
 }
 
 async function changeUsername(username) {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
     const requestData = {
         code: roomData.code,
         username: userData.username,
@@ -1735,6 +1939,7 @@ function updateUsername(data) {
 
 async function changeNoOfParticipants(newMaxParticipant) {
     try {
+        let userData = JSON.parse(sessionStorage.getItem('userData'));
         const response = await fetch("http://127.0.0.1:8000/room/changeNoOfParticipant", {
             method: "POST",
             headers: {
@@ -1768,6 +1973,7 @@ function updateParticipants(data) {
 }
 
 async function changeRoomTime(time) {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
     const requestData = {
         code: roomData.code,
         username: userData.username,
@@ -1814,6 +2020,7 @@ function updateEndTime(data) {
 }
 
 async function updateRoomRestriction(value) {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
     try {
         const response = await fetch('http://127.0.0.1:8000/room/changeRestriction', {
             method: 'POST',
@@ -1848,6 +2055,7 @@ function updateRestriction(data) {
 }
 
 async function closeRoom() {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
     const requestData = {
         code: roomData.code,
         username: userData.username,
@@ -1876,26 +2084,519 @@ async function closeRoom() {
 }
 
 async function uploadFile(file) {
+    
+    alert("upload file 1")
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
     const formData = new FormData();
     formData.append("room_code", roomData.code);
     formData.append("user_id", userData.userId);
     formData.append("username", userData.username);
     formData.append("file", file);
-
+    alert("upload file 2")
     try {
         const response = await fetch("http://127.0.0.1:8000/file/uploadFile", {
             method: "POST",
             body: formData
         });
 
-        const data = await response.json();
+       return
+    } catch (error) {
+        return;
+    }
+}
 
-        if (data.status==='success'||data.success) {
+async function increaseTextField(id) {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    try {
+        const response = await fetch("http://127.0.0.1:8000/text/increaseField", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text_id: id,
+                room_code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId,
+            })
+        });
+
+        const result = await response.json();
+        if (result.ok) {
             return;
-        } else {
-            console.error("Failed to upload file:", data);
         }
     } catch (error) {
-        console.error("Error uploading file:", error);
+        console.error("Error:", error);
+        return { success: false, message: "Something went wrong" };
+    }
+}
+
+function addNewTextFieldWithId(textFieldId) {
+    if (textFieldCount >= 5) {
+        document.getElementById("add-text").classList.add("hidden");
+        return;
+    }
+
+    textFieldCount++;
+
+    let textFieldNumber = textFieldId.split("-").pop();
+    const textContainer = document.getElementById("text-container");
+    const newTextField = document.createElement("div");
+
+    newTextField.className = "w-full rounded-lg border p-4 min-h-[380px] relative text-field";
+    newTextField.setAttribute("id", textFieldId);
+    newTextField.innerHTML = `
+            <div class="hidden remove-text">
+                <i class="fa-solid fa-times absolute top-3 left-3 text-red-600"></i>
+            </div>
+            <div class="share-text">
+                <i class="fa-solid fa-check absolute top-3 right-3 text-emerald-400"></i>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-3 mt-4 mb-3">
+               <input type="text" id="title-input-${textFieldNumber}" placeholder="Enter file name"
+                    class="text-name border p-3 rounded min-w-48 sm:w-auto flex-1 change-text bg-gray-800">
+                <div class="flex justify-start">
+                <select id="format-select-${textFieldNumber}" class="format-select w-36 select2 border p-2 rounded bg-gray-800">
+                        <option value="txt">TXT (.txt)</option>
+                        <option value="pdf">PDF (.pdf)</option>
+                        <option value="docx">Word (.docx)</option>
+                        <option value="md">Markdown (.md)</option>
+                        <option value="rtf">Rich Text (.rtf)</option>
+                        <option value="html">HTML (.html)</option>
+                        <option value="css">CSS (.css)</option>
+                        <option value="js">JavaScript (.js)</option>
+                        <option value="ts">TypeScript (.ts)</option>
+                        <option value="php">PHP (.php)</option>
+                        <option value="py">Python (.py)</option>
+                        <option value="java">Java (.java)</option>
+                        <option value="c">C (.c)</option>
+                        <option value="cpp">C++ (.cpp)</option>
+                        <option value="cs">C# (.cs)</option>
+                        <option value="sql">SQL (.sql)</option>
+                        <option value="json">JSON (.json)</option>
+                        <option value="xml">XML (.xml)</option>
+                        <option value="yaml">YAML (.yaml)</option>
+                        <option value="csv">CSV (.csv)</option>
+                        <option value="bat">Batch File (.bat)</option>
+                        <option value="sh">Shell Script (.sh)</option>
+                        <option value="swift">Swift (.swift)</option>
+                        <option value="kt">Kotlin (.kt)</option>
+                        <option value="rb">Ruby (.rb)</option>
+                        <option value="go">Go (.go)</option>
+                        <option value="rs">Rust (.rs)</option>
+                        <option value="dart">Dart (.dart)</option>
+                        <option value="lua">Lua (.lua)</option>
+                        <option value="perl">Perl (.pl)</option>
+                    </select>
+                    <button id="download-btn-${textFieldNumber}" class="text-emerald-500 hover:text-emerald-600 mx-3">
+                        <i class="fa-solid fa-download download text-lg sm:text-xl"></i>
+                    </button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <textarea id="text-box-${textFieldNumber}" rows="10" placeholder="Enter text here..."
+                        class="text-box w-full p-3 border rounded resize-none change-text bg-gray-800"></textarea>
+                </div>
+                <div class="flex justify-around sm:justify-center gap-1 sm:gap-2 mt-2">
+                    <button
+                        class="bg-emerald-600 border text-xs sm:text-sm text-white change-border px-3 sm:px-4 py-2 rounded-md flex items-center gap-1 sm:gap-2 copy-btn">
+                            <i class="fa-solid fa-copy"></i> Copy Text
+                      </button>
+                    <button
+                        class="bg-red-600 border text-xs sm:text-sm text-white change-border px-3 sm:px-4 py-2 rounded-md flex items-center gap-1 sm:gap-2 clear-btn">
+                            <i class="fa-solid fa-delete-left"></i> Clear Text
+                    </button>
+                </div>
+    `;
+
+    if (localStorage.getItem("roomMode") === "dark") {
+        darkMode();
+    } else {
+        lightMode();
+    }
+
+    textContainer.appendChild(newTextField);
+    updateRemoveIcons();
+
+    if (textFieldCount === 5) {
+        document.getElementById("add-text").classList.add("hidden");
+    }
+}
+
+async function decreaseField(id) {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    try {
+        const response = await fetch("http://127.0.0.1:8000/text/decreaseField", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text_id: id,
+                room_code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId,
+            })
+        });
+
+        const result = await response.json();
+        if (result.ok) {
+            return;
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        return { success: false, message: "Something went wrong" };
+    }
+}
+
+function removeTextFieldById(textFieldId) {
+    let textField = document.getElementById(textFieldId);
+    if (textField) {
+        textField.remove();
+        textFieldCount--;
+        updateRemoveIcons();
+        document.getElementById("add-text").classList.remove("hidden");
+    } else {
+        console.log("Text field not found:", textFieldId);
+    }
+}
+
+async function sendTextToBackend(id, text) {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    try {
+        const response = await fetch("http://127.0.0.1:8000/text/addText", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text_id: id,
+                text_content: text,
+                room_code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId
+            })
+        });
+
+        const result = await response.json();
+        if (result.ok) {
+            return;
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+function updateTextArea(id, text) {
+    let textField = document.getElementById(id);
+    if (!textField && id === "text-field-1") {
+        console.error("Text field not found!");
+        return;
+    }
+
+    let textFieldNumber = id.split("-").pop();
+    let textArea = document.getElementById(`text-box-${textFieldNumber}`);
+
+    if (textArea) {
+        textArea.value = text;
+    } else {
+        console.error("Text area not found!");
+    }
+}
+
+async function removeText(id) {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    try {
+        const response = await fetch("http://127.0.0.1:8000/text/removeText", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text_id: id,
+                room_code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId,
+            })
+        });
+
+        const result = await response.json();
+        if (result.ok) {
+            return;
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+async function getText() {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    try {
+        const response = await fetch("http://127.0.0.1:8000/text/getText", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                room_code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId
+            })
+        });
+
+        const data = await response.json();
+
+        if (data?.data) {
+            let n = data.data.textField;
+            if (typeof n === "number" && n > 0) {
+                for (let i = 2; i <= n; i++) {
+                    addNewTextFieldWithId(`text-field-${i}`);
+                }
+            }
+            if (data.data.texts?.length > 0) {
+                data.data.texts.forEach((item) => {
+                    updateTextArea(item.text_id, item.text_content);
+                });
+            }
+
+        }
+    } catch (error) {
+        console.error("Error fetching texts:", error);
+    }
+}
+
+const url = `http://127.0.0.1:5500/Frontend/html/index.html?room_code=${roomData.code}`;
+new QRCode(document.getElementById("qrcode"), {
+    text: url,
+    width: 200,
+    height: 200
+});
+
+document.querySelectorAll(".share-room").forEach((btn) => {
+    btn.addEventListener("click", () => {
+        document.getElementById("showURL").classList.remove("hidden");
+        document.getElementById("showURL").classList.add("flex");
+    });
+});
+
+document.getElementById("close-share-room").addEventListener("click", hideModal);
+
+function hideModal() {
+    document.getElementById("showURL").classList.remove("flex");
+    document.getElementById("showURL").classList.add("hidden");
+}
+
+document.getElementById("qrcode").addEventListener("click", copyURL);
+
+function copyURL() {
+    navigator.clipboard.writeText(url).then(() => {
+        showMessage("URL copied to clipboard!")
+    }).catch(err => {
+        showError("Failed to copy URL");
+    });
+}
+
+function enableUnloadWarning() {
+    window.addEventListener("beforeunload", function (event) {
+        event.preventDefault();
+        event.returnValue = '';
+
+        if (!sessionStorage.getItem("redirectHandled")) {
+            sessionStorage.setItem("redirectToIndex", "true");
+        }
+    });
+}
+
+document.addEventListener("click", enableUnloadWarning);
+document.addEventListener("keydown", enableUnloadWarning);
+
+window.addEventListener("DOMContentLoaded", function () {
+    if (sessionStorage.getItem("redirectToIndex") === "true" && sessionStorage.getItem("redirectHandled") !== "true") {
+        sessionStorage.setItem("redirectHandled", "true");
+
+        if (typeof userData !== "undefined" && userData.role === "Host") {
+            closeRoom();
+        } else {
+            removeUserFromRoom();
+        }
+
+        sessionStorage.removeItem("redirectToIndex");
+
+        setTimeout(() => {
+            window.location.href = "./index.html";
+        }, 100);
+    } else {
+        sessionStorage.removeItem("redirectHandled");
+    }
+
+    if (!sessionStorage.getItem("firstVisit")) {
+        sessionStorage.setItem("firstVisit", "true");
+        sessionStorage.removeItem("redirectToIndex");
+    }
+});
+
+async function blockUser() {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    try {
+        const response = await fetch("http://127.0.0.1:8000/room/blockUser", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId,
+                role: userData.role,
+                block: guestName
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            return;
+        } else {
+            console.error("Failed to block user:", data);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+blockGuest.addEventListener("click", () => {
+    blockUser();
+    modal.classList.remove("flex");
+    modal.classList.add("hidden");
+    document.body.style.overflow = "auto";
+});
+
+async function blockedUser() {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    try {
+        const response = await fetch("http://127.0.0.1:8000/room/blocked", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                room_code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId,
+                user_role: userData.role
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            return;
+        } else {
+            console.error("Failed to store blocked IP:", data);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+function handleReceivedFileUpload(data) {
+    let fileName = data.file_name;
+    let fileSize = data.file_size;
+    let fileUrl = data.file_url;
+    let fileId = data.file_id;
+
+    let availableSlots = maxFiles - filesArray.length;
+    let currentTotalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
+    let validFiles = [];
+
+    if (availableSlots <= 0) {
+        showMessage("File limit reached. Cannot add more files.");
+        return;
+    }
+
+    let isDuplicate = filesArray.some(file => file.name === fileName && file.size === fileSize);
+    let isAlreadyDisplayed = [...fileList.children].some(fileItem => {
+        let displayedName = fileItem.querySelector("span").textContent.trim();
+        let fileSizeElement = fileItem.querySelector("span[class*='text-'][class*='sm:text-sm']");
+
+        if (!fileSizeElement) return false;
+
+        let displayedSize = fileSizeElement.textContent.trim();
+        return displayedName === fileName && displayedSize === formatSize(fileSize);
+    });
+
+    if (isDuplicate || isAlreadyDisplayed) {
+        showMessage(`"${fileName}" is already added.`);
+    } else if (currentTotalSize + fileSize > maxTotalSize) {
+        showMessage(`Adding "${fileName}" exceeds the 500MB total size limit.`);
+    } else {
+        let newFile = { name: fileName, size: fileSize, url: fileUrl, uploadTime: Date.now() };
+        validFiles.push(newFile);
+        currentTotalSize += fileSize;
+    }
+
+    if (validFiles.length > 0) {
+        filesArray.push(...validFiles);
+        updateFileDisplay(data);
+    }
+}
+
+async function getFile() {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/file/getFile`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                room_code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (Array.isArray(data.data.files) && data.data.files.length > 0) {
+            data.data.files.forEach((item) => {
+                handleReceivedFileUpload(item);
+            });
+        }
+    } catch (error) {
+        console.error("Error fetching file:", error);
+        return null;
+    }
+}
+
+async function deleteFile(fileId) {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/file/deleteFile`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                room_code: roomData.code,
+                username: userData.username,
+                user_id: userData.userId,
+                file_id: fileId
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+    } catch (error) {
+        console.error("Error fetching file:", error);
+        return null;
     }
 }

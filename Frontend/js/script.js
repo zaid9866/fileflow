@@ -71,6 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     sessionStorage.removeItem('roomData');
     sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('firstVisit');
+    sessionStorage.removeItem('redirectToIndex');
 });
 
 moon.forEach((element) => {
@@ -118,6 +120,8 @@ function lightMode() {
         work.classList.add("bg-gray-200");
         about.classList.remove("bg-stone-950");
         about.classList.add("bg-gray-200");
+        document.querySelector("footer").classList.remove("bg-black");
+        document.querySelector("footer").classList.add("bg-gray-400");
         change.forEach((element) => {
             element.classList.remove("bg-zinc-900");
             element.classList.add("bg-gray-200");
@@ -202,6 +206,8 @@ function darkMode() {
         work.classList.add("bg-stone-950");
         about.classList.remove("bg-gray-200");
         about.classList.add("bg-stone-950");
+        document.querySelector("footer").classList.remove("bg-gray-400");
+        document.querySelector("footer").classList.add("bg-black");
         change.forEach((element) => {
             element.classList.remove("bg-gray-200");
             element.classList.add("bg-zinc-900");
@@ -597,7 +603,7 @@ function startSocket(username, roomCode) {
                 alert(recievedData.data.message);
                 socket.close();
                 break;
-            }
+        }
     };
 }
 async function handleRestrictedRoom(username, roomCode) {
@@ -653,15 +659,15 @@ async function createUser(username, code) {
         if (data.data) {
             sessionStorage.setItem('userData', JSON.stringify(data.data));
             function checkRoomData() {
-                const roomData = sessionStorage.getItem('roomData'); 
+                const roomData = sessionStorage.getItem('roomData');
                 if (roomData) {
-                    window.location.href = './room.html'; 
+                    window.location.href = './room.html';
                 } else {
                     setTimeout(checkRoomData, 500);
                 }
             }
-            checkRoomData(); 
-        }        
+            checkRoomData();
+        }
         if (!response.ok) {
             throw new Error(data.detail || "Failed to create user");
         }
@@ -671,9 +677,14 @@ async function createUser(username, code) {
     }
 }
 
-document.getElementById("codeInput").addEventListener("input", async function () {
-    let inputValue = this.value.trim();
+document.getElementById("codeInput").addEventListener("input", function () {
+    joinRoom(this.value);
+});
+
+async function joinRoom(code) {
+    let inputValue = code.trim();
     handleCode.setRoomCode(inputValue);
+    
     if (inputValue.length === 6) {
         try {
             let response = await fetch("http://127.0.0.1:8000/room/joinRoom", {
@@ -683,12 +694,15 @@ document.getElementById("codeInput").addEventListener("input", async function ()
             });
 
             let data = await response.json();
+            
             if (data.detail) {
                 alert(data.detail);
             }
+
             if (data.data && data.data.code) {
                 await fetchUsername(data.data.code);
             }
+
             if (data.message) {
                 if (data.message === "Joined room successfully") {
                     saveRoomData(data);
@@ -697,9 +711,26 @@ document.getElementById("codeInput").addEventListener("input", async function ()
                     roomDetail = "restricted";
                 }
             }
+
             handleCode.setRoomRole("Guest");
+
         } catch (error) {
             console.error("Error:", error);
         }
     }
-});
+}
+
+function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
+
+const URLRoomCode = getQueryParam("room_code");
+
+if (URLRoomCode) {
+    document.getElementById("toggleCodeInput").classList.add("hidden");
+    document.getElementById("codeInput").classList.remove("hidden");
+    const codeInput = document.getElementById("codeInput");
+    codeInput.value = URLRoomCode;
+    joinRoom(URLRoomCode);
+}

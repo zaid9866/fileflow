@@ -4,16 +4,20 @@ import requests
 import json
 import asyncio
 pending_requests = {}  
+from fastapi import Request
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from models.room import Room
 from models.user import User
 from models.chat import Chat
 from models.file import File
+from models.text import TextModel
 from utils.ApiResponse import APIResponse  
 from utils.ApiError import APIError  
 from utils.GenerateEncryptionKey import generate_encryption_key
 from middlewares.additonalProtection import AdditionalEncryption
+from middlewares.encryption import EncryptionMiddleware
+from middlewares.decryption import DecryptionMiddleware
 from controllers.broadcast_controller import websocket_manager
 
 def generate_random_code(length=6):
@@ -110,24 +114,34 @@ def create_room(db: Session, data: dict):
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
 
-
-def join_room(code: str, db: Session):
+def join_room(code: str, db: Session, request: Request):
     try:
+        client_ip = request.client.host  
         room = db.query(Room).filter(Room.code == code).first()
         
         if not room:
             raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        encryption_key = AdditionalEncryption.decrypt_key(room.encryption_key)
+
+        blocked_ips = json.loads(room.blocked) if room.blocked else []
+
+        decrypted_blocked_ips = [
+            DecryptionMiddleware.decrypt(ip, encryption_key)["ip_address"]
+            for ip in blocked_ips
+        ]
+
+        if client_ip in decrypted_blocked_ips:
+            raise APIError(status_code=403, detail="You are blocked from this room.")
 
         if room.current_participant >= room.max_participant:
             raise APIError(status_code=403, detail="Room is full.")
 
         if room.restrict:
             return APIResponse.success(
-            message="Room is Restricted wait for Host Approval",
-            data={
-                "code": room.code
-            }
-        )
+                message="Room is Restricted, wait for Host Approval",
+                data={"code": room.code}
+            )
 
         room.current_participant += 1
         db.commit()
@@ -149,7 +163,7 @@ def join_room(code: str, db: Session):
 
     except Exception as e:
         print("Unexpected Error:", str(e))
-        raise APIError(status_code=500, detail="Internal Server Error. Please try again later.") 
+        raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
 
 async def leave_room(request, db: Session):
     try:
@@ -177,7 +191,8 @@ async def leave_room(request, db: Session):
             db.query(Chat).filter(Chat.code == request.code).delete()
             db.query(File).filter(File.code == request.code).delete()
             db.query(User).filter(User.code == request.code).delete()
-            db.delete(room)
+            db.query(TextModel).filter(TextModel.code == request.code).delete()
+            db.query(Room).filter(Room.code == request.code).delete()
             db.commit()
             response = {
                 "room": request.code,
@@ -216,12 +231,25 @@ async def leave_room(request, db: Session):
         db.rollback()
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
 
-async def join_restrict_room(code: str, db: Session, username: str):
+async def join_restrict_room(code: str, db: Session, username: str, request: Request):
     try:
+        client_ip = request.client.host  
         room = db.query(Room).filter(Room.code == code).first()
 
         if not room:
             raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        encryption_key = AdditionalEncryption.decrypt_key(room.encryption_key)
+
+        blocked_ips = json.loads(room.blocked) if room.blocked else []
+
+        decrypted_blocked_ips = [
+            DecryptionMiddleware.decrypt(ip, encryption_key)["ip_address"]
+            for ip in blocked_ips
+        ]
+
+        if client_ip in decrypted_blocked_ips:
+            raise APIError(status_code=403, detail="You are blocked from this room.")
 
         if room.current_participant >= room.max_participant:
             raise APIError(status_code=403, detail="Room is full.")
@@ -269,7 +297,6 @@ async def join_restrict_room(code: str, db: Session, username: str):
     except Exception as e:
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error. Please try again later.")
-
 
 async def wait_for_host_approval(code: str, username: str):
     while username in pending_requests.get(code, []):
@@ -459,47 +486,6 @@ async def update_room_time(code: str, db: Session, username: str, user_id: str, 
         print("Unexpected Error:", str(e))
         raise APIError(status_code=500, detail="Internal Server Error.")
 
-async def update_room_time(code: str, db: Session, username: str, user_id: str, new_restrict: bool):
-    try:
-        room = db.query(Room).filter(Room.code == code).first()
-        if not room:
-            raise APIError(status_code=404, detail="Room doesn't exist.")
-
-        user = db.query(User).filter(User.username == username).first()
-        if not user:
-            raise APIError(status_code=404, detail="User not found.")
-
-        if user.user_id != user_id:
-            raise APIError(status_code=403, detail="User ID mismatch.")
-
-        if user.role != "Host":
-            raise APIError(status_code=403, detail="User is not authorized as Host.")
-
-        if not isinstance(new_restrict, bool):
-            raise APIError(status_code=400, detail="Invalid 'restrict' value. It should be a boolean.")
-
-        room.restrict = new_restrict
-        db.commit()
-        db.refresh(room)
-
-        response = {
-            "room": code,
-            "type": "changeRestriction",
-            "data": {
-                "restrict": room.restrict
-            }
-        }
-
-        if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
-            await websocket_manager.broadcast(code, json.dumps(response))
-
-        return APIResponse.success(message="Room restriction updated successfully.")
-    except APIError as e:
-        raise e
-    except Exception as e:
-        print("Unexpected Error:", str(e))
-        raise APIError(status_code=500, detail="Internal Server Error.")
-
 async def close_room(code: str, db: Session, username: str, user_id: str):
     try:
         room = db.query(Room).filter(Room.code == code).first()
@@ -515,6 +501,7 @@ async def close_room(code: str, db: Session, username: str, user_id: str):
         db.query(User).filter(User.code == code).delete()
         db.query(Chat).filter(Chat.code == code).delete()
         db.query(File).filter(File.code == code).delete()
+        db.query(TextModel).filter(TextModel.code == code).delete()
         db.query(Room).filter(Room.code == code).delete()
         db.commit()
         response = {
@@ -528,6 +515,136 @@ async def close_room(code: str, db: Session, username: str, user_id: str):
             await websocket_manager.broadcast(code, json.dumps(response))
         return APIResponse.success(message="Room closed successfully and all associated data removed.")
 
+    except APIError as e:
+        raise e
+    except Exception as e:
+        print("Unexpected Error:", str(e))
+        raise APIError(status_code=500, detail="Internal Server Error.")
+
+async def block_user(
+    db, 
+    code: str, 
+    username: str, 
+    user_id: str, 
+    role: str, 
+    block: str
+):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room not found.")
+
+        user = db.query(User).filter(
+            User.user_id == user_id,
+            User.username == username,
+            User.role == role,
+            User.code == code
+        ).first()
+
+        if not user:
+            raise APIError(status_code=404, detail="User not found or incorrect credentials.")
+
+        response = {
+            "room": code,
+            "type": "block",
+            "data": {
+                "blocked_username": block,
+                "current_participants": room.current_participant,
+                "message": f"{block} has been blocked."
+            }
+        }
+
+        try:
+            if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+                await websocket_manager.broadcast(code, json.dumps(response))
+        except Exception as e:
+            print(f"WebSocket Error: {e}")
+
+        return APIResponse.success(message=f"User {block} blocked successfully.")
+
+    except APIError as e:
+        return APIResponse.error(status_code=e.status_code, message=e.detail)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return APIResponse.error(status_code=500, message="Internal Server Error. Please try again later.")
+
+async def store_blocked_ip(
+    db: Session,
+    room_code: str,
+    username: str,
+    user_id: str,
+    user_role: str,
+    request: Request
+):
+    try:
+        room = db.query(Room).filter(Room.code == room_code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room not found.")
+
+        user = db.query(User).filter(
+            User.user_id == user_id,
+            User.username == username,
+            User.role == user_role,
+            User.code == room_code
+        ).first()
+        if not user:
+            raise APIError(status_code=404, detail="User not found or incorrect credentials.")
+
+        ip_address = request.client.host
+
+        encryption_key = AdditionalEncryption.decrypt_key(room.encryption_key)
+
+        encrypted_ip = EncryptionMiddleware.encrypt({"ip_address": ip_address}, encryption_key)
+
+        blocked_ips = json.loads(room.blocked) if room.blocked else []
+        blocked_ips.append(encrypted_ip)
+
+        room.blocked = json.dumps(blocked_ips)
+        db.commit()
+
+        return APIResponse.success(message="Blocked IP stored successfully.")
+
+    except APIError as e:
+        db.rollback()
+        return APIResponse.error(status_code=e.status_code, message=e.detail)
+
+    except Exception:
+        db.rollback()
+        return APIResponse.error(status_code=500, message="Internal Server Error. Please try again later.")
+
+async def update_room_restriction(code: str, db: Session, username: str, user_id: str, new_restrict: bool):
+    try:
+        room = db.query(Room).filter(Room.code == code).first()
+        if not room:
+            raise APIError(status_code=404, detail="Room doesn't exist.")
+
+        user = db.query(User).filter(User.username == username).first()
+        if not user:
+            raise APIError(status_code=404, detail="User not found.")
+
+        if user.user_id != user_id:
+            raise APIError(status_code=403, detail="User ID mismatch.")
+
+        if user.role != "Host":
+            raise APIError(status_code=403, detail="User is not authorized as Host.")
+
+        room.restrict = bool(new_restrict)
+        db.commit()
+        db.refresh(room)
+
+        response = {
+            "room": code,
+            "type": "changeRestriction",
+            "data": {
+                "restrict": room.restrict
+            }
+        }
+
+        if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+            await websocket_manager.broadcast(code, json.dumps(response))
+
+        return APIResponse.success(message="Room restriction updated successfully.")
     except APIError as e:
         raise e
     except Exception as e:

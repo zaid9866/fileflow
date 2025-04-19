@@ -10,9 +10,9 @@ from routes.user_route import user_router
 from routes.room_route import room_router
 from routes.chat_route import chat_router
 from routes.file_route import file_router
+from routes.text_route import text_router
 
 app = FastAPI()
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,6 +31,7 @@ app.include_router(room_router, prefix="/room", tags=["Room"])
 app.include_router(user_router, prefix="/user", tags=["User"])
 app.include_router(chat_router, prefix="/chat", tags=["Chat"])
 app.include_router(file_router, prefix="/file", tags=["File"])
+app.include_router(text_router, prefix="/text", tags=["TextModel"])
 app.include_router(websocket_router)
 
 @app.get("/")

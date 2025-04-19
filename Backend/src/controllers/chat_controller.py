@@ -5,18 +5,18 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from models.chat import Chat
 from models.room import Room
-from models.user import User  
+from models.user import User
 from middlewares.additonalProtection import AdditionalEncryption
 from middlewares.encryption import EncryptionMiddleware
 from middlewares.decryption import DecryptionMiddleware
 
 class ChatResponse(BaseModel):
     success: bool = True
+    chat_id: str
     code: str
     sender: str
     message: str
     timing: str
-    chat_id: str
 
 class ErrorResponse(BaseModel):
     error: str
@@ -25,8 +25,8 @@ def get_chat(code: str, db: Session):
     try:
         room = db.query(Room).filter(Room.code == code).first()
         if not room:
-            return [] 
-        
+            return []
+
         decrypted_key = AdditionalEncryption.decrypt_key(room.encryption_key)
         chats = db.query(Chat).filter(Chat.code == code).all()
 
@@ -43,16 +43,16 @@ def get_chat(code: str, db: Session):
 
             chat_list.append({
                 "code": code,
-                "sender": decrypted_chat.get("sender", ""),  
-                "message": decrypted_chat.get("message", ""),  
+                "sender": decrypted_chat.get("sender", ""),
+                "message": decrypted_chat.get("message", ""),
                 "timing": decrypted_chat.get("timing", "")
             })
 
-        return chat_list 
+        return chat_list
 
     except Exception as e:
-        print(f"Error fetching chat: {e}") 
-        return []  
+        print(f"Error fetching chat: {e}")
+        return []
 
 async def add_chat(chat_data: dict, db: Session):
     try:
@@ -62,7 +62,7 @@ async def add_chat(chat_data: dict, db: Session):
 
         user = db.query(User).filter(
             User.code == chat_data["code"],
-            User.username.ilike(chat_data["sender"])  
+            User.username.ilike(chat_data["sender"])
         ).first()
 
         if not user:
@@ -92,19 +92,20 @@ async def add_chat(chat_data: dict, db: Session):
         db.refresh(new_chat)
 
         chat_message = {
-            "room": new_chat.code,  
-            "type": "chat",  
-            "data": {  
-                "sender": chat_data["sender"],  
-                "message": chat_data["message"], 
-                "timing": chat_data["timing"] 
+            "room": new_chat.code,
+            "type": "chat",
+            "data": {
+                "sender": chat_data["sender"],
+                "message": chat_data["message"],
+                "timing": chat_data["timing"]
             }
         }
-        
+
         if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
             await websocket_manager.broadcast(new_chat.code, json.dumps(chat_message))
 
         return ChatResponse(
+            chat_id=new_chat.chat_id,
             code=new_chat.code,
             sender=new_chat.sender,
             message=new_chat.message,

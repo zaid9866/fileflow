@@ -20,12 +20,6 @@ def upload_file(file_path, public_id=None):
     except Exception:
         return None, None
 
-def retrieve_file(public_id):
-    try:
-        return cloudinary.utils.cloudinary_url(public_id, secure=True)[0]  
-    except Exception:
-        return None
-
 def delete_file(public_id):
     try:
         cloudinary.uploader.destroy(public_id)

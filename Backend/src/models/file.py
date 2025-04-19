@@ -1,5 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, ForeignKey, Integer
 from base import Base 
 
 class File(Base):
@@ -10,7 +9,7 @@ class File(Base):
     url = Column(String, nullable=True) 
     shared_by = Column(String, ForeignKey("users.user_id"), nullable=False)  
     status = Column(String, default="PENDING")  
-
-    room = relationship("Room", back_populates="files")  
+    file_name = Column(String, nullable=False)  
+    file_size = Column(String, nullable=False) 
 
 __all__ = ["File"]

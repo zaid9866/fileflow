@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from db.connection import get_db
 from pydantic import BaseModel
@@ -48,6 +48,19 @@ class ClosingRoom(BaseModel):
     username: str
     user_id: str
 
+class BlockUserRequest(BaseModel):
+    code: str
+    username: str
+    user_id: str
+    role: str
+    block: str
+
+class StoreBlockedIPRequest(BaseModel):
+    room_code: str
+    username: str
+    user_id: str
+    user_role: str
+
 @room_router.get("/getCode")
 def get_room_code(db: Session = Depends(get_db)):
     return room_controller.get_room_code(db)
@@ -61,12 +74,12 @@ def create_room(data: dict, db: Session = Depends(get_db)):
     return room_controller.create_room(db, data)
 
 @room_router.post("/joinRoom")
-def join_room(request: RoomCodeRequest, db: Session = Depends(get_db)):
-    return room_controller.join_room(request.code, db)
+def join_room(request: RoomCodeRequest, req: Request, db: Session = Depends(get_db)):
+    return room_controller.join_room(request.code, db, req)
 
 @room_router.post("/restricted")
-async def join_restrict_room(request: RestrictRoomRequest, db: Session = Depends(get_db)):
-    return await room_controller.join_restrict_room(request.code, db, request.username)
+async def join_restrict_room(request: RestrictRoomRequest, req: Request, db: Session = Depends(get_db)):
+    return await room_controller.join_restrict_room(request.code, db, request.username, req)
 
 @room_router.post("/approveUser")
 async def approve_user_route(request: HostResponse, db: Session = Depends(get_db)):
@@ -113,8 +126,8 @@ async def change_room_time(request: ChangeTimeRequest, db: Session = Depends(get
     )
 
 @room_router.post("/changeRestriction")
-async def change_room_time(request: ChangeRestriction, db: Session = Depends(get_db)):
-    return await room_controller.update_room_time(
+async def change_restriction(request: ChangeRestriction, db: Session = Depends(get_db)):
+    return await room_controller.update_room_restriction(
         request.code,
         db,
         request.username,
@@ -129,4 +142,30 @@ async def close_room(request: ClosingRoom, db: Session = Depends(get_db)):
         db,
         request.username,
         request.user_id
+    )
+
+@room_router.post("/blockUser")
+async def block_user_route(request: BlockUserRequest, db: Session = Depends(get_db)):
+    return await room_controller.block_user(
+        db, 
+        request.code, 
+        request.username, 
+        request.user_id, 
+        request.role, 
+        request.block
+    )
+
+@room_router.post("/blocked")
+async def store_blocked_ip_route(
+    request: StoreBlockedIPRequest, 
+    req: Request,  
+    db: Session = Depends(get_db)
+):
+    return await room_controller.store_blocked_ip(
+        db, 
+        request.room_code, 
+        request.username, 
+        request.user_id, 
+        request.user_role, 
+        req  
     )
