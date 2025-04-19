@@ -4,6 +4,7 @@ from googleapiclient.http import MediaFileUpload
 import os
 from utils.ApiError import APIError
 from dotenv import load_dotenv
+from starlette.concurrency import run_in_threadpool
 
 load_dotenv()
 
@@ -33,7 +34,7 @@ def set_file_public(drive_service, file_id):
     except Exception as e:
         raise APIError(status_code=500, detail=f"Failed to set file permissions: {str(e)}")
 
-async def upload_to_drive(file_path: str, mime_type: str):
+def _upload_to_drive_sync(file_path: str, mime_type: str):
     try:
         drive_service = get_drive_service()
 
@@ -41,31 +42,33 @@ async def upload_to_drive(file_path: str, mime_type: str):
             "name": os.path.basename(file_path),
             "parents": [FOLDER_ID]
         }
-        print("inside upload")
 
         media = MediaFileUpload(file_path, mimetype=mime_type)
-        print("Drive upload started")
+
         uploaded_file = drive_service.files().create(
             body=file_metadata,
             media_body=media,
             fields="id"
         ).execute()
 
-        print("end drive upload")
-
         file_id = uploaded_file.get("id")
-
         set_file_public(drive_service, file_id)
 
-        return file_id  
+        return file_id
 
     except Exception as e:
         raise APIError(status_code=500, detail=f"Google Drive upload failed: {str(e)}")
 
+async def upload_to_drive(file_path: str, mime_type: str):
+    return await run_in_threadpool(_upload_to_drive_sync, file_path, mime_type)
+
 def delete_file_from_drive(file_id: str):
     try:
+        if "_" in file_id:
+            file_id = file_id.split("_", 1)[1]  
         drive_service = get_drive_service()
         drive_service.files().delete(fileId=file_id).execute()
         return True
     except Exception as e:
         raise APIError(status_code=500, detail=f"Failed to delete file from Google Drive: {str(e)}")
+

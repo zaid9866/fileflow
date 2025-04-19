@@ -764,10 +764,8 @@ async function updateFileDisplay() {
 function removeFile(event, index) {
     const fileName = event.currentTarget.id
     if (confirm("Are you sure you want to delete this file?")) {
-        let fileId = roomData.code + `_${fileName}`;
+        let fileId = fileName;
         deleteFile(fileId);
-        filesArray.splice(index, 1);
-        updateFileDisplay();
     }
 }
 
@@ -871,13 +869,13 @@ function processFiles(files) {
 fileInput.addEventListener("change", (e) => {
     e.preventDefault();
     alert("File 1")
-    handleFileUpload(fileInput,e);
+    handleFileUpload(fileInput, e);
     return false;
 });
 moreFileInput.addEventListener("change", (e) => {
     e.preventDefault();
     alert("File  2")
-    handleFileUpload(moreFileInput,e);
+    handleFileUpload(moreFileInput, e);
     return false;
 });
 dropzone.addEventListener("click", (e) => {
@@ -1639,6 +1637,22 @@ socket.addEventListener("message", (event) => {
         case "changeRestriction":
             updateRestriction(receivedData.data);
             break;
+        case "file_deleted":
+            if (receivedData.data.deleted_by!==userData.username) {
+                const deletedFileName = receivedData.data.file_name;
+                filesArray = filesArray.filter(file => file.name !== deletedFileName);
+                const allFileDivs = document.querySelectorAll("[data-file-name]");
+                allFileDivs.forEach(div => {
+                    if (div.dataset.fileName === deletedFileName) {
+                        div.remove();
+                    }
+                });
+                showMessage(`${receivedData.data.deleted_by} has deleted ${receivedData.data.file_name}`);
+                updateFileDisplay();
+            }else{
+                showMessage(`You deleted ${receivedData.data.file_name}`);
+            }
+            break;
         case "closeRoom":
             showMessage("The room time has expired. Closing the room now.")
             setTimeout(window.location.href = "./index.html", 5000)
@@ -2084,7 +2098,7 @@ async function closeRoom() {
 }
 
 async function uploadFile(file) {
-    
+
     alert("upload file 1")
     let userData = JSON.parse(sessionStorage.getItem('userData'));
     const formData = new FormData();
@@ -2099,7 +2113,7 @@ async function uploadFile(file) {
             body: formData
         });
 
-       return
+        return
     } catch (error) {
         return;
     }
@@ -2572,7 +2586,7 @@ async function getFile() {
     }
 }
 
-async function deleteFile(fileId) {
+async function deleteFile(fileName) {
     let userData = JSON.parse(sessionStorage.getItem('userData'));
     try {
         const response = await fetch(`http://127.0.0.1:8000/file/deleteFile`, {
@@ -2584,7 +2598,7 @@ async function deleteFile(fileId) {
                 room_code: roomData.code,
                 username: userData.username,
                 user_id: userData.userId,
-                file_id: fileId
+                file_name: fileName
             }),
         });
 
@@ -2593,7 +2607,18 @@ async function deleteFile(fileId) {
         }
 
         const data = await response.json();
-        console.log(data);
+
+        if (data.message && data.data && data.data[0]) {
+            const deletedFileName = data.data[0];
+            filesArray = filesArray.filter(file => file.name !== deletedFileName);
+            const allFileDivs = document.querySelectorAll("[data-file-name]");
+            allFileDivs.forEach(div => {
+                if (div.dataset.fileName === deletedFileName) {
+                    div.remove();
+                }
+            });
+            updateFileDisplay();
+        }
 
     } catch (error) {
         console.error("Error fetching file:", error);

@@ -7,13 +7,14 @@ from models.room import Room
 from models.user import User
 from utils.ApiError import APIError
 from utils.ApiResponse import APIResponse
-from utils.cloudinary import upload_file, delete_file
+from utils.cloudinary import upload_file, delete_file as delete_file_from_cloudinary
 from cloudinary.exceptions import Error as CloudinaryError
 from controllers.broadcast_controller import websocket_manager
 from middlewares.additonalProtection import AdditionalEncryption
 from middlewares.encryption import EncryptionMiddleware
 from middlewares.decryption import DecryptionMiddleware
-from utils.serviceDrive import upload_to_drive 
+from utils.serviceDrive import upload_to_drive, delete_file_from_drive
+from starlette.concurrency import run_in_threadpool
 
 FILE_SIZE_LIMITS = {
     "image": 10 * 1024 * 1024,
@@ -61,14 +62,16 @@ async def upload_to_cloudinary(db: Session, room_code: str, user_id: str, file: 
     try:
         file.file.seek(0)
         cloudinary_url, cloudinary_id = upload_file(file.file, public_id=f"{room_code}_{file.filename}")
-        
         if not cloudinary_id:
             raise CloudinaryError("Cloudinary upload failed")
-        
         return await save_file(db, room_code, user_id, cloudinary_url, cloudinary_id, encryption_key, file_size, file_name)
-    
     except CloudinaryError:
         return await upload_to_google_drive(db, room_code, user_id, file, encryption_key, file_size, file_name)
+
+def write_file(file, temp_file_path):
+    file.file.seek(0)
+    with open(temp_file_path, "wb") as f:
+        f.write(file.file.read())
 
 async def upload_to_google_drive(db: Session, room_code: str, user_id: str, file: UploadFile, encryption_key, file_size, file_name):
     print("1")
@@ -76,27 +79,23 @@ async def upload_to_google_drive(db: Session, room_code: str, user_id: str, file
     os.makedirs(temp_folder, exist_ok=True)
     temp_file_path = os.path.join(temp_folder, file.filename)
     print(2)
-    with open(temp_file_path, "wb") as f:
-        print("read start")
-        f.write(file.file.read())
-        print("Read end")
+
+    await run_in_threadpool(write_file, file, temp_file_path)
+    print("Read end")
 
     try:
         print("upload start")
-        google_drive_file_id = upload_to_drive(temp_file_path, file.content_type)
+        google_drive_file_id = await upload_to_drive(temp_file_path, file.content_type)
         if not google_drive_file_id:
             raise Exception("Google Drive upload failed - no file ID returned.")
         print(f"Upload successful: {google_drive_file_id}")
 
         file_url = f"https://drive.google.com/uc?id={google_drive_file_id}&export=download"
         file_id = f"{room_code}_{google_drive_file_id}"
-        
         return await save_file(db, room_code, user_id, file_url, file_id, encryption_key, file_size, file_name)
     except Exception as e:
         print(f"Upload exception: {str(e)}")
         raise APIError(status_code=500, detail=f"Google Drive upload failed: {str(e)}")
-
-    
     finally:
         os.remove(temp_file_path)
 
@@ -188,7 +187,7 @@ async def get_file(db: Session, room_code: str, username: str, user_id: str):
 
     return APIResponse.success(message="Files fetched successfully.", data={"files": file_data})
 
-async def delete_file(db: Session, room_code: str, user_id: str, username: str, file_id: str):
+async def delete_file(db: Session, room_code: str, user_id: str, username: str, file_name: str):
     room = db.query(Room).filter(Room.code == room_code).first()
     if not room:
         raise APIError(status_code=404, detail="Room not found.")
@@ -205,12 +204,15 @@ async def delete_file(db: Session, room_code: str, user_id: str, username: str, 
     files = db.query(File).filter(File.code == room_code).all()
 
     target_file = None
+    decrypted_file_id = None
+
     for f in files:
+        original_file_name = f.file_name
         try:
             decrypted = DecryptionMiddleware.decrypt({
-                "file_id": f.content_id
+                "file_name": original_file_name
             }, encryption_key)
-            if decrypted.get("file_id") == file_id:
+            if decrypted.get("file_name") == file_name:
                 target_file = f
                 break
         except Exception:
@@ -220,11 +222,31 @@ async def delete_file(db: Session, room_code: str, user_id: str, username: str, 
         raise APIError(status_code=404, detail="File not found.")
 
     try:
-        delete_file(file_id)
+        decrypted_content = DecryptionMiddleware.decrypt({
+            "file_id": target_file.content_id
+        }, encryption_key)
+        decrypted_file_id = decrypted_content.get("file_id")
+    except Exception as e:
+        raise APIError(status_code=500, detail=f"Failed to decrypt file_id: {e}")
+
+    try:
+        delete_file_from_cloudinary(decrypted_file_id)
+        delete_file_from_drive(decrypted_file_id)
     except Exception:
-        pass  
+        pass
 
     db.delete(target_file)
     db.commit()
 
-    return APIResponse.success(message="File deleted successfully.")
+    response = {
+        "type": "file_deleted",
+        "data": {
+            "deleted_by": username,
+            "file_name": file_name  
+        }
+    }
+
+    if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
+        await websocket_manager.broadcast(room_code, json.dumps(response))
+
+    return APIResponse.success(data=[file_name], message="File deleted successfully.")

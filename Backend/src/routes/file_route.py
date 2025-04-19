@@ -15,7 +15,7 @@ class DeleteRequest(BaseModel):
     room_code: str
     username: str
     user_id: str
-    file_id: str
+    file_name: str
 
 @file_router.post("/uploadFile")
 async def upload_file_route(
@@ -33,14 +33,4 @@ async def get_file_route(request: FileRequest, db: Session = Depends(get_db)):
     
 @file_router.post("/deleteFile")
 async def delete_file_route(request: DeleteRequest, db: Session = Depends(get_db)):
-    return await delete_file(db, request.room_code, request.user_id, request.username, request.file_id)
-
-# @file_router.post("/deleteAllFile")
-# async def delete_all_file_route(
-#     db: Session = Depends(get_db),
-#     room_code: str = Form(...),
-#     user_id: str = Form(...),
-#     username: str = Form(...),
-#     file_id: str = Form(...)
-# ):
-#     return await delete_all_file(db, room_code, username, user_id, file_id)
+    return await delete_file(db, request.room_code, request.user_id, request.username, request.file_name)
