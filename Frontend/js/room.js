@@ -83,8 +83,8 @@ function disableUnloadWarning() {
     }
 }
 
-// document.addEventListener("click", enableUnloadWarning);
-// document.addEventListener("keydown", enableUnloadWarning);
+document.addEventListener("click", enableUnloadWarning);
+document.addEventListener("keydown", enableUnloadWarning);
 
 window.addEventListener("DOMContentLoaded", function () {
     if (sessionStorage.getItem("redirectToIndex") === "true" && sessionStorage.getItem("redirectHandled") !== "true") {
@@ -95,9 +95,10 @@ window.addEventListener("DOMContentLoaded", function () {
             removeUserFromRoom();
         }
         sessionStorage.removeItem("redirectToIndex");
+        showMessage("Redirecting to Home page")
         setTimeout(() => {
             window.location.href = "./index.html";
-        }, 1000);
+        }, 500);
     } else {
         sessionStorage.removeItem("redirectHandled");
     }
@@ -673,7 +674,7 @@ function startCountdown(hours, minutes, seconds) {
     function updateTime() {
         if (remainingSeconds <= 0) {
             document.getElementById("time-remaining").innerText = "00:00:00";
-            showMessage("The room is closing now.");
+            showMessage("The Room is closing now.");
             closeRoom();
             clearInterval(countdownInterval);
             return;
@@ -761,6 +762,7 @@ function formatSize(size) {
 }
 
 async function updateFileDisplay() {
+    fileList.innerHTML = "";
     let totalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
     filesArray.forEach((file, index) => {
         if (![...fileList.children].some(el => el.dataset.fileName === file.name)) {
@@ -781,7 +783,7 @@ async function updateFileDisplay() {
                         <button class="text-emerald-500 hover:text-emerald-600 text-sm sm:text-base" onclick="downloadFile(${index})">
                             <i class="fa-solid fa-download"></i>
                         </button>
-                        <button onclick="removeFile(event, ${index})" id="${file.name}" class="text-red-500 hover:text-red-600 text-sm sm:text-base">
+                        <button onclick="removeFile(event)" id="${file.name}" class="text-red-500 hover:text-red-600 text-sm sm:text-base">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -810,7 +812,7 @@ async function updateFileDisplay() {
     }
 }
 
-function removeFile(event, index) {
+function removeFile(event) {
     const fileName = event.currentTarget.id
     if (confirm("Are you sure you want to delete this file?")) {
         let fileId = fileName;
@@ -966,14 +968,23 @@ async function uploadFile(file) {
     formData.append("user_id", userData.userId);
     formData.append("username", userData.username);
     formData.append("file", file);
+
     try {
         const response = await fetch("http://127.0.0.1:8000/file/uploadFile", {
             method: "POST",
             body: formData
         });
-        return
+
+        const data = await response.json();
+
+        if (data.data?.file_name && data.data?.url) {
+            const fileObj = filesArray.find(f => f.name === data.data.file_name);
+            if (fileObj) {
+                fileObj.url = data.data.url;
+            }
+        }
     } catch (error) {
-        return;
+        console.error("File upload error:", error);
     }
 }
 
@@ -1197,7 +1208,7 @@ function showError(text) {
     errorDiv.classList.remove("hidden");
     setTimeout(() => {
         errorDiv.classList.add("hidden");
-    }, 5000);
+    }, 3000);
 }
 
 document.addEventListener("click", function (e) {
@@ -1638,8 +1649,8 @@ socket.addEventListener("message", (event) => {
             break;
         case "file":
             if (receivedData.data.shared_by !== userData.username) {
+                handleReceivedFilesUpload(receivedData);
                 showMessage(`${receivedData.data.shared_by} shared file`);
-                handleReceivedFileUpload(receivedData.data);
             } else {
                 showMessage("Shared File successfully");
             }
@@ -1724,12 +1735,6 @@ socket.addEventListener("message", (event) => {
                 showMessage(`You deleted ${receivedData.data.file_name}`);
             }
             break;
-        case "closeRoom":
-            showMessage("The room time has expired. Closing the room now.")
-            setTimeout(() => {
-                window.location.href = "./index.html";
-            }, 5000);
-            break;
         case "block":
             if (receivedData.data.blocked_username === userData.username) {
                 blockedUser();
@@ -1763,8 +1768,10 @@ function updateUser(data) {
 
 function updateRemovedUser(data, str) {
     if (str === "closed") {
-        showMessage(data.message);
-        window.location.href = "./index.html";
+        showMessage("Room is closing")
+        setTimeout(() => {
+            window.location.href = "./index.html";
+        }, 500);
         return;
     }
     if (data.username === userData.username) {
@@ -1950,13 +1957,10 @@ async function removeUserFromRoom() {
 }
 
 leave.addEventListener("click", async () => {
+    leaveRoom.classList.remove("flex");
+    leaveRoom.classList.add("hidden");
+    document.body.style.overflow = "auto";
     const success = await removeUserFromRoom();
-
-    if (success) {
-        leaveRoom.classList.remove("flex");
-        leaveRoom.classList.add("hidden");
-        document.body.style.overflow = "auto";
-    }
 });
 
 
@@ -2147,11 +2151,12 @@ async function closeRoom() {
     const requestData = {
         code: roomData.code,
         username: userData.username,
-        user_id: userData.userId
+        user_id: userData.userId,
+        role: userData.role
     };
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/room/closeRoom', {
+        const response = await fetch('http://127.0.0.1:8000/room/leaveRoom', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2531,46 +2536,48 @@ async function blockedUser() {
     }
 }
 
-function handleReceivedFileUpload(data) {
-    let fileName = data.file_name;
-    let fileSize = data.file_size;
-    let fileUrl = data.file_url;
-    let fileId = data.file_id;
+function handleReceivedFilesUpload(response) {
+    let files = response.data.files;
 
-    let availableSlots = maxFiles - filesArray.length;
-    let currentTotalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
-    let validFiles = [];
+    files.forEach(fileData => {
+        let fileName = fileData.file_id;
+        let fileSize = fileData.file_size || 0; 
+        let fileUrl = fileData.file_url || ""; 
 
-    if (availableSlots <= 0) {
-        showMessage("File limit reached. Cannot add more files.");
-        return;
-    }
+        let availableSlots = maxFiles - filesArray.length;
+        let currentTotalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
 
-    let isDuplicate = filesArray.some(file => file.name === fileName && file.size === fileSize);
-    let isAlreadyDisplayed = [...fileList.children].some(fileItem => {
-        let displayedName = fileItem.querySelector("span").textContent.trim();
-        let fileSizeElement = fileItem.querySelector("span[class*='text-'][class*='sm:text-sm']");
+        if (availableSlots <= 0) {
+            showMessage("File limit reached. Cannot add more files.");
+            return;
+        }
 
-        if (!fileSizeElement) return false;
+        let isDuplicate = filesArray.some(file =>
+            file.name === fileName && file.size === fileSize
+        );
 
-        let displayedSize = fileSizeElement.textContent.trim();
-        return displayedName === fileName && displayedSize === formatSize(fileSize);
+        if (isDuplicate) {
+            showMessage(`"${fileName}" is already added.`);
+            return;
+        }
+
+        if (currentTotalSize + fileSize > maxTotalSize) {
+            showMessage(`Adding "${fileName}" exceeds the 500MB total size limit.`);
+            return;
+        }
+
+        let newFile = {
+            name: fileName,
+            size: fileSize,
+            url: fileUrl,
+            uploadTime: Date.now()
+        };
+
+        filesArray.push(newFile);
+        showMessage(`Received "${fileName}"`);
     });
 
-    if (isDuplicate || isAlreadyDisplayed) {
-        showMessage(`"${fileName}" is already added.`);
-    } else if (currentTotalSize + fileSize > maxTotalSize) {
-        showMessage(`Adding "${fileName}" exceeds the 500MB total size limit.`);
-    } else {
-        let newFile = { name: fileName, size: fileSize, url: fileUrl, uploadTime: Date.now() };
-        validFiles.push(newFile);
-        currentTotalSize += fileSize;
-    }
-
-    if (validFiles.length > 0) {
-        filesArray.push(...validFiles);
-        updateFileDisplay(data);
-    }
+    updateFileDisplay();
 }
 
 async function getFile() {
@@ -2593,11 +2600,7 @@ async function getFile() {
         }
 
         const data = await response.json();
-        if (Array.isArray(data.data.files) && data.data.files.length > 0) {
-            data.data.files.forEach((item) => {
-                handleReceivedFileUpload(item);
-            });
-        }
+        handleReceivedFilesUpload(data)
     } catch (error) {
         console.error("Error fetching file:", error);
         return null;

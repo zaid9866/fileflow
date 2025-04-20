@@ -19,6 +19,8 @@ from middlewares.additonalProtection import AdditionalEncryption
 from middlewares.encryption import EncryptionMiddleware
 from middlewares.decryption import DecryptionMiddleware
 from controllers.broadcast_controller import websocket_manager
+from utils.cloudinary import delete_file as delete_file_from_cloudinary
+from utils.serviceDrive import delete_file_from_drive
 
 def generate_random_code(length=6):
     chars = string.ascii_letters + string.digits  
@@ -176,7 +178,7 @@ async def leave_room(request, db: Session):
 
         existing_user = db.query(User).filter(
             User.username == request.username,
-            User.user_id == request.userId, 
+            User.user_id == request.userId,
             User.code == request.code
         ).first()
 
@@ -188,12 +190,33 @@ async def leave_room(request, db: Session):
             raise APIError(status_code=404, detail="Room not found.")
 
         if request.role == "Host":
+            files = db.query(File).filter(File.code == request.code).all()
+            encryption_key = AdditionalEncryption.decrypt_key(room.encryption_key)
+
+            for f in files:
+                try:
+                    decrypted_content = DecryptionMiddleware.decrypt({
+                        "file_id": f.content_id
+                    }, encryption_key)
+                    decrypted_file_id = decrypted_content.get("file_id")
+
+                    if decrypted_file_id:
+                        try:
+                            delete_file_from_cloudinary(decrypted_file_id)
+                            delete_file_from_drive(decrypted_file_id)
+                        except Exception:
+                            pass  
+                except Exception as e:
+                    print(f"Failed to decrypt file_id for file {f.id}: {e}")
+                    continue
+
             db.query(Chat).filter(Chat.code == request.code).delete()
             db.query(File).filter(File.code == request.code).delete()
             db.query(User).filter(User.code == request.code).delete()
             db.query(TextModel).filter(TextModel.code == request.code).delete()
             db.query(Room).filter(Room.code == request.code).delete()
             db.commit()
+
             response = {
                 "room": request.code,
                 "type": "roomClosed",
@@ -206,6 +229,7 @@ async def leave_room(request, db: Session):
                 room.current_participant -= 1
             db.delete(existing_user)
             db.commit()
+
             response = {
                 "room": request.code,
                 "type": "userLeft",
@@ -221,11 +245,14 @@ async def leave_room(request, db: Session):
 
         return APIResponse.success(
             message="User left successfully.",
-            data={"username": request.username, "current_participants": room.current_participant if request.role != "Host" else 0}
+            data={
+                "username": request.username,
+                "current_participants": room.current_participant if request.role != "Host" else 0
+            }
         )
 
     except APIError as e:
-        raise e  
+        raise e
     except Exception as e:
         print("Unexpected Error:", str(e))
         db.rollback()

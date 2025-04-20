@@ -138,7 +138,7 @@ async def save_file(db: Session, room_code: str, user_id: str, file_url: str, fi
     except Exception as e:
         print(f"Broadcast error: {str(e)}")
     
-    return APIResponse.success(message="File uploaded successfully.", data={"username": username, "file_name": file_name})
+    return APIResponse.success(message="File uploaded successfully.", data={"username": username, "file_name": file_name, "url": file_url})
 
 async def get_file(db: Session, room_code: str, username: str, user_id: str):
     room = db.query(Room).filter(Room.code == room_code).first()
