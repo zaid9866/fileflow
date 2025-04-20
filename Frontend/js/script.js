@@ -739,7 +739,8 @@ if (URLRoomCode) {
 window.onload = function () {
     const params = new URLSearchParams(window.location.search);
     const rawURL = params.get("url");
-    const fileName = params.get("name") || "file"; 
+
+    const fileName = rawURL ? rawURL.split('/').pop() : "file"; 
 
     if (rawURL) {
         const decodedURL = decodeURIComponent(rawURL);
@@ -753,14 +754,13 @@ window.onload = function () {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = fileName;
+                a.download = fileName; 
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
             })
             .catch(error => {
-                console.error("Download failed:", error);
                 alert("File not found or has been deleted.");
             });
     } 
