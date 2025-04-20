@@ -26,7 +26,6 @@ class WebSocketManager:
             del self.user_sockets[username]
     async def broadcast(self, code: str, message: str):
         if code in self.rooms:
-            print(f"Broadcasting to room {code}, total clients: {len(self.rooms[code])}")
             await asyncio.gather(*[
             ws.send_text(message) for ws in self.rooms[code]
         ])

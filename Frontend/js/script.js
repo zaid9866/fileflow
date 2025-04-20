@@ -685,7 +685,7 @@ document.getElementById("codeInput").addEventListener("input", function () {
 async function joinRoom(code) {
     let inputValue = code.trim();
     handleCode.setRoomCode(inputValue);
-    
+
     if (inputValue.length === 6) {
         try {
             let response = await fetch("http://127.0.0.1:8000/room/joinRoom", {
@@ -695,7 +695,7 @@ async function joinRoom(code) {
             });
 
             let data = await response.json();
-            
+
             if (data.detail) {
                 alert(data.detail);
             }
@@ -734,4 +734,34 @@ if (URLRoomCode) {
     const codeInput = document.getElementById("codeInput");
     codeInput.value = URLRoomCode;
     joinRoom(URLRoomCode);
+}
+
+window.onload = function () {
+    const params = new URLSearchParams(window.location.search);
+    const rawURL = params.get("url");
+    const fileName = params.get("name") || "file"; 
+
+    if (rawURL) {
+        const decodedURL = decodeURIComponent(rawURL);
+
+        fetch(decodedURL)
+            .then(response => {
+                if (!response.ok) throw new Error("File not found");
+                return response.blob();
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error("Download failed:", error);
+                alert("File not found or has been deleted.");
+            });
+    } 
 }

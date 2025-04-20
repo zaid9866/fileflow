@@ -83,8 +83,8 @@ function disableUnloadWarning() {
     }
 }
 
-document.addEventListener("click", enableUnloadWarning);
-document.addEventListener("keydown", enableUnloadWarning);
+// document.addEventListener("click", enableUnloadWarning);
+// document.addEventListener("keydown", enableUnloadWarning);
 
 window.addEventListener("DOMContentLoaded", function () {
     if (sessionStorage.getItem("redirectToIndex") === "true" && sessionStorage.getItem("redirectHandled") !== "true") {
@@ -97,7 +97,7 @@ window.addEventListener("DOMContentLoaded", function () {
         sessionStorage.removeItem("redirectToIndex");
         setTimeout(() => {
             window.location.href = "./index.html";
-        }, 100);
+        }, 1000);
     } else {
         sessionStorage.removeItem("redirectHandled");
     }
@@ -775,10 +775,13 @@ async function updateFileDisplay() {
                 </div>
                 <div class="flex flex-col gap-2 items-center justify-center">
                     <div class="flex gap-3 items-center">
-                        <button class="text-emerald-500 hover:text-emerald-600 text-xs sm:text-sm" onclick="downloadFile(${index})">
+                        <button class="text-blue-500 hover:text-blue-600 text-sm sm:text-base" onclick="shareFile(${index})">
+                            <i class="fa-solid fa-share-alt"></i>
+                        </button>
+                        <button class="text-emerald-500 hover:text-emerald-600 text-sm sm:text-base" onclick="downloadFile(${index})">
                             <i class="fa-solid fa-download"></i>
                         </button>
-                        <button onclick="removeFile(event, ${index})" id="${file.name}" class="text-red-500 hover:text-red-600 text-xs sm:text-sm">
+                        <button onclick="removeFile(event, ${index})" id="${file.name}" class="text-red-500 hover:text-red-600 text-sm sm:text-base">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -817,7 +820,6 @@ function removeFile(event, index) {
 
 function downloadFile(index) {
     const file = filesArray[index];
-
     if (file.url) {
         fetch(file.url)
             .then(response => response.blob())
@@ -844,10 +846,37 @@ function downloadFile(index) {
     }
 }
 
+function shareFile(index) {
+    const file = filesArray[index];
+    if (!file.url) return;
+    let shareURL = file.url;
+    if (shareURL.includes("res.cloudinary.com")) {
+        shareURL = shareURL.replace("/upload/", "/upload/fl_attachment/");
+    }
+    if (shareURL.includes("drive.google.com")) {
+        const match = shareURL.match(/\/d\/(.*?)\//);
+        if (match && match[1]) {
+            const fileId = match[1];
+            shareURL = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        }
+    }
+    const encodedURL = encodeURIComponent(shareURL);
+    const redirectURL = `https://zaid9866.github.io/fileflow/Frontend/html/index.html?url=${encodedURL}`;
+    window.currentShareURL = redirectURL;
+    document.getElementById("qrcode").innerHTML = "";
+    new QRCode(document.getElementById("qrcode"), {
+        text: redirectURL,
+        width: 200,
+        height: 200
+    });
+    document.getElementById("showURL").classList.remove("hidden");
+    document.getElementById("showURL").classList.add("flex");
+}
+
 function handleFileUpload(input, event) {
     if (event) {
         event.preventDefault();
-        event.stopPropagation(); 
+        event.stopPropagation();
     }
     let newFiles = Array.from(input.files);
     let availableSlots = maxFiles - filesArray.length;
@@ -1624,12 +1653,14 @@ socket.addEventListener("message", (event) => {
             }
             break;
         case "removeUser":
+            disableUnloadWarning();
             updateRemovedUser(receivedData.data, "removed");
             break;
         case "userLeft":
             updateRemovedUser(receivedData.data, "left");
             break;
         case "roomClosed":
+            disableUnloadWarning();
             updateRemovedUser(receivedData.data, "closed");
             break;
         case "joinRequest":
@@ -1678,7 +1709,7 @@ socket.addEventListener("message", (event) => {
             updateRestriction(receivedData.data);
             break;
         case "file_deleted":
-            if (receivedData.data.deleted_by!==userData.username) {
+            if (receivedData.data.deleted_by !== userData.username) {
                 const deletedFileName = receivedData.data.file_name;
                 filesArray = filesArray.filter(file => file.name !== deletedFileName);
                 const allFileDivs = document.querySelectorAll("[data-file-name]");
@@ -1689,7 +1720,7 @@ socket.addEventListener("message", (event) => {
                 });
                 showMessage(`${receivedData.data.deleted_by} has deleted ${receivedData.data.file_name}`);
                 updateFileDisplay();
-            }else{
+            } else {
                 showMessage(`You deleted ${receivedData.data.file_name}`);
             }
             break;
@@ -1697,7 +1728,7 @@ socket.addEventListener("message", (event) => {
             showMessage("The room time has expired. Closing the room now.")
             setTimeout(() => {
                 window.location.href = "./index.html";
-            }, 5000);            
+            }, 5000);
             break;
         case "block":
             if (receivedData.data.blocked_username === userData.username) {
@@ -2400,15 +2431,16 @@ async function getText() {
     }
 }
 
-const url = `http://127.0.0.1:5500/Frontend/html/index.html?room_code=${roomData.code}`;
-new QRCode(document.getElementById("qrcode"), {
-    text: url,
-    width: 200,
-    height: 200
-});
-
 document.querySelectorAll(".share-room").forEach((btn) => {
     btn.addEventListener("click", () => {
+        const url = `http://127.0.0.1:5500/Frontend/html/index.html?room_code=${roomData.code}`;
+        window.currentShareURL = url;
+        document.getElementById("qrcode").innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), {
+            text: url,
+            width: 200,
+            height: 200
+        });
         document.getElementById("showURL").classList.remove("hidden");
         document.getElementById("showURL").classList.add("flex");
     });
@@ -2424,11 +2456,15 @@ function hideModal() {
 document.getElementById("qrcode").addEventListener("click", copyURL);
 
 function copyURL() {
-    navigator.clipboard.writeText(url).then(() => {
-        showMessage("URL copied to clipboard!")
-    }).catch(err => {
-        showError("Failed to copy URL");
-    });
+    if (window.currentShareURL) {
+        navigator.clipboard.writeText(window.currentShareURL).then(() => {
+            showMessage("URL copied to clipboard!");
+        }).catch(err => {
+            showError("Failed to copy URL");
+        });
+    } else {
+        showError("URL not found!");
+    }
 }
 
 async function blockUser() {
