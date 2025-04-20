@@ -558,7 +558,11 @@ document.getElementById("username").addEventListener("input", function () {
     }
 });
 
-document.getElementById("enter-room").addEventListener("click", async (event) => {
+document.getElementById("enter-room").addEventListener("click", function (event) {
+    EnterRoom(event);
+});
+
+async function EnterRoom(event) {
     const username = document.getElementById("username").value.trim();
     const roomCode = handleCode.getRoomCode();
     event.preventDefault();
@@ -587,7 +591,7 @@ document.getElementById("enter-room").addEventListener("click", async (event) =>
         console.error("Error verifying username:", error);
         alert(error.message || "Error verifying username");
     }
-});
+}
 
 function startSocket(username, roomCode) {
     const encodedUsername = encodeURIComponent(username);
@@ -739,29 +743,58 @@ if (URLRoomCode) {
 window.onload = function () {
     const params = new URLSearchParams(window.location.search);
     const rawURL = params.get("url");
-
-    const fileName = rawURL ? rawURL.split('/').pop() : "file"; 
+    let fileName = "file";
 
     if (rawURL) {
         const decodedURL = decodeURIComponent(rawURL);
 
-        fetch(decodedURL)
-            .then(response => {
-                if (!response.ok) throw new Error("File not found");
-                return response.blob();
-            })
-            .then(blob => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = fileName; 
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            })
-            .catch(error => {
-                alert("File not found or has been deleted.");
-            });
-    } 
+        if (decodedURL.includes("res.cloudinary.com")) {
+            const lastPart = decodedURL.split('/').pop();
+            const parts = lastPart.split('_');
+            fileName = parts.length > 1 ? parts[1] : lastPart;
+
+            fetch(decodedURL)
+                .then(response => {
+                    if (!response.ok) throw new Error("File not found");
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    alert("File not found or has been deleted.");
+                });
+
+        } else if (decodedURL.includes("drive.google.com")) {
+            const now = new Date();
+            const timestamp = now.toISOString().replace(/[:.]/g, '-').replace('T', '_').split('Z')[0];
+            fileName = `file_${timestamp}`;
+
+            const a = document.createElement("a");
+            a.href = decodedURL;
+            a.target = "_blank";
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
 }
+
+const usernameSection = document.getElementById('display-username');
+const usernameForm = document.getElementById('username-form');
+const enterRoomButton = document.getElementById('enter-room');
+
+document.addEventListener('keydown', function (event) {
+    const isFormVisible = !usernameSection.classList.contains('hidden');
+    if (isFormVisible && event.key === 'Enter') {
+        EnterRoom(event);
+    }
+});
