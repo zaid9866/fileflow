@@ -60,6 +60,54 @@ let userData = JSON.parse(sessionStorage.getItem('userData'));
 let UserName = document.querySelectorAll(".username");
 localStorage.setItem("roomMode", "dark");
 
+let unloadWarningEnabled = false;
+let unloadHandler = function (event) {
+    event.preventDefault();
+    event.returnValue = '';
+    if (!sessionStorage.getItem("redirectHandled")) {
+        sessionStorage.setItem("redirectToIndex", "true");
+    }
+};
+
+function enableUnloadWarning() {
+    if (!unloadWarningEnabled) {
+        window.addEventListener("beforeunload", unloadHandler);
+        unloadWarningEnabled = true;
+    }
+}
+
+function disableUnloadWarning() {
+    if (unloadWarningEnabled) {
+        window.removeEventListener("beforeunload", unloadHandler);
+        unloadWarningEnabled = false;
+    }
+}
+
+document.addEventListener("click", enableUnloadWarning);
+document.addEventListener("keydown", enableUnloadWarning);
+
+window.addEventListener("DOMContentLoaded", function () {
+    if (sessionStorage.getItem("redirectToIndex") === "true" && sessionStorage.getItem("redirectHandled") !== "true") {
+        sessionStorage.setItem("redirectHandled", "true");
+        if (typeof userData !== "undefined" && userData.role === "Host") {
+            closeRoom();
+        } else {
+            removeUserFromRoom();
+        }
+        sessionStorage.removeItem("redirectToIndex");
+        setTimeout(() => {
+            window.location.href = "./index.html";
+        }, 100);
+    } else {
+        sessionStorage.removeItem("redirectHandled");
+    }
+
+    if (!sessionStorage.getItem("firstVisit")) {
+        sessionStorage.setItem("firstVisit", "true");
+        sessionStorage.removeItem("redirectToIndex");
+    }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     if (localStorage.getItem("roomMode") === "dark") {
         darkMode();
@@ -714,7 +762,6 @@ function formatSize(size) {
 
 async function updateFileDisplay() {
     let totalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
-    alert("File display 1")
     filesArray.forEach((file, index) => {
         if (![...fileList.children].some(el => el.dataset.fileName === file.name)) {
             const fileItem = document.createElement("div");
@@ -741,7 +788,6 @@ async function updateFileDisplay() {
 
             fileList.appendChild(fileItem);
         }
-        alert("File display end")
     });
 
     fileLimitDisplay.textContent = `Max Files: ${maxFiles}, Added: ${filesArray.length}/${maxFiles} | Max Total Size: 500MB, Used: ${formatSize(totalSize)}`;
@@ -799,45 +845,29 @@ function downloadFile(index) {
 }
 
 function handleFileUpload(input, event) {
-    alert("Inside file 1")
-
     if (event) {
         event.preventDefault();
-        event.stopPropagation(); // Also stop propagation
+        event.stopPropagation(); 
     }
-
     let newFiles = Array.from(input.files);
-    alert("Inside file 2")
     let availableSlots = maxFiles - filesArray.length;
     let currentTotalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
     let validFiles = [];
-
-    alert("Inside file 3")
-
     if (newFiles.length > availableSlots) {
         showMessage(`Only ${availableSlots} more files can be uploaded.`);
         newFiles = newFiles.slice(0, availableSlots);
     }
-
-    alert("INside file 4")
-
     newFiles.forEach(file => {
-        alert("file looo 1")
         let isDuplicate = filesArray.some(existingFile =>
             existingFile.name === file.name && existingFile.size === file.size
         );
-        alert("Fle loop 2")
         let isAlreadyDisplayed = [...fileList.children].some(fileItem => {
             let fileName = fileItem.querySelector("span").textContent.trim();
             let fileSizeElement = fileItem.querySelector("span[class*='text-'][class*='sm:text-sm']");
-
-            alert("File loop 3")
             if (!fileSizeElement) return false;
-
             let fileSize = fileSizeElement.textContent.trim();
             return fileName === file.name && fileSize === formatSize(file.size);
         });
-        alert("File loop 4")
         if (isDuplicate || isAlreadyDisplayed) {
             showMessage(`"${file.name}" is already added.`);
         } else if (currentTotalSize + file.size > maxTotalSize) {
@@ -848,33 +878,25 @@ function handleFileUpload(input, event) {
             currentTotalSize += file.size;
         }
     });
-
-    alert("Inside file 5")
     if (validFiles.length > 0) {
         filesArray.push(...validFiles);
         updateFileDisplay();
-        alert("file loop 8")
-        const alp = "Ola"
-        console.log(event)
         processFiles(validFiles)
         showMessage("Sharing File...");
     }
 }
 
 function processFiles(files) {
-
     files.forEach(file => uploadFile(file));
 }
 
 fileInput.addEventListener("change", (e) => {
     e.preventDefault();
-    alert("File 1")
     handleFileUpload(fileInput, e);
     return false;
 });
 moreFileInput.addEventListener("change", (e) => {
     e.preventDefault();
-    alert("File  2")
     handleFileUpload(moreFileInput, e);
     return false;
 });
@@ -907,6 +929,24 @@ function handleDrop(event) {
 }
 
 addMoreBtn.addEventListener("click", () => moreFileInput.click());
+
+async function uploadFile(file) {
+    let userData = JSON.parse(sessionStorage.getItem('userData'));
+    const formData = new FormData();
+    formData.append("room_code", roomData.code);
+    formData.append("user_id", userData.userId);
+    formData.append("username", userData.username);
+    formData.append("file", file);
+    try {
+        const response = await fetch("http://127.0.0.1:8000/file/uploadFile", {
+            method: "POST",
+            body: formData
+        });
+        return
+    } catch (error) {
+        return;
+    }
+}
 
 document.getElementById("add-text").addEventListener("click", addNewTextField);
 
@@ -1655,7 +1695,10 @@ socket.addEventListener("message", (event) => {
             break;
         case "closeRoom":
             showMessage("The room time has expired. Closing the room now.")
-            setTimeout(window.location.href = "./index.html", 5000)
+            setTimeout(() => {
+                window.location.href = "./index.html";
+            }, 5000);            
+            break;
         case "block":
             if (receivedData.data.blocked_username === userData.username) {
                 blockedUser();
@@ -2097,28 +2140,6 @@ async function closeRoom() {
     }
 }
 
-async function uploadFile(file) {
-
-    alert("upload file 1")
-    let userData = JSON.parse(sessionStorage.getItem('userData'));
-    const formData = new FormData();
-    formData.append("room_code", roomData.code);
-    formData.append("user_id", userData.userId);
-    formData.append("username", userData.username);
-    formData.append("file", file);
-    alert("upload file 2")
-    try {
-        const response = await fetch("http://127.0.0.1:8000/file/uploadFile", {
-            method: "POST",
-            body: formData
-        });
-
-        return
-    } catch (error) {
-        return;
-    }
-}
-
 async function increaseTextField(id) {
     let userData = JSON.parse(sessionStorage.getItem('userData'));
     try {
@@ -2409,45 +2430,6 @@ function copyURL() {
         showError("Failed to copy URL");
     });
 }
-
-function enableUnloadWarning() {
-    window.addEventListener("beforeunload", function (event) {
-        event.preventDefault();
-        event.returnValue = '';
-
-        if (!sessionStorage.getItem("redirectHandled")) {
-            sessionStorage.setItem("redirectToIndex", "true");
-        }
-    });
-}
-
-document.addEventListener("click", enableUnloadWarning);
-document.addEventListener("keydown", enableUnloadWarning);
-
-window.addEventListener("DOMContentLoaded", function () {
-    if (sessionStorage.getItem("redirectToIndex") === "true" && sessionStorage.getItem("redirectHandled") !== "true") {
-        sessionStorage.setItem("redirectHandled", "true");
-
-        if (typeof userData !== "undefined" && userData.role === "Host") {
-            closeRoom();
-        } else {
-            removeUserFromRoom();
-        }
-
-        sessionStorage.removeItem("redirectToIndex");
-
-        setTimeout(() => {
-            window.location.href = "./index.html";
-        }, 100);
-    } else {
-        sessionStorage.removeItem("redirectHandled");
-    }
-
-    if (!sessionStorage.getItem("firstVisit")) {
-        sessionStorage.setItem("firstVisit", "true");
-        sessionStorage.removeItem("redirectToIndex");
-    }
-});
 
 async function blockUser() {
     let userData = JSON.parse(sessionStorage.getItem('userData'));

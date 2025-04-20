@@ -74,27 +74,18 @@ def write_file(file, temp_file_path):
         f.write(file.file.read())
 
 async def upload_to_google_drive(db: Session, room_code: str, user_id: str, file: UploadFile, encryption_key, file_size, file_name):
-    print("1")
-    temp_folder = os.path.join(os.getcwd(), "Backend", "public", "temp")
+    temp_folder = os.path.join(os.environ["TEMP"], "my_temp_files")
     os.makedirs(temp_folder, exist_ok=True)
     temp_file_path = os.path.join(temp_folder, file.filename)
-    print(2)
-
     await run_in_threadpool(write_file, file, temp_file_path)
-    print("Read end")
-
     try:
-        print("upload start")
         google_drive_file_id = await upload_to_drive(temp_file_path, file.content_type)
         if not google_drive_file_id:
             raise Exception("Google Drive upload failed - no file ID returned.")
-        print(f"Upload successful: {google_drive_file_id}")
-
         file_url = f"https://drive.google.com/uc?id={google_drive_file_id}&export=download"
         file_id = f"{room_code}_{google_drive_file_id}"
         return await save_file(db, room_code, user_id, file_url, file_id, encryption_key, file_size, file_name)
     except Exception as e:
-        print(f"Upload exception: {str(e)}")
         raise APIError(status_code=500, detail=f"Google Drive upload failed: {str(e)}")
     finally:
         os.remove(temp_file_path)
@@ -144,8 +135,8 @@ async def save_file(db: Session, room_code: str, user_id: str, file_url: str, fi
     try:
         if hasattr(websocket_manager, "broadcast") and callable(websocket_manager.broadcast):
             await websocket_manager.broadcast(room_code, json.dumps(response))
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Broadcast error: {str(e)}")
     
     return APIResponse.success(message="File uploaded successfully.", data={"username": username, "file_name": file_name})
 

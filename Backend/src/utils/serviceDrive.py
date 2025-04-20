@@ -33,34 +33,34 @@ def set_file_public(drive_service, file_id):
         ).execute()
     except Exception as e:
         raise APIError(status_code=500, detail=f"Failed to set file permissions: {str(e)}")
-
-def _upload_to_drive_sync(file_path: str, mime_type: str):
+async def upload_to_drive(file_path: str, mime_type: str):
     try:
         drive_service = get_drive_service()
-
         file_metadata = {
             "name": os.path.basename(file_path),
             "parents": [FOLDER_ID]
         }
-
         media = MediaFileUpload(file_path, mimetype=mime_type)
-
-        uploaded_file = drive_service.files().create(
-            body=file_metadata,
-            media_body=media,
-            fields="id"
-        ).execute()
-
+        try:
+            uploaded_file = drive_service.files().create(
+                body=file_metadata,
+                media_body=media,
+                fields="id"
+            ).execute()
+        except Exception as e:
+            print(f"Error during Google Drive file upload: {e}")
+            return None
         file_id = uploaded_file.get("id")
-        set_file_public(drive_service, file_id)
-
+        try:
+            set_file_public(drive_service, file_id)
+        except Exception as e:
+            print(f"Error setting file public: {e}")
+            return None
         return file_id
 
     except Exception as e:
-        raise APIError(status_code=500, detail=f"Google Drive upload failed: {str(e)}")
-
-async def upload_to_drive(file_path: str, mime_type: str):
-    return await run_in_threadpool(_upload_to_drive_sync, file_path, mime_type)
+        print(f"Drive upload error (outer catch): {e}")
+        return None
 
 def delete_file_from_drive(file_id: str):
     try:

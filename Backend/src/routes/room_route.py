@@ -43,11 +43,6 @@ class ChangeRestriction(BaseModel):
     user_id: str
     new_restrict: bool
 
-class ClosingRoom(BaseModel):
-    code: str
-    username: str
-    user_id: str
-
 class BlockUserRequest(BaseModel):
     code: str
     username: str
@@ -133,15 +128,6 @@ async def change_restriction(request: ChangeRestriction, db: Session = Depends(g
         request.username,
         request.user_id,
         request.new_restrict
-    )
-
-@room_router.post("/closeRoom")
-async def close_room(request: ClosingRoom, db: Session = Depends(get_db)):
-    return await room_controller.close_room(
-        request.code,
-        db,
-        request.username,
-        request.user_id
     )
 
 @room_router.post("/blockUser")

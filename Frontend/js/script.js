@@ -606,6 +606,7 @@ function startSocket(username, roomCode) {
         }
     };
 }
+
 async function handleRestrictedRoom(username, roomCode) {
     closeDisplayName();
     startSocket(username, roomCode);
