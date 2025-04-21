@@ -773,7 +773,7 @@ async function updateFileDisplay() {
             fileItem.innerHTML = `
                 <div class="flex flex-col gap-2 items-start w-[70%]">
                     <span class="text-sm sm:text-base font-medium truncate w-full overflow-hidden whitespace-nowrap text-ellipsis">${file.name}</span>
-                    <span class="text-xs sm:text-sm">You</span>
+                    <span class="text-xs sm:text-sm">${file.shared_by || "You"}</span>
                 </div>
                 <div class="flex flex-col gap-2 items-center justify-center">
                     <div class="flex gap-3 items-center">
@@ -1649,7 +1649,7 @@ socket.addEventListener("message", (event) => {
             break;
         case "file":
             if (receivedData.data.shared_by !== userData.username) {
-                handleReceivedFilesUpload(receivedData);
+                handleReceivedFilesUpload([receivedData.data]);
                 showMessage(`${receivedData.data.shared_by} shared file`);
             } else {
                 showMessage("Shared File successfully");
@@ -2536,47 +2536,17 @@ async function blockedUser() {
     }
 }
 
-function handleReceivedFilesUpload(response) {
-    let files = response.data.files;
-
-    files.forEach(fileData => {
-        let fileName = fileData.file_id;
-        let fileSize = fileData.file_size || 0; 
-        let fileUrl = fileData.file_url || ""; 
-
-        let availableSlots = maxFiles - filesArray.length;
-        let currentTotalSize = filesArray.reduce((sum, file) => sum + file.size, 0);
-
-        if (availableSlots <= 0) {
-            showMessage("File limit reached. Cannot add more files.");
-            return;
-        }
-
-        let isDuplicate = filesArray.some(file =>
-            file.name === fileName && file.size === fileSize
-        );
-
-        if (isDuplicate) {
-            showMessage(`"${fileName}" is already added.`);
-            return;
-        }
-
-        if (currentTotalSize + fileSize > maxTotalSize) {
-            showMessage(`Adding "${fileName}" exceeds the 500MB total size limit.`);
-            return;
-        }
-
+function handleReceivedFilesUpload(data) {
+    data.forEach(file => {
         let newFile = {
-            name: fileName,
-            size: fileSize,
-            url: fileUrl,
-            uploadTime: Date.now()
+            name: file.file_name,
+            size: file.file_size,
+            url: file.url,
+            shared_by: file.shared_by
         };
-
         filesArray.push(newFile);
-        showMessage(`Received "${fileName}"`);
+        showMessage(`Received "${file.file_name}"`);
     });
-
     updateFileDisplay();
 }
 
@@ -2600,7 +2570,7 @@ async function getFile() {
         }
 
         const data = await response.json();
-        handleReceivedFilesUpload(data)
+        handleReceivedFilesUpload(data.data.files)
     } catch (error) {
         console.error("Error fetching file:", error);
         return null;
