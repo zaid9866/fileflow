@@ -2151,7 +2151,7 @@ async function closeRoom() {
     const requestData = {
         code: roomData.code,
         username: userData.username,
-        user_id: userData.userId,
+        userId: userData.userId,
         role: userData.role
     };
 

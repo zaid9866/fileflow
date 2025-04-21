@@ -163,17 +163,18 @@ async def get_file(db: Session, room_code: str, username: str, user_id: str):
             "file_id": file.content_id,
             "file_url": file.url,
             "file_name": file.file_name,
-            "file_size": file.file_size
+            "file_size": file.file_size,
+            "shared_by": file.shared_by
         }
 
         decrypted = DecryptionMiddleware.decrypt(encrypted_fields, encryption_key)
-        
+
         file_data.append({
             "file_id": decrypted.get("file_id"),
             "file_url": decrypted.get("file_url"),
             "file_name": decrypted.get("file_name"),
             "file_size": decrypted.get("file_size"),
-            "shared_by": file.shared_by
+            "shared_by": decrypted.get("shared_by")
         })
 
     return APIResponse.success(message="Files fetched successfully.", data={"files": file_data})
